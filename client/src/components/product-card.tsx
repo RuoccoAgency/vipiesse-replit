@@ -62,11 +62,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </Link>
         
-        {/* Quick Add Overlay */}
-        <div className={`absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-4 translate-y-full transition-transform duration-300 ease-in-out ${isHovered ? 'translate-y-0' : ''}`}>
+        {/* Quick Add Overlay - Always visible on mobile, hover on desktop */}
+        <div className={`absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-4 transition-transform duration-300 ease-in-out md:translate-y-full md:${isHovered ? 'translate-y-0' : ''}`}>
           <div className="flex gap-2">
             <Select value={selectedSize} onValueChange={setSelectedSize}>
-              <SelectTrigger className="h-9 bg-transparent border-gray-300 rounded-none text-xs">
+              <SelectTrigger className="h-9 bg-transparent border-gray-300 rounded-full text-xs">
                 <SelectValue placeholder="Taglia" />
               </SelectTrigger>
               <SelectContent>
@@ -77,7 +77,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </Select>
             <Button 
               size="sm" 
-              className="h-9 bg-black text-white hover:bg-neutral-800 rounded-none disabled:opacity-50"
+              className="h-9 bg-black text-white hover:bg-neutral-800 rounded-full disabled:opacity-50"
               disabled={!selectedSize}
               onClick={handleAddToCart}
             >
