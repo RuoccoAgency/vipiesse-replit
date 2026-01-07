@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 
-export function CartDrawer() {
+export function CartDrawer({ triggerClassName }: { triggerClassName?: string }) {
   const { items, removeFromCart, updateQuantity, subtotal, shippingCost, total, itemsCount } = useCart();
   const [open, setOpen] = useState(false);
   const [, setLocation] = useLocation();
@@ -20,10 +20,10 @@ export function CartDrawer() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative hover:bg-gray-100 text-black">
-          <ShoppingBag className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className={`relative ${triggerClassName || 'hover:bg-gray-100 text-black'}`}>
+          <ShoppingBag className="h-6 w-6" strokeWidth={1.5} />
           {itemsCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-black text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">
               {itemsCount}
             </span>
           )}

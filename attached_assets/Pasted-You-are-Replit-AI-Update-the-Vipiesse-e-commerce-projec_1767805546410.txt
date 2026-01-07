@@ -1,0 +1,54 @@
+You are Replit AI. Update the Vipiesse e-commerce project (Navbar + HeroSlider).
+
+GOAL
+Make the header/navbar transparent on page load (over the hero), then become a white sticky navbar on scroll. Improve HeroSlider layout: full-viewport hero, bigger typography, bigger hamburger icon, arrows centered vertically (left/right), and align navbar items closer to the edges.
+
+1) NAVBAR BEHAVIOR (IMPORTANT)
+- On initial load at the top of the Home page:
+  - Navbar background MUST be transparent (no white bar).
+  - Navbar content (logo, hamburger, links, icons) MUST be visible and readable over the hero.
+- When the user scrolls down (e.g. > 40px):
+  - Navbar becomes sticky and background turns white (#ffffff).
+  - Text/icons switch to dark to maintain contrast.
+  - Add a subtle shadow or border-bottom for separation.
+- When user scrolls back to top:
+  - Navbar returns to transparent state.
+- Smooth transition: 200–300ms.
+
+2) NAVBAR LAYOUT (SPACING)
+- Keep: logo centered.
+- Put the hamburger menu icon on the far left (close to left edge, with padding).
+- Put "Area Business", account icon, and cart icon on the far right (close to right edge, with padding).
+- Increase hamburger icon size ~20–30% compared to now.
+- Ensure icons have consistent sizing/spacing.
+
+3) HERO SLIDER FULL PAGE
+- The hero image must take the full viewport height (100vh) on desktop.
+- On mobile, allow 85–95vh to avoid browser bars issues, but keep it “full screen feel”.
+- No extra spacing above: hero must start behind the transparent navbar (navbar overlays it).
+
+4) HERO TEXT SIZES
+- Increase the main title size (e.g. OUTLET / I PIÙ VENDUTI) noticeably.
+- Increase subtitle size slightly.
+- Keep CTA button prominent.
+
+5) ARROWS POSITION (NOT IN BOTTOM CONTROLS)
+- Move left/right navigation arrows to the vertical center of the hero:
+  - Left arrow centered vertically, positioned near left side.
+  - Right arrow centered vertically, positioned near right side.
+- Make them always visible (with subtle background circle/blur for readability).
+- Keep bottom-right control cluster (play/pause + slide indicator + timer/progress) as-is, but remove arrows from that bottom cluster.
+
+6) "PUT EVERYTHING ALMOST TO THE EDGES"
+- Apply to navbar elements and hero arrows.
+- Use safe padding (e.g. 16–24px) so it’s not glued to the edge.
+
+7) IMPLEMENTATION NOTES
+- If using Tailwind, add a scroll listener (useEffect) to set isScrolled.
+- Navbar component should accept a prop or compute on its own: variant = transparent | solid.
+- HeroSlider should render arrows absolutely positioned within the hero container.
+- Make sure everything remains responsive and accessible (buttons focusable, aria-label for arrows and play/pause).
+
+DELIVERABLE
+- Updated Navbar: transparent at top over hero, becomes white sticky on scroll.
+- Updated Hero: full-screen (100vh), bigger text, arrows centered left/right, hamburger larger, items near edges.

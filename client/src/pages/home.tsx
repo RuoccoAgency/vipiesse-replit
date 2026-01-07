@@ -13,7 +13,7 @@ export function Home() {
       <HeroSlider />
 
       {/* SECTION B: Large Tiles (Donna, Uomo, Bambino) */}
-      <section className="container mx-auto px-4">
+      <section className="container mx-auto px-4 pt-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
           {[
             { title: "Donna", img: CATEGORY_IMAGES.donna, link: "/shop/donna" },

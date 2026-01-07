@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, Search, ShoppingBag, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CartDrawer } from "./cart-drawer";
 import { useCart } from "@/context/cart-context";
 import { useAuth } from "@/context/auth-context";
@@ -12,17 +12,36 @@ export function Navbar() {
   const [location] = useLocation();
   const { itemsCount } = useCart();
   const { user } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Scroll listener for sticky/transparent behavior
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const closeMenu = () => setIsOpen(false);
+  const isHome = location === "/";
+
+  // Transparent behavior only on Home, otherwise always sticky white
+  const isTransparent = isHome && !isScrolled;
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 text-black">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+      isTransparent 
+        ? "bg-transparent text-white border-transparent" 
+        : "bg-white text-black border-b border-gray-100 shadow-sm"
+    }`}>
+      <div className="w-full px-6 md:px-8 h-20 flex items-center justify-between">
         {/* Left: Mobile Menu */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="hover:bg-gray-100 text-black">
-              <Menu className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className={`hover:bg-white/10 ${isTransparent ? 'text-white' : 'text-black'}`}>
+              <Menu className="h-8 w-8" strokeWidth={1.5} /> {/* Increased size */}
               <span className="sr-only">Menu</span>
             </Button>
           </SheetTrigger>
@@ -63,24 +82,29 @@ export function Navbar() {
 
         {/* Center: Logo */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-          <span className="font-heading text-3xl font-bold tracking-tighter cursor-pointer select-none">
+          <span className={`font-heading text-4xl font-bold tracking-tighter cursor-pointer select-none transition-colors ${isTransparent ? 'text-white drop-shadow-md' : 'text-black'}`}>
             VIPIESSE
           </span>
         </Link>
 
         {/* Right: Actions */}
-        <div className="flex items-center space-x-1 sm:space-x-4">
-          <Link href="/business" className="hidden md:block text-sm font-medium hover:underline">
+        <div className="flex items-center space-x-2 sm:space-x-6">
+          <Link href="/business" className={`hidden md:block text-sm font-medium hover:underline ${isTransparent ? 'text-white' : 'text-black'}`}>
             Area Business
           </Link>
           
           <Link href={user ? "/account" : "/login"}>
-             <Button variant="ghost" size="icon" className="hover:bg-gray-100 text-black">
-               <User className="h-5 w-5" />
+             <Button variant="ghost" size="icon" className={`hover:bg-white/10 ${isTransparent ? 'text-white' : 'text-black'}`}>
+               <User className="h-6 w-6" strokeWidth={1.5} />
              </Button>
           </Link>
 
-          <CartDrawer />
+          {/* Cart Trigger needs to handle color change internally or passed prop, 
+              but CartDrawer trigger button is inside the component. 
+              Let's pass className to CartDrawer to style the trigger. */}
+          <div className={isTransparent ? 'text-white' : 'text-black'}>
+            <CartDrawer triggerClassName={`hover:bg-white/10 ${isTransparent ? 'text-white' : 'text-black'}`} />
+          </div>
         </div>
       </div>
     </nav>
