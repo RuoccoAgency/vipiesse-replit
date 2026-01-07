@@ -50,7 +50,7 @@ export function Navbar() {
           <SheetContent side="left" className="w-[320px] sm:w-[380px] bg-white text-black p-0 overflow-y-auto border-r border-gray-100">
              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                <div>
-                 <img src={logoImage} alt="VIPIESSE" className="h-8 w-auto object-contain" />
+                 <img src={logoImage} alt="VIPIESSE" className="h-12 w-auto object-contain" />
                  <SheetDescription className="text-gray-400 text-xs uppercase tracking-widest mt-1">Wholesale Fashion</SheetDescription>
                </div>
                {/* Close button is auto-added by SheetContent usually, but we can customize if needed. Default is fine. */}
@@ -119,7 +119,7 @@ export function Navbar() {
           <img 
             src={logoImage} 
             alt="VIPIESSE" 
-            className={`h-12 w-auto object-contain transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
+            className={`h-16 w-auto object-contain transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
           />
         </Link>
 
