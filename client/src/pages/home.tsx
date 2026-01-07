@@ -50,27 +50,27 @@ export function Home() {
       </section>
 
       {/* SECTION C: Our Story */}
-      <section className="container mx-auto px-4 py-32 md:py-48">
+      <section className="container mx-auto px-4 py-16 md:py-24">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center space-y-12"
+          className="max-w-4xl mx-auto text-center space-y-8"
         >
           {/* Header */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-neutral-500">Dal 1990</span>
-            <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white uppercase tracking-widest">
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white uppercase tracking-widest">
                 La Nostra Storia
               </h2>
-              <div className="h-[1px] w-24 bg-white/20 mx-auto" />
+              <div className="h-[1px] w-16 bg-white/20 mx-auto" />
             </div>
           </div>
 
           {/* Paragraph */}
-          <p className="text-white/80 leading-loose font-light text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="text-white/80 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
             VIPIESSE nasce a Napoli dalla passione per la calzatura e per il lavoro fatto bene. 
             Da oltre trent’anni selezioniamo e distribuiamo calzature all’ingrosso, unendo stile, comfort e prezzi competitivi. 
             Ogni stagione curiamo collezioni pensate per rivenditori e negozianti, con disponibilità costante, 
@@ -78,7 +78,7 @@ export function Home() {
           </p>
 
           {/* CTA */}
-          <div className="pt-4">
+          <div className="pt-2">
             <Link href="/business">
               <span className="inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-neutral-400 transition-colors cursor-pointer border-b border-transparent hover:border-neutral-400 pb-1">
                 Scopri di più <ArrowRight className="ml-2 h-3 w-3" />
@@ -104,32 +104,32 @@ export function Home() {
       </section>
 
       {/* SECTION E: Help Section Redesigned */}
-      <section className="container mx-auto px-4 py-32 md:py-48 border-t border-neutral-900">
+      <section className="container mx-auto px-4 py-16 md:py-24 border-t border-neutral-900">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center space-y-12"
+          className="max-w-4xl mx-auto text-center space-y-8"
         >
           {/* Header */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-neutral-500">Supporto Clienti</span>
-            <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white uppercase tracking-widest">
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white uppercase tracking-widest">
                 Serve Aiuto?
               </h2>
-              <div className="h-[1px] w-24 bg-white/20 mx-auto" />
+              <div className="h-[1px] w-16 bg-white/20 mx-auto" />
             </div>
           </div>
 
           {/* Intro Text */}
-          <p className="text-white/80 leading-loose font-light text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="text-white/80 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
              Il nostro team è a tua disposizione. Consulta le guide rapide o contattaci per assistenza dedicata sui tuoi ordini.
           </p>
 
           {/* Clean Links List */}
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 pt-4">
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 pt-2">
             {[
               { label: "Contattaci", href: "/help/contattaci" },
               { label: "Guida Taglie", href: "/help/taglie" },
