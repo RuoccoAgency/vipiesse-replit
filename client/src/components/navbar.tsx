@@ -7,6 +7,8 @@ import { CartDrawer } from "./cart-drawer";
 import { useCart } from "@/context/cart-context";
 import { useAuth } from "@/context/auth-context";
 
+import logoImage from "@assets/image_1767806624801.png";
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
@@ -48,7 +50,7 @@ export function Navbar() {
           <SheetContent side="left" className="w-[320px] sm:w-[380px] bg-white text-black p-0 overflow-y-auto border-r border-gray-100">
              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                <div>
-                 <SheetTitle className="font-heading text-3xl font-bold tracking-tighter">VIPIESSE</SheetTitle>
+                 <img src={logoImage} alt="VIPIESSE" className="h-8 w-auto object-contain" />
                  <SheetDescription className="text-gray-400 text-xs uppercase tracking-widest mt-1">Wholesale Fashion</SheetDescription>
                </div>
                {/* Close button is auto-added by SheetContent usually, but we can customize if needed. Default is fine. */}
@@ -114,9 +116,11 @@ export function Navbar() {
 
         {/* Center: Logo */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-          <span className={`font-heading text-4xl font-bold tracking-tighter cursor-pointer select-none transition-colors ${isTransparent ? 'text-white drop-shadow-md' : 'text-black'}`}>
-            VIPIESSE
-          </span>
+          <img 
+            src={logoImage} 
+            alt="VIPIESSE" 
+            className={`h-12 w-auto object-contain transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
+          />
         </Link>
 
         {/* Right: Actions */}
