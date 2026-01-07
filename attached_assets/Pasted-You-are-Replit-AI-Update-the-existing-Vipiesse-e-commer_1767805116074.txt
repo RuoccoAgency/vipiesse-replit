@@ -1,0 +1,70 @@
+You are Replit AI. Update the existing Vipiesse e-commerce project.
+
+GOAL
+Replace the “first 3 cards” on the Home page with a HERO SLIDER (carousel) that looks/behaves like the examples (Vans-style hero banners), but using Vipiesse content and styling.
+
+REQUIREMENTS (must match exactly)
+1) HERO SLIDER LAYOUT
+- Full width, large hero (desktop height ~70–85vh, mobile ~55–65vh).
+- Each slide is a “hero image” banner with overlay text + CTA.
+- Use 3 slides only:
+  1) “I più venduti”
+  2) “Preparati per la stagione…”
+  3) “Outlet”
+- Overlay text in Italian, bold, modern, high contrast on the image (white).
+- CTA button: “Acquista ora” that navigates to the correct filtered listing:
+  - I più venduti -> /shop?filter=bestseller (or equivalent)
+  - Preparati per la stagione -> /shop?filter=season
+  - Outlet -> /outlet
+
+2) CONTROLS (like in the screenshots)
+Add the following controls ON TOP of the hero (bottom-right is fine):
+- Left arrow and right arrow to manually change slide
+- A Play/Pause toggle button (icon + label “Pausa” / “Riprendi”)
+- A small “timer / viewing time” indicator that shows:
+   - total seconds per slide (e.g. “5s”)
+   - and a progress bar that fills while the slide is displayed
+- Also show a subtle “current slide / total slides” indicator: “1/3”, “2/3”, “3/3”
+
+3) AUTO-ROTATION
+- Slides must auto-rotate every 5 seconds by default.
+- If user clicks Pause, auto-rotation stops.
+- If user clicks Play, auto-rotation resumes.
+- If user manually changes slide with arrows:
+  - keep the timer/progress in sync (reset progress for the new slide)
+  - do NOT break autoplay logic (if paused, remain paused; if playing, keep playing)
+
+4) INTERACTIONS / ANIMATIONS
+- Smooth crossfade or slide transition (300–600ms).
+- Overlay text should animate in subtly (fade-up).
+- Add subtle hover effects for buttons and arrows.
+- On mobile, controls must still be usable and not cover CTA.
+
+5) VISUAL STYLE
+- Keep overall site theme: black background + white text, BUT the hero is image-based.
+- Navbar remains white as previously specified.
+- Controls should be minimal, semi-transparent dark background with white icons/text.
+- Use Framer Motion for transitions and progress animation if possible.
+
+6) IMAGES
+- Use placeholder hero images for now (3 different images). 
+- Prefer “fashion/product lifestyle” placeholders. If you cannot fetch images, use local placeholder gradients with a subtle noise texture and big typography, but structure must be identical.
+
+7) FILE/COMPONENT STRUCTURE
+- Create a reusable component: /components/HeroSlider.tsx
+- Add a data file or config for slides: /data/heroSlides.ts
+- Use TypeScript types: HeroSlide { id, title, subtitle, ctaLabel, ctaHref, imageUrl }
+- Ensure Home page uses <HeroSlider /> at the very top.
+
+8) MUST NOT REMOVE EXISTING HOME SECTIONS
+Keep the rest of the Home page sections in the same order after the hero:
+- 3 category tiles (Donna/Uomo/Bambino)
+- La nostra storia
+- brand logos strip
+- Serve aiuto?
+
+DELIVERABLE
+Implement the hero slider exactly with:
+- auto rotate + arrows + play/pause + timer/progress + 1/3 indicator
+- Italian text for Vipiesse
+- responsive + modern animations

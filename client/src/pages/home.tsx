@@ -3,75 +3,14 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Star, TrendingUp, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroSlider } from "@/components/hero-slider";
 
 export function Home() {
   return (
     <div className="flex flex-col gap-16 pb-20">
       
-      {/* SECTION A: HERO - 3 Categories */}
-      <section className="container mx-auto px-4 pt-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto md:h-[500px]">
-          {/* Best Sellers */}
-          <Link href="/shop?filter=bestseller">
-            <div className="group relative h-[300px] md:h-full w-full overflow-hidden cursor-pointer">
-              <img 
-                src={CATEGORY_IMAGES.bestSeller} 
-                alt="Best Sellers" 
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
-              <div className="absolute bottom-8 left-8">
-                <div className="flex items-center gap-2 mb-2 text-white/80 font-heading text-sm uppercase tracking-widest">
-                  <Star className="h-4 w-4" /> I più venduti
-                </div>
-                <h2 className="text-4xl font-heading font-bold text-white uppercase tracking-tighter">
-                  Icons
-                </h2>
-              </div>
-            </div>
-          </Link>
-
-          {/* New Season */}
-          <Link href="/shop?filter=new">
-            <div className="group relative h-[300px] md:h-full w-full overflow-hidden cursor-pointer">
-              <img 
-                src={CATEGORY_IMAGES.newSeason} 
-                alt="Nuova Stagione" 
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
-              <div className="absolute bottom-8 left-8">
-                <div className="flex items-center gap-2 mb-2 text-white/80 font-heading text-sm uppercase tracking-widest">
-                  <TrendingUp className="h-4 w-4" /> Novità
-                </div>
-                <h2 className="text-4xl font-heading font-bold text-white uppercase tracking-tighter">
-                  Summer 25
-                </h2>
-              </div>
-            </div>
-          </Link>
-
-          {/* Outlet */}
-          <Link href="/outlet">
-            <div className="group relative h-[300px] md:h-full w-full overflow-hidden cursor-pointer">
-              <img 
-                src={CATEGORY_IMAGES.outlet} 
-                alt="Outlet" 
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-              />
-              <div className="absolute inset-0 bg-red-900/30 group-hover:bg-red-900/10 transition-colors" />
-              <div className="absolute bottom-8 left-8">
-                <div className="flex items-center gap-2 mb-2 text-white/80 font-heading text-sm uppercase tracking-widest">
-                  <Percent className="h-4 w-4" /> Offerte
-                </div>
-                <h2 className="text-4xl font-heading font-bold text-white uppercase tracking-tighter">
-                  Outlet
-                </h2>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </section>
+      {/* SECTION A: HERO SLIDER */}
+      <HeroSlider />
 
       {/* SECTION B: Large Tiles (Donna, Uomo, Bambino) */}
       <section className="container mx-auto px-4">
