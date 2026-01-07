@@ -50,21 +50,42 @@ export function Home() {
       </section>
 
       {/* SECTION C: Our Story */}
-      <section className="container mx-auto px-4 py-32">
-        <div className="max-w-3xl mx-auto text-center space-y-8 p-12 rounded-[2rem] bg-neutral-900/50 backdrop-blur-sm border border-white/5">
-          <span className="text-sm font-heading uppercase tracking-widest text-neutral-500">Dal 1990</span>
-          <h2 className="text-4xl md:text-5xl font-heading font-medium text-white leading-tight">
-            La nostra storia inizia a Napoli, cuore pulsante della manifattura italiana.
-          </h2>
-          <p className="text-neutral-400 leading-relaxed font-light text-lg">
-            VIPIESSE nasce dalla passione per la calzatura di qualità. Da oltre trent'anni selezioniamo i migliori prodotti per i nostri clienti all'ingrosso, garantendo stile, comfort e prezzi competitivi.
+      <section className="container mx-auto px-4 py-32 md:py-48">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto text-center space-y-12"
+        >
+          {/* Header */}
+          <div className="space-y-6">
+            <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-neutral-500">Dal 1990</span>
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white uppercase tracking-widest">
+                La Nostra Storia
+              </h2>
+              <div className="h-[1px] w-24 bg-white/20 mx-auto" />
+            </div>
+          </div>
+
+          {/* Paragraph */}
+          <p className="text-white/80 leading-loose font-light text-lg md:text-xl max-w-2xl mx-auto">
+            VIPIESSE nasce a Napoli dalla passione per la calzatura e per il lavoro fatto bene. 
+            Da oltre trent’anni selezioniamo e distribuiamo calzature all’ingrosso, unendo stile, comfort e prezzi competitivi. 
+            Ogni stagione curiamo collezioni pensate per rivenditori e negozianti, con disponibilità costante, 
+            assortimento aggiornato e attenzione ai dettagli.
           </p>
-          <Link href="/business">
-            <Button variant="outline" className="text-white border-white/20 hover:bg-white hover:text-black rounded-full px-8 py-6 uppercase tracking-widest mt-4 bg-transparent backdrop-blur-md transition-all">
-              Scopri di più <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
+
+          {/* CTA */}
+          <div className="pt-4">
+            <Link href="/business">
+              <span className="inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-neutral-400 transition-colors cursor-pointer border-b border-transparent hover:border-neutral-400 pb-1">
+                Scopri di più <ArrowRight className="ml-2 h-3 w-3" />
+              </span>
+            </Link>
+          </div>
+        </motion.div>
       </section>
 
       {/* SECTION D: Brands Strip */}
