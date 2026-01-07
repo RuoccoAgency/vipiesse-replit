@@ -89,16 +89,23 @@ export function Home() {
       </section>
 
       {/* SECTION D: Brands Strip */}
-      <section className="border-y border-neutral-900 bg-black py-16 overflow-hidden">
+      <section className="bg-black py-24 md:py-32 overflow-hidden border-t border-white/5">
         <div className="container mx-auto px-4">
-           <p className="text-center text-neutral-600 text-xs uppercase tracking-[0.3em] mb-12">Official Distributors</p>
-           <div className="flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-700 flex-wrap gap-12 md:gap-0 px-4 md:px-20">
-             {/* Text logos as placeholders for Adidas, Nike, Puma, Inblu */}
-             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">ADIDAS</span>
-             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">NIKE</span>
-             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">PUMA</span>
-             <span className="font-heading text-4xl font-bold italic hover:text-white transition-colors cursor-default">inblu</span>
-             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">VIPIESSE</span>
+           <p className="text-center text-neutral-600 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">Official Distributors</p>
+           
+           <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 px-4 md:px-20">
+             {/* Text logos with new styling */}
+             {['ADIDAS', 'NIKE', 'PUMA', 'inblu', 'VIPIESSE'].map((brand, i) => (
+               <span 
+                 key={brand}
+                 className={`font-heading text-3xl md:text-4xl font-bold transition-all duration-500 cursor-default
+                   text-white/75 hover:text-white hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]
+                   ${brand === 'inblu' ? 'italic' : ''}
+                 `}
+               >
+                 {brand}
+               </span>
+             ))}
            </div>
         </div>
       </section>
