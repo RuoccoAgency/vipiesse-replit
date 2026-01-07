@@ -103,22 +103,47 @@ export function Home() {
         </div>
       </section>
 
-      {/* SECTION E: Help (Replaced/Augmented Footer logic, but explicit section requested) */}
-      <section className="container mx-auto px-4 py-20">
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      {/* SECTION E: Help Section Redesigned */}
+      <section className="container mx-auto px-4 py-32 md:py-48 border-t border-neutral-900">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto text-center space-y-12"
+        >
+          {/* Header */}
+          <div className="space-y-6">
+            <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-neutral-500">Supporto Clienti</span>
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white uppercase tracking-widest">
+                Serve Aiuto?
+              </h2>
+              <div className="h-[1px] w-24 bg-white/20 mx-auto" />
+            </div>
+          </div>
+
+          {/* Intro Text */}
+          <p className="text-white/80 leading-loose font-light text-lg md:text-xl max-w-2xl mx-auto">
+             Il nostro team è a tua disposizione. Consulta le guide rapide o contattaci per assistenza dedicata sui tuoi ordini.
+          </p>
+
+          {/* Clean Links List */}
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 pt-4">
             {[
               { label: "Contattaci", href: "/help/contattaci" },
-              { label: "Aiuto Taglie", href: "/help/taglie" },
+              { label: "Guida Taglie", href: "/help/taglie" },
+              { label: "Spedizioni e Resi", href: "/help/spedizioni-resi" },
               { label: "Condizioni", href: "/help/condizioni" },
-              { label: "Spedizioni", href: "/help/spedizioni-resi" },
-            ].map(item => (
+            ].map((item) => (
               <Link key={item.label} href={item.href}>
-                <div className="p-8 border border-neutral-800 bg-neutral-900/30 hover:bg-neutral-900 hover:border-neutral-700 transition-all cursor-pointer rounded-[1.5rem] group">
-                  <span className="font-heading uppercase tracking-wide text-sm text-neutral-400 group-hover:text-white transition-colors">{item.label}</span>
-                </div>
+                <span className="group inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-neutral-400 transition-colors cursor-pointer border-b border-transparent hover:border-neutral-400 pb-1">
+                  {item.label} <ArrowRight className="ml-2 h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </span>
               </Link>
             ))}
-         </div>
+          </div>
+        </motion.div>
       </section>
 
     </div>
