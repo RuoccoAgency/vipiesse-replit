@@ -119,7 +119,7 @@ export function Navbar() {
           <img 
             src={logoImage} 
             alt="VIPIESSE" 
-            className={`h-16 w-auto object-contain transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
+            className={`h-30 w-auto object-contain transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
           />
         </Link>
 
