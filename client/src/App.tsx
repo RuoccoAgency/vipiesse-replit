@@ -4,10 +4,11 @@ import { Home } from "./pages/home";
 import { Shop } from "./pages/shop";
 import { Business } from "./pages/business";
 import { Checkout } from "./pages/checkout";
-import { Login } from "./pages/auth"; // Assuming I'll create this next
+import { Login } from "./pages/auth";
+import { ContactPage, SizeGuidePage, TermsPage, PaymentsPage, ShippingPage } from "./pages/help-pages";
 import NotFound from "./pages/not-found";
 import { Toaster } from "@/components/ui/toaster";
-import { ScrollToTop } from "@/components/scroll-to-top"; // Helper to scroll top on route change
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 function Router() {
   return (
@@ -46,12 +47,19 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/checkout" component={Checkout} />
 
-      {/* Help Routes - Generic for now */}
+      {/* Help Routes */}
+      <Route path="/help/contattaci" component={ContactPage} />
+      <Route path="/help/taglie" component={SizeGuidePage} />
+      <Route path="/help/condizioni" component={TermsPage} />
+      <Route path="/help/pagamenti" component={PaymentsPage} />
+      <Route path="/help/spedizioni-resi" component={ShippingPage} />
+
+      {/* Fallback for other help routes or 404 */}
       <Route path="/help/:topic">
         {(params) => (
            <div className="container mx-auto py-20 px-4 text-center">
              <h1 className="text-3xl font-heading mb-4 capitalize">{params.topic.replace('-', ' ')}</h1>
-             <p className="text-neutral-400">Pagina in costruzione. Contattaci per maggiori informazioni.</p>
+             <p className="text-neutral-400">Pagina in costruzione.</p>
            </div>
         )}
       </Route>
