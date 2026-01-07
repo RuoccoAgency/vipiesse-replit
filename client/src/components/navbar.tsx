@@ -125,6 +125,9 @@ export function Navbar() {
 
         {/* Right: Actions */}
         <div className="flex items-center space-x-2 sm:space-x-6">
+          <Link href="/" className={`hidden md:block text-sm font-medium hover:underline ${isTransparent ? 'text-white' : 'text-black'}`}>
+            Home
+          </Link>
           <Link href="/business" className={`hidden md:block text-sm font-medium hover:underline ${isTransparent ? 'text-white' : 'text-black'}`}>
             Area Business
           </Link>
