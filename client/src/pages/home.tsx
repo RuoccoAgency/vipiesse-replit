@@ -12,23 +12,34 @@ export function Home() {
       {/* SECTION A: HERO SLIDER */}
       <HeroSlider />
 
-      {/* SECTION B: Large Tiles (Donna, Uomo, Bambino) */}
-      <section className="container mx-auto px-4 pt-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+      {/* SECTION B: Large Tiles (Donna, Uomo, Bambino) - IMMERSIVE PANELS */}
+      <section className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 min-h-[85vh]">
           {[
-            { title: "Donna", img: CATEGORY_IMAGES.donna, link: "/shop/donna" },
-            { title: "Uomo", img: CATEGORY_IMAGES.uomo, link: "/shop/uomo" },
-            { title: "Bambino", img: CATEGORY_IMAGES.bambino, link: "/shop/bambino" },
-          ].map((cat) => (
+            { title: "Donna", img: CATEGORY_IMAGES.donna, link: "/shop/donna", accent: "text-white" },
+            { title: "Uomo", img: CATEGORY_IMAGES.uomo, link: "/shop/uomo", accent: "text-white" },
+            { title: "Bambino", img: CATEGORY_IMAGES.bambino, link: "/shop/bambino", accent: "text-white" },
+          ].map((cat, idx) => (
             <Link key={cat.title} href={cat.link}>
-              <div className="relative h-[60vh] overflow-hidden group cursor-pointer">
-                <img 
-                  src={cat.img} 
-                  alt={cat.title} 
-                  className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-colors">
-                  <h2 className="text-5xl font-heading font-bold text-white uppercase tracking-tighter border-b-2 border-transparent group-hover:border-white transition-all pb-2">
+              <div className={`relative h-[70vh] lg:h-full w-full overflow-hidden group cursor-pointer border-r border-black/20 ${idx === 2 ? 'border-r-0' : ''}`}>
+                
+                {/* Image Scale Effect */}
+                <div className="absolute inset-0 transition-transform duration-1000 ease-out group-hover:scale-110">
+                   <img 
+                    src={cat.img} 
+                    alt={cat.title} 
+                    className="h-full w-full object-cover"
+                  />
+                  {/* Heavy Gradient Overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/80" />
+                </div>
+
+                {/* Content */}
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 p-8 text-center">
+                  <span className="text-xs font-bold uppercase tracking-[0.3em] text-white/70 mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-y-4 group-hover:translate-y-0">
+                    Esplora Collezione
+                  </span>
+                  <h2 className="text-6xl md:text-7xl lg:text-8xl font-heading font-bold text-white uppercase tracking-tighter drop-shadow-2xl group-hover:text-gray-200 transition-colors">
                     {cat.title}
                   </h2>
                 </div>
@@ -39,17 +50,17 @@ export function Home() {
       </section>
 
       {/* SECTION C: Our Story */}
-      <section className="container mx-auto px-4 py-20 bg-neutral-900/50">
-        <div className="max-w-2xl mx-auto text-center space-y-6">
-          <span className="text-sm font-heading uppercase tracking-widest text-neutral-400">Since 1990</span>
-          <h2 className="text-3xl md:text-4xl font-heading font-medium text-white leading-tight">
+      <section className="container mx-auto px-4 py-32">
+        <div className="max-w-3xl mx-auto text-center space-y-8 p-12 rounded-[2rem] bg-neutral-900/50 backdrop-blur-sm border border-white/5">
+          <span className="text-sm font-heading uppercase tracking-widest text-neutral-500">Dal 1990</span>
+          <h2 className="text-4xl md:text-5xl font-heading font-medium text-white leading-tight">
             La nostra storia inizia a Napoli, cuore pulsante della manifattura italiana.
           </h2>
           <p className="text-neutral-400 leading-relaxed font-light text-lg">
             VIPIESSE nasce dalla passione per la calzatura di qualità. Da oltre trent'anni selezioniamo i migliori prodotti per i nostri clienti all'ingrosso, garantendo stile, comfort e prezzi competitivi.
           </p>
           <Link href="/business">
-            <Button variant="link" className="text-white hover:text-gray-300 uppercase tracking-widest mt-4">
+            <Button variant="outline" className="text-white border-white/20 hover:bg-white hover:text-black rounded-full px-8 py-6 uppercase tracking-widest mt-4 bg-transparent backdrop-blur-md transition-all">
               Scopri di più <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
@@ -57,23 +68,23 @@ export function Home() {
       </section>
 
       {/* SECTION D: Brands Strip */}
-      <section className="border-y border-neutral-800 bg-black py-12 overflow-hidden">
+      <section className="border-y border-neutral-900 bg-black py-16 overflow-hidden">
         <div className="container mx-auto px-4">
-           <p className="text-center text-neutral-500 text-xs uppercase tracking-[0.2em] mb-8">Official Distributors</p>
-           <div className="flex justify-between items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap gap-8 md:gap-0">
+           <p className="text-center text-neutral-600 text-xs uppercase tracking-[0.3em] mb-12">Official Distributors</p>
+           <div className="flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-700 flex-wrap gap-12 md:gap-0 px-4 md:px-20">
              {/* Text logos as placeholders for Adidas, Nike, Puma, Inblu */}
-             <span className="font-heading text-3xl font-bold">ADIDAS</span>
-             <span className="font-heading text-3xl font-bold">NIKE</span>
-             <span className="font-heading text-3xl font-bold">PUMA</span>
-             <span className="font-heading text-3xl font-bold italic">inblu</span>
-             <span className="font-heading text-3xl font-bold">VIPIESSE</span>
+             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">ADIDAS</span>
+             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">NIKE</span>
+             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">PUMA</span>
+             <span className="font-heading text-4xl font-bold italic hover:text-white transition-colors cursor-default">inblu</span>
+             <span className="font-heading text-4xl font-bold hover:text-white transition-colors cursor-default">VIPIESSE</span>
            </div>
         </div>
       </section>
 
       {/* SECTION E: Help (Replaced/Augmented Footer logic, but explicit section requested) */}
-      <section className="container mx-auto px-4 py-10">
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+      <section className="container mx-auto px-4 py-20">
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { label: "Contattaci", href: "/help/contattaci" },
               { label: "Aiuto Taglie", href: "/help/taglie" },
@@ -81,8 +92,8 @@ export function Home() {
               { label: "Spedizioni", href: "/help/spedizioni-resi" },
             ].map(item => (
               <Link key={item.label} href={item.href}>
-                <div className="p-6 border border-neutral-800 hover:bg-neutral-900 transition-colors cursor-pointer rounded-sm">
-                  <span className="font-heading uppercase tracking-wide text-sm">{item.label}</span>
+                <div className="p-8 border border-neutral-800 bg-neutral-900/30 hover:bg-neutral-900 hover:border-neutral-700 transition-all cursor-pointer rounded-[1.5rem] group">
+                  <span className="font-heading uppercase tracking-wide text-sm text-neutral-400 group-hover:text-white transition-colors">{item.label}</span>
                 </div>
               </Link>
             ))}

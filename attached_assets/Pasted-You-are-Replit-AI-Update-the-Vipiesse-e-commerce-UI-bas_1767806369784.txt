@@ -1,0 +1,81 @@
+You are Replit AI. Update the Vipiesse e-commerce UI based on new feedback.
+
+A) REMOVE “GREY” LOOK + UPGRADE STYLE
+- The current grey cards/sections feel dull. Replace them with a cleaner premium look:
+  - Use true black background (#000 / #0b0b0b) and white text.
+  - Cards should be either:
+    1) black glassy (slight transparency + blur) OR
+    2) very dark charcoal (#111–#151515) with subtle border (#222) and soft shadow.
+- Avoid flat grey blocks. The overall vibe must be modern, elegant, “premium wholesale”.
+
+B) ROUNDNESS (IMPORTANT)
+- Make EVERYTHING more rounded:
+  - Buttons: big pill radius (9999px) or 16–24px radius.
+  - Cards: 20–28px radius.
+  - Inputs (Area Business form): 16–20px radius.
+  - Slider controls / arrows: rounded/pill.
+- Increase padding inside buttons/cards so it feels “luxury” and not cramped.
+
+C) HAMBURGER MENU: ADD ALL SECTIONS
+In the off-canvas (hamburger) menu, include ALL the site sections/links, not just categories.
+Structure like this (Italian labels):
+
+1) E-SHOP
+   - Collezione Donna
+   - Collezione Uomo
+   - Collezione Bambino
+
+2) OUTLET
+   - Collezione Donna
+   - Collezione Uomo
+   - Collezione Bambino
+
+3) AREA BUSINESS
+   - Accedi / Registrati
+   - Diventa Rivenditore (richiesta accesso B2B)
+
+4) SERVE AIUTO?
+   - Contattaci
+   - Aiuto taglie
+   - Condizioni vendita
+   - Come pagare
+   - Spedizione e resi
+
+5) ALTRE SEZIONI (scroll anchors)
+   - La nostra storia
+   - Brand (loghi)
+   - FAQ / Supporto (se presente)
+   - Carrello
+
+Menu design:
+- Clean, white background (like the reference screenshot), strong typography.
+- “OUTLET” highlighted in a different accent (red) like the example screenshot.
+- Close “X” top-right.
+- Smooth slide-in animation.
+
+D) UOMO / DONNA / BAMBINO CARDS (BIGGER, MORE IMMERSIVE)
+Current 3 category cards must become large, almost screen-filling and wide across the page.
+Implement as a dedicated “Categorie” section:
+
+- Desktop layout:
+  - 3 large panels side-by-side in one row (or 2 + 1 depending on width),
+  - Height: 70–85vh (almost full screen feel),
+  - Width: each panel fills the available horizontal space with small gaps.
+- Mobile layout:
+  - Stack vertically, each panel ~70–80vh height.
+- Each panel:
+  - Uses full-bleed image (cover),
+  - Strong overlay gradient for readability,
+  - Big centered label: “DONNA”, “UOMO”, “BAMBINO”
+  - Entire panel clickable -> navigates to the correct category page.
+- Add subtle hover effect on desktop (zoom image slightly + raise card).
+
+E) KEEP PREVIOUS REQUESTS
+- Navbar: transparent over hero at top, turns white sticky on scroll (with smooth transition).
+- Hero slider: full viewport, bigger text, arrows centered vertically left/right, not bottom.
+
+DELIVERABLES
+- Updated styling removing grey blocks + premium dark theme.
+- All UI elements rounder (buttons/cards/inputs/controls).
+- Hamburger menu includes all requested sections (including “Serve aiuto?” links).
+- Category panels (Donna/Uomo/Bambino) become large, wide, immersive, near full-screen.

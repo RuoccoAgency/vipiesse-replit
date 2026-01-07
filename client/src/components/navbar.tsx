@@ -45,36 +45,68 @@ export function Navbar() {
               <span className="sr-only">Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[350px] bg-white text-black p-0 overflow-y-auto">
-             <div className="p-6 border-b border-gray-100">
-               <SheetTitle className="font-heading text-2xl tracking-tighter mb-2">VIPIESSE</SheetTitle>
-               <SheetDescription className="text-gray-500">Ingrosso Calzature</SheetDescription>
+          <SheetContent side="left" className="w-[320px] sm:w-[380px] bg-white text-black p-0 overflow-y-auto border-r border-gray-100">
+             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+               <div>
+                 <SheetTitle className="font-heading text-3xl font-bold tracking-tighter">VIPIESSE</SheetTitle>
+                 <SheetDescription className="text-gray-400 text-xs uppercase tracking-widest mt-1">Wholesale Fashion</SheetDescription>
+               </div>
+               {/* Close button is auto-added by SheetContent usually, but we can customize if needed. Default is fine. */}
              </div>
              
-             <div className="flex flex-col py-4">
-               {/* E-SHOP Section */}
-               <div className="px-6 py-2">
-                 <h3 className="font-heading text-lg mb-2">E-SHOP</h3>
-                 <div className="flex flex-col space-y-2 pl-4 border-l border-gray-200">
-                   <Link href="/shop/donna" onClick={closeMenu} className="text-gray-600 hover:text-black transition-colors hover:underline">Collezione Donna</Link>
-                   <Link href="/shop/uomo" onClick={closeMenu} className="text-gray-600 hover:text-black transition-colors hover:underline">Collezione Uomo</Link>
-                   <Link href="/shop/bambino" onClick={closeMenu} className="text-gray-600 hover:text-black transition-colors hover:underline">Collezione Bambino</Link>
+             <div className="flex flex-col py-6 space-y-8">
+               
+               {/* 1) E-SHOP */}
+               <div className="px-8">
+                 <h3 className="font-heading text-xl mb-4 font-bold border-b border-gray-100 pb-2">E-SHOP</h3>
+                 <div className="flex flex-col space-y-3 pl-2">
+                   <Link href="/shop/donna" onClick={closeMenu} className="text-gray-600 hover:text-black hover:translate-x-1 transition-all text-lg font-medium">Collezione Donna</Link>
+                   <Link href="/shop/uomo" onClick={closeMenu} className="text-gray-600 hover:text-black hover:translate-x-1 transition-all text-lg font-medium">Collezione Uomo</Link>
+                   <Link href="/shop/bambino" onClick={closeMenu} className="text-gray-600 hover:text-black hover:translate-x-1 transition-all text-lg font-medium">Collezione Bambino</Link>
                  </div>
                </div>
 
-               {/* OUTLET Section */}
-               <div className="px-6 py-4">
-                 <h3 className="font-heading text-lg mb-2 text-red-600">OUTLET</h3>
-                 <div className="flex flex-col space-y-2 pl-4 border-l border-red-100">
-                   <Link href="/outlet/donna" onClick={closeMenu} className="text-gray-600 hover:text-red-600 transition-colors hover:underline">Collezione Donna</Link>
-                   <Link href="/outlet/uomo" onClick={closeMenu} className="text-gray-600 hover:text-red-600 transition-colors hover:underline">Collezione Uomo</Link>
-                   <Link href="/outlet/bambino" onClick={closeMenu} className="text-gray-600 hover:text-red-600 transition-colors hover:underline">Collezione Bambino</Link>
+               {/* 2) OUTLET */}
+               <div className="px-8">
+                 <h3 className="font-heading text-xl mb-4 font-bold text-red-600 border-b border-red-100 pb-2">OUTLET</h3>
+                 <div className="flex flex-col space-y-3 pl-2">
+                   <Link href="/outlet/donna" onClick={closeMenu} className="text-gray-500 hover:text-red-600 hover:translate-x-1 transition-all text-lg font-medium">Collezione Donna</Link>
+                   <Link href="/outlet/uomo" onClick={closeMenu} className="text-gray-500 hover:text-red-600 hover:translate-x-1 transition-all text-lg font-medium">Collezione Uomo</Link>
+                   <Link href="/outlet/bambino" onClick={closeMenu} className="text-gray-500 hover:text-red-600 hover:translate-x-1 transition-all text-lg font-medium">Collezione Bambino</Link>
                  </div>
                </div>
 
-               <div className="px-6 py-4 mt-auto border-t border-gray-100 bg-gray-50">
-                  <Link href="/business" onClick={closeMenu} className="block py-2 font-medium">Area Business</Link>
-                  <Link href="/help/contattaci" onClick={closeMenu} className="block py-2 text-sm text-gray-500">Serve aiuto?</Link>
+               {/* 3) AREA BUSINESS */}
+               <div className="px-8 bg-gray-50 py-6 mx-4 rounded-xl">
+                 <h3 className="font-heading text-lg mb-4 font-bold text-gray-900">AREA BUSINESS</h3>
+                 <div className="flex flex-col space-y-3">
+                    <Link href="/login" onClick={closeMenu} className="text-gray-600 hover:text-black text-base flex items-center gap-2">
+                      <User className="h-4 w-4" /> Accedi / Registrati
+                    </Link>
+                    <Link href="/business" onClick={closeMenu} className="text-gray-600 hover:text-black text-base font-medium">
+                      Diventa Rivenditore
+                    </Link>
+                 </div>
+               </div>
+
+               {/* 4) SERVE AIUTO? */}
+               <div className="px-8">
+                 <h3 className="font-heading text-lg mb-4 font-bold text-gray-900">SERVE AIUTO?</h3>
+                 <div className="grid grid-cols-1 gap-3 text-sm text-gray-500">
+                    <Link href="/help/contattaci" onClick={closeMenu} className="hover:text-black transition-colors">Contattaci</Link>
+                    <Link href="/help/taglie" onClick={closeMenu} className="hover:text-black transition-colors">Aiuto Taglie</Link>
+                    <Link href="/help/condizioni" onClick={closeMenu} className="hover:text-black transition-colors">Condizioni di Vendita</Link>
+                    <Link href="/help/pagamenti" onClick={closeMenu} className="hover:text-black transition-colors">Come Pagare</Link>
+                    <Link href="/help/spedizioni-resi" onClick={closeMenu} className="hover:text-black transition-colors">Spedizioni e Resi</Link>
+                 </div>
+               </div>
+
+               {/* 5) ALTRE SEZIONI */}
+               <div className="px-8 pb-8 pt-4 mt-auto border-t border-gray-100">
+                  <div className="flex flex-col space-y-2 text-xs text-gray-400 uppercase tracking-widest font-medium">
+                    <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">La Nostra Storia</Link>
+                    <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">Brands</Link>
+                  </div>
                </div>
              </div>
           </SheetContent>
