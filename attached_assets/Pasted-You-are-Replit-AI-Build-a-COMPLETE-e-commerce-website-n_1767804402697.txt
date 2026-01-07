@@ -1,0 +1,118 @@
+You are Replit AI. Build a COMPLETE e-commerce website (not just a draft) for an Italian wholesale business called “Vipiesse” (ingrosso). 
+
+IMPORTANT
+- Prompt language: English
+- Website content/text: Italian
+- Modern, responsive, fast
+- Theme: BLACK background + WHITE text (high contrast), modern streetwear vibe
+- Use React + TypeScript + TailwindCSS + Framer Motion for animations
+- Implement a WORKING cart (add/remove/change qty, subtotal) and a FULL checkout flow UI (no real payments needed yet, but structure must exist).
+- Add login/register pages (UI + local auth mock). Also add “Area Business”.
+- Use clean component structure and reusable data models.
+- Use Wouter or React Router for navigation.
+- Use local mock data (JSON/TS arrays) for products for now.
+- PRODUCTS: for now ONLY “ciabatte” (sliders/flip-flops), random names, sizes, and prices. Provide variants by size.
+- Contact info: search “Vipiesse Casoria” and fill the contact address/phone/email as placeholders if you cannot verify. If unsure, put “Casoria (NA)” and placeholders clearly marked.
+
+DESIGN / INSPIRATION
+- Take navbar inspiration from vans.com / levis-style: clean white navbar on top, strong typography, dropdown menu, mega-menu feel (but keep it simple).
+- Navbar MUST be white, even if the rest of the site is black.
+- Smooth hover effects, subtle motion: fade/slide, underline animations, product card hover, dropdown animation, page transitions.
+
+SITE STRUCTURE (VERY IMPORTANT)
+1) NAVBAR (white background)
+   - Centered logo: “VIPIESSE” (use simple wordmark if no logo file; keep centered)
+   - Left side: hamburger menu (3 lines) that opens a dropdown/side panel.
+     Inside the menu, show these items in this exact structure:
+     - E-SHOP
+        - Collezione Donna
+        - Collezione Uomo
+        - Collezione Bambino
+     - OUTLET
+        - Collezione Donna
+        - Collezione Uomo
+        - Collezione Bambino
+   - Right side items (in this exact order):
+     - Area Business (link/page explaining wholesale, VAT, B2B ordering, etc.)
+     - Accedi / Registrati
+     - Cart icon (must open cart drawer or cart page; cart must be functional)
+
+2) HOME PAGE CONTENT ORDER
+   A) Hero / top section: immediately show 3 category cards with images + labels:
+      - “I più venduti”
+      - “Preparati per la stagione…”
+      - “Outlet”
+      Clicking each card takes to a product listing filtered accordingly.
+   B) Below: 3 large image tiles in a row (responsive stacking on mobile)
+      - Donna
+      - Uomo
+      - Bambino
+      Use placeholders; user will replace with their own images later.
+      Each tile links to its category listing.
+   C) “La nostra storia” section (short elegant text, Italian)
+   D) Brands strip section: a horizontal row of brand logos (placeholders now):
+      - Adidas, Nike, Puma, plus one more placeholder “Inblu”
+      Use monochrome/white logos on dark background.
+   E) “Serve aiuto?” section (help links) with:
+      - Contattaci
+      - Aiuto taglie
+      - Condizioni vendita
+      - Come pagare
+      - Spedizione e resi
+        Include shipping rule text in Italian:
+        “Sotto i 50€: 5€ di spedizione. Oltre i 50€: spedizione gratuita.”
+
+3) PAGES / ROUTES REQUIRED
+- / (Home)
+- /shop (All products)
+- /shop/donna
+- /shop/uomo
+- /shop/bambino
+- /outlet (Outlet products)
+- /outlet/donna
+- /outlet/uomo
+- /outlet/bambino
+- /business (Area Business)
+- /login (Accedi)
+- /register (Registrati)
+- /cart
+- /checkout (checkout form UI: shipping address, billing, order summary)
+- /help/contattaci
+- /help/taglie
+- /help/condizioni
+- /help/pagamenti
+- /help/spedizioni-resi
+
+4) PRODUCT DATA & FILTERING LOGIC
+- Build a product model: id, name, category (donna/uomo/bambino), isOutlet, isBestSeller, seasonReady, price, images, sizes[], stock per size.
+- Create at least 24 demo products (all ciabatte) across categories, and some marked as outlet/bestseller/seasonReady.
+- Product listing pages must filter correctly depending on route.
+- Product details modal or page optional, but preferred:
+  - /product/:id showing sizes, add to cart, gallery.
+
+5) CART & CHECKOUT
+- Cart state in context (React Context)
+- Add to cart with size selection (size required)
+- Update quantity, remove item
+- Calculate subtotal and shipping:
+  - If subtotal < 50€ add 5€
+  - If subtotal >= 50€ shipping free
+- Checkout UI shows totals and shipping rule
+- “Place order” button should show confirmation screen (mock) and clear cart.
+
+6) RESPONSIVE & POLISH
+- Mobile-first: hamburger menu on mobile; on desktop keep hamburger visible too (as requested).
+- Use animations:
+  - navbar menu open/close
+  - product cards hover
+  - page section reveal on scroll
+- Use accessible contrast, readable typography.
+- Keep the site modern, not overly fancy.
+
+DELIVERABLE
+- Implement the full project with clean file structure:
+  /components (Navbar, Footer, ProductCard, CategoryCard, CartDrawer, etc.)
+  /pages (Home, Listing, Outlet, Business, Login, Register, Cart, Checkout, Help pages)
+  /data (products)
+  /context (CartContext, AuthMockContext)
+- Provide working running app.
