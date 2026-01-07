@@ -7,7 +7,7 @@ import { CartDrawer } from "./cart-drawer";
 import { useCart } from "@/context/cart-context";
 import { useAuth } from "@/context/auth-context";
 
-import logoImage from "@assets/image_1767806624801.png";
+import logoImage from "@assets/image_1767806762450.png";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
