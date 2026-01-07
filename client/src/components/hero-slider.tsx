@@ -136,7 +136,7 @@ export function HeroSlider() {
                   {SLIDES[currentSlide].subtitle}
                 </p>
                 <Link href={SLIDES[currentSlide].ctaHref}>
-                  <Button size="lg" className="bg-white text-black hover:bg-neutral-200 font-heading uppercase tracking-widest px-10 py-7 text-xl rounded-none transition-transform hover:scale-105">
+                  <Button size="lg" className="bg-white text-black hover:bg-neutral-200 font-heading uppercase tracking-widest px-10 py-7 text-xl transition-transform hover:scale-105">
                     {SLIDES[currentSlide].ctaLabel}
                   </Button>
                 </Link>
