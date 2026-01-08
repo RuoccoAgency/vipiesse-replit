@@ -54,7 +54,7 @@ export function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500">
-          <p>&copy; 2024 VIPIESSE S.r.l. Tutti i diritti riservati.</p>
+          <p>&copy; 2026 VIPIESSE S.r.l. Tutti i diritti riservati.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <span>Privacy Policy</span>
             <span>Cookie Policy</span>
