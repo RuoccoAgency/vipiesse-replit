@@ -116,7 +116,7 @@ export function HeroSlider() {
           <img
             src={SLIDES[currentSlide].imageUrl}
             alt={SLIDES[currentSlide].title}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
           
           {/* Overlay Gradient */}
