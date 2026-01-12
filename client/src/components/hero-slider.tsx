@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 // Import generated hero images
 import bestSellerHero from '@assets/WhatsApp_Image_2026-01-12_at_09.02.47_1768217512987.jpeg';
-import summerHero from '@assets/WhatsApp_Image_2026-01-12_at_11.22.31_1768217523554.jpeg';
+import summerHero from '@assets/image_1768217635924.png';
 import outletHero from '@assets/generated_images/outlet_sale_hero.png';
 
 export interface HeroSlide {
@@ -116,7 +116,7 @@ export function HeroSlider() {
           <img
             src={SLIDES[currentSlide].imageUrl}
             alt={SLIDES[currentSlide].title}
-            className="w-full h-full object-cover"
+            className={`w-full h-full ${currentSlide === 1 ? 'object-contain bg-black' : 'object-cover'}`}
           />
           
           {/* Overlay Gradient */}
