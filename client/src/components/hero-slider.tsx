@@ -5,8 +5,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
 // Import generated hero images
-import bestSellerHero from '@assets/generated_images/fashion_best_sellers_hero.png';
-import summerHero from '@assets/generated_images/summer_season_hero.png';
+import bestSellerHero from '@assets/WhatsApp_Image_2026-01-12_at_09.02.47_1768217512987.jpeg';
+import summerHero from '@assets/WhatsApp_Image_2026-01-12_at_11.22.31_1768217523554.jpeg';
 import outletHero from '@assets/generated_images/outlet_sale_hero.png';
 
 export interface HeroSlide {

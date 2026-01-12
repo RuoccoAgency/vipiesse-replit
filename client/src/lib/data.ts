@@ -1,8 +1,8 @@
 import bestSellerImg from '@assets/generated_images/stylish_best_seller_sliders.png';
 import newSeasonImg from '@assets/generated_images/new_season_summer_sliders.png';
 import outletImg from '@assets/generated_images/outlet_sale_sliders.png';
-import donnaImg from '@assets/generated_images/womens_fashion_sliders.png';
-import uomoImg from '@assets/generated_images/mens_fashion_sliders.png';
+import donnaImg from '@assets/WhatsApp_Image_2026-01-12_at_11.22.53_1768217528955.jpeg';
+import uomoImg from '@assets/image_1768217545082.png';
 import bambinoImg from '@assets/generated_images/kids_colorful_sliders.png';
 
 export type Category = 'donna' | 'uomo' | 'bambino';
