@@ -7,6 +7,7 @@ import { Checkout } from "./pages/checkout";
 import { Login } from "./pages/auth";
 import { ContactPage, SizeGuidePage, TermsPage, PaymentsPage, ShippingPage } from "./pages/help-pages";
 import NotFound from "./pages/not-found";
+import { ProductDetail } from "./pages/product-detail";
 import { Toaster } from "@/components/ui/toaster";
 import { ScrollToTop } from "@/components/scroll-to-top";
 
@@ -14,6 +15,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/product/:id" component={ProductDetail} />
       
       {/* Shop Routes */}
       <Route path="/shop">

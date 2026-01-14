@@ -5,6 +5,12 @@ import donnaImg from '@assets/WhatsApp_Image_2026-01-12_at_11.22.53_176821752895
 import uomoImg from '@assets/image_1768217545082.png';
 import bambinoImg from '@assets/WhatsApp_Image_2026-01-12_at_12.12.15_1768383712607.jpeg';
 
+import inbluGold from '@assets/image_1768384856832.png';
+import inbluSilver from '@assets/image_1768384862836.png';
+import inbluWhite from '@assets/image_1768384873309.png';
+import inbluBlue from '@assets/image_1768384895088.png';
+import inbluDarkBlue from '@assets/image_1768384902607.png';
+
 export type Category = 'donna' | 'uomo' | 'bambino';
 
 export interface Product {
@@ -17,7 +23,10 @@ export interface Product {
   isBestSeller: boolean;
   isNewSeason: boolean;
   image: string;
+  gallery?: string[];
   sizes: string[];
+  colors?: string[];
+  sku?: string;
   brand: string;
   description: string;
 }
@@ -34,9 +43,37 @@ export const CATEGORY_IMAGES = {
 const SIZES_ADULT = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
 const SIZES_KIDS = ['28', '29', '30', '31', '32', '33', '34', '35'];
 
+// Specific product requested
+const inbluProduct: Product = {
+  id: '5033AG39-1',
+  name: 'inblu Pantofole Classische Clogs, Sandali a Ciabatta Donna Art. 5033',
+  category: 'donna',
+  price: 14.59,
+  isOutlet: false,
+  isBestSeller: true,
+  isNewSeason: false,
+  image: inbluGold,
+  gallery: [inbluGold, inbluSilver, inbluWhite, inbluBlue, inbluDarkBlue],
+  sizes: ['35 EU', '36 EU', '37 EU', '38 EU', '39 EU', '40 EU', '41 EU'],
+  colors: ['Argento', 'Azalea', 'Bianco', 'Blu', 'Blu Scuro', 'Jeans', 'Platino', 'Rosa'],
+  sku: '5033AG39-1',
+  brand: 'Inblu',
+  description: `Dettagli prodotto / Informazioni su questo articolo
+
+Materiale esterno: Sintetico
+Materiale suola: Poliuretano
+Chiusura: Senza chiusura
+Tipo di tacco: Senza tacco
+
+Informazioni aggiuntive:
+Le inblu 5033 sono una versione moderna e colorata degli zoccoli professionali classici, ideali per uso professionale e casalingo.
+Plantare anatomico in vera pelle imbottita che garantisce comfort duraturo.
+Leggere, flessibili e traspiranti.`,
+};
+
 // Generate 24 demo products
 const generateProducts = (): Product[] => {
-  const products: Product[] = [];
+  const products: Product[] = [inbluProduct]; // Start with the specific one
   const categories: Category[] = ['donna', 'uomo', 'bambino'];
   const adjectives = ['Comfort', 'Urban', 'Classic', 'Sport', 'Luxury', 'Beach', 'Soft', 'Light'];
   const types = ['Slider', 'Flip-Flop', 'Sandal', 'Mule'];

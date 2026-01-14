@@ -52,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <Link href={`/shop?id=${product.id}`}> {/* Linking to shop for now, ideally product detail */}
+        <Link href={`/product/${product.id}`}>
           <div className="h-full w-full cursor-pointer">
             <motion.img
               src={product.image}
