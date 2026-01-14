@@ -101,27 +101,9 @@ export function ProductDetail() {
   return (
     <div className="bg-black min-h-screen pt-24 text-white">
       <div className="container mx-auto px-4 py-8 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-          {/* Left: Gallery (Updated Layout) */}
-          <div className="flex flex-col md:flex-row gap-4 h-fit sticky top-24">
-             {/* Thumbnails (Left on desktop, hidden on mobile usually but requested below/dots) */}
-             <div className="hidden md:flex md:flex-col gap-3 overflow-y-auto max-h-[600px] scrollbar-hide shrink-0 w-20">
-                {galleryImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(img)}
-                    className={cn(
-                      "relative w-full aspect-square border rounded-lg overflow-hidden transition-all bg-black",
-                      activeImage === img ? "border-white ring-1 ring-white" : "border-white/20 hover:border-white/40"
-                    )}
-                  >
-                    <img src={img} alt={`View ${idx}`} className="w-full h-full object-contain p-1" />
-                  </button>
-                ))}
-             </div>
-
-             {/* Main Image */}
-             <div className="flex-1 bg-black rounded-xl overflow-hidden relative aspect-square md:aspect-[4/5] flex items-center justify-center border border-white/10 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 mb-20">
+            {/* Left: Main Image */}
+            <div className="bg-black rounded-xl overflow-hidden relative aspect-square md:aspect-[4/5] flex items-center justify-center border border-white/10 shadow-sm">
                 <motion.img
                   key={activeImage}
                   src={activeImage}
@@ -131,161 +113,170 @@ export function ProductDetail() {
                   alt={product.name}
                   className="w-full h-full object-contain p-4 md:p-8 max-h-[80vh]"
                 />
-             </div>
-             
-             {/* Mobile Thumbnails/Carousel Indicators */}
-             <div className="flex md:hidden gap-2 overflow-x-auto pb-2 scrollbar-hide w-full justify-center">
-                {galleryImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(img)}
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-all",
-                      activeImage === img ? "bg-white w-4" : "bg-neutral-600"
-                    )}
-                  />
-                ))}
-             </div>
-          </div>
+            </div>
 
-          {/* Right: Details (Clean Layout) */}
-          <div className="space-y-8 pt-2">
-             <div className="space-y-4">
-               <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold uppercase tracking-widest text-neutral-400">{product.brand}</span>
-                  {product.isBestSeller && <span className="bg-neutral-800 text-white text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide rounded-sm border border-neutral-700">Best Seller</span>}
-               </div>
-               
-               <h1 className="text-3xl md:text-4xl font-normal text-white leading-tight">
-                 {product.name}
-               </h1>
-               
-               <div className="flex items-baseline gap-3 pb-4 border-b border-white/10">
-                 <span className="text-2xl font-semibold text-white">€{product.price.toFixed(2)}</span>
-                 {product.originalPrice && (
+            {/* Right: Details (Clean Layout) */}
+            <div className="space-y-8 pt-2">
+                <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold uppercase tracking-widest text-neutral-400">{product.brand}</span>
+                    {product.isBestSeller && <span className="bg-neutral-800 text-white text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide rounded-sm border border-neutral-700">Best Seller</span>}
+                </div>
+                
+                <h1 className="text-3xl md:text-4xl font-normal text-white leading-tight">
+                    {product.name}
+                </h1>
+                
+                <div className="flex items-baseline gap-3 pb-4 border-b border-white/10">
+                    <span className="text-2xl font-semibold text-white">€{product.price.toFixed(2)}</span>
+                    {product.originalPrice && (
                     <span className="text-lg text-neutral-500 line-through">€{product.originalPrice.toFixed(2)}</span>
-                 )}
-                 <span className="text-sm text-neutral-400 font-light">
-                   (€14.59 – €20.50)
-                 </span>
-               </div>
-               
-               <div className="flex items-center gap-2 text-sm text-green-400 font-medium">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  Disponibile
-               </div>
-             </div>
+                    )}
+                    <span className="text-sm text-neutral-400 font-light">
+                    (€14.59 – €20.50)
+                    </span>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-green-400 font-medium">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    Disponibile
+                </div>
+                </div>
 
-             {/* Selectors */}
-             <div className="space-y-6">
+                {/* Selectors */}
+                <div className="space-y-6">
                 {/* Colors */}
                 {product.colors && (
-                  <div className="space-y-3">
+                    <div className="space-y-3">
                     <span className="text-sm font-medium text-white flex items-center gap-2">
-                      Colore: <span className="text-neutral-400">{selectedColor || 'Seleziona'}</span>
+                        Colore: <span className="text-neutral-400">{selectedColor || 'Seleziona'}</span>
                     </span>
                     <div className="flex flex-wrap gap-2">
-                      {product.colors.map(color => (
-                         <button
-                           key={color}
-                           onClick={() => handleColorChange(color)}
-                           className={cn(
-                             "px-4 py-2 border rounded-md text-sm transition-all",
-                             selectedColor === color 
-                               ? "border-white bg-white text-black shadow-sm" 
-                               : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
-                           )}
-                         >
-                           {color}
-                         </button>
-                      ))}
+                        {product.colors.map(color => (
+                            <button
+                            key={color}
+                            onClick={() => handleColorChange(color)}
+                            className={cn(
+                                "px-4 py-2 border rounded-md text-sm transition-all",
+                                selectedColor === color 
+                                ? "border-white bg-white text-black shadow-sm" 
+                                : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
+                            )}
+                            >
+                            {color}
+                            </button>
+                        ))}
                     </div>
-                  </div>
+                    </div>
                 )}
 
                 {/* Sizes */}
                 <div className="space-y-3">
-                   <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-white flex items-center gap-2">
-                          Taglia: <span className="text-neutral-400">{selectedSize || 'Seleziona'}</span>
-                      </span>
-                      <button className="text-xs underline text-neutral-400 hover:text-white">Guida Taglie</button>
-                   </div>
-                   <div className="flex flex-wrap gap-2">
-                      {product.sizes.map(size => (
-                         <button
-                           key={size}
-                           onClick={() => setSelectedSize(size)}
-                           className={cn(
-                             "min-w-[3.5rem] h-10 px-2 flex items-center justify-center border rounded-md text-sm font-medium transition-all",
-                             selectedSize === size 
-                               ? "border-white bg-white text-black shadow-sm" 
-                               : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
-                           )}
-                         >
-                           {size.replace(' EU', '')}
-                         </button>
-                      ))}
-                   </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-white flex items-center gap-2">
+                            Taglia: <span className="text-neutral-400">{selectedSize || 'Seleziona'}</span>
+                        </span>
+                        <button className="text-xs underline text-neutral-400 hover:text-white">Guida Taglie</button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {product.sizes.map(size => (
+                            <button
+                            key={size}
+                            onClick={() => setSelectedSize(size)}
+                            className={cn(
+                                "min-w-[3.5rem] h-10 px-2 flex items-center justify-center border rounded-md text-sm font-medium transition-all",
+                                selectedSize === size 
+                                ? "border-white bg-white text-black shadow-sm" 
+                                : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
+                            )}
+                            >
+                            {size.replace(' EU', '')}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Quantity + Add */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                   <div className="flex items-center border border-white/20 rounded-md w-fit bg-black">
-                      <button 
+                    <div className="flex items-center border border-white/20 rounded-md w-fit bg-black">
+                        <button 
                         className="p-3 hover:bg-white/10 transition-colors disabled:opacity-30 text-neutral-400 hover:text-white"
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         disabled={quantity <= 1}
-                      >
+                        >
                         <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="w-10 text-center font-medium text-white text-sm">{quantity}</span>
-                      <button 
+                        </button>
+                        <span className="w-10 text-center font-medium text-white text-sm">{quantity}</span>
+                        <button 
                         className="p-3 hover:bg-white/10 transition-colors text-neutral-400 hover:text-white"
                         onClick={() => setQuantity(quantity + 1)}
-                      >
+                        >
                         <Plus className="h-4 w-4" />
-                      </button>
-                   </div>
+                        </button>
+                    </div>
 
-                   <Button 
-                     className="flex-1 h-12 text-sm font-bold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 rounded-md shadow-sm transition-all"
-                     disabled={!selectedSize || (!!product.colors && !selectedColor)}
-                     onClick={handleAddToCart}
-                   >
-                     AGGIUNGI AL CARRELLO
-                   </Button>
+                    <Button 
+                        className="flex-1 h-12 text-sm font-bold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 rounded-md shadow-sm transition-all"
+                        disabled={!selectedSize || (!!product.colors && !selectedColor)}
+                        onClick={handleAddToCart}
+                    >
+                        AGGIUNGI AL CARRELLO
+                    </Button>
                 </div>
-             </div>
+                </div>
 
-             {/* Details Accordion */}
-             <div className="pt-8">
+                {/* Details Accordion */}
+                <div className="pt-8">
                 <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="details" className="border-t border-white/10">
+                    <AccordionItem value="details" className="border-t border-white/10">
                     <AccordionTrigger className="text-sm uppercase tracking-wider font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
-                      Dettagli Prodotto
+                        Dettagli Prodotto
                     </AccordionTrigger>
                     <AccordionContent className="text-neutral-400 leading-relaxed text-sm whitespace-pre-line pb-6">
-                      {product.description}
-                      
-                      <div className="mt-6 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-neutral-500">
-                         <div>SKU: <span className="text-white font-bold block mt-1">{product.sku || 'N/A'}</span></div>
-                         <div>Marchio: <span className="text-white font-bold block mt-1">{product.brand}</span></div>
-                      </div>
+                        {product.description}
+                        
+                        <div className="mt-6 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-neutral-500">
+                            <div>SKU: <span className="text-white font-bold block mt-1">{product.sku || 'N/A'}</span></div>
+                            <div>Marchio: <span className="text-white font-bold block mt-1">{product.brand}</span></div>
+                        </div>
                     </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="shipping" className="border-t border-b border-white/10">
+                    </AccordionItem>
+                    <AccordionItem value="shipping" className="border-t border-b border-white/10">
                     <AccordionTrigger className="text-sm uppercase tracking-wider font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
-                      Spedizione e Resi
+                        Spedizione e Resi
                     </AccordionTrigger>
                     <AccordionContent className="text-neutral-400 leading-relaxed text-sm pb-6">
-                      Spedizione gratuita per ordini superiori a €50. Reso gratuito entro 30 giorni.
+                        Spedizione gratuita per ordini superiori a €50. Reso gratuito entro 30 giorni.
                     </AccordionContent>
-                  </AccordionItem>
+                    </AccordionItem>
                 </Accordion>
-             </div>
-          </div>
+                </div>
+            </div>
         </div>
+
+        {/* Bottom Section: Image Grid */}
+        <div className="pt-12 border-t border-white/10">
+            <h2 className="text-xl font-heading font-bold text-white mb-8 uppercase tracking-widest">Galleria Immagini</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {galleryImages.map((img, idx) => (
+                    <div 
+                        key={idx} 
+                        className="bg-black border border-white/10 rounded-lg overflow-hidden aspect-[4/5] flex items-center justify-center p-4 cursor-pointer hover:border-white/40 transition-colors"
+                        onClick={() => {
+                            setActiveImage(img);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                    >
+                        <img 
+                            src={img} 
+                            alt={`Product gallery ${idx}`} 
+                            className="w-full h-full object-contain"
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+
       </div>
     </div>
   );
