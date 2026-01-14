@@ -90,14 +90,14 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="bg-white min-h-screen pt-24 text-neutral-900 font-sans">
+    <div className="bg-black min-h-screen pt-24 text-white font-sans">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             
             {/* LEFT COLUMN: Main Image + Thumbnails (lg:col-span-7) */}
             <div className="lg:col-span-7 space-y-6">
                 {/* Main Image Container */}
-                <div className="w-full bg-white rounded-lg overflow-hidden border border-neutral-100 p-8 flex items-center justify-center aspect-[4/3] relative">
+                <div className="w-full bg-black rounded-lg overflow-hidden border border-white/10 p-8 flex items-center justify-center aspect-[4/3] relative">
                     <motion.img
                         key={activeImage}
                         src={activeImage}
@@ -116,8 +116,8 @@ export function ProductDetail() {
                             key={idx}
                             onClick={() => setActiveImage(img)}
                             className={cn(
-                                "relative w-full aspect-square border rounded-md overflow-hidden transition-all bg-white p-2 flex items-center justify-center",
-                                activeImage === img ? "border-black ring-1 ring-black" : "border-neutral-200 hover:border-neutral-400"
+                                "relative w-full aspect-square border rounded-md overflow-hidden transition-all bg-black p-2 flex items-center justify-center",
+                                activeImage === img ? "border-white ring-1 ring-white" : "border-white/20 hover:border-white/40"
                             )}
                         >
                             <img 
@@ -134,26 +134,26 @@ export function ProductDetail() {
             <div className="lg:col-span-5 space-y-8">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">{product.brand}</span>
-                        {product.isBestSeller && <span className="bg-neutral-100 text-neutral-800 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide rounded-sm">Best Seller</span>}
+                        <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">{product.brand}</span>
+                        {product.isBestSeller && <span className="bg-neutral-800 text-white text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide rounded-sm border border-neutral-700">Best Seller</span>}
                     </div>
                     
-                    <h1 className="text-2xl md:text-3xl font-medium text-neutral-900 leading-tight mb-4">
+                    <h1 className="text-2xl md:text-3xl font-medium text-white leading-tight mb-4">
                         {product.name}
                     </h1>
                     
-                    <div className="flex items-baseline gap-3 pb-6 border-b border-neutral-100">
-                        <span className="text-2xl font-bold text-neutral-900">€{product.price.toFixed(2)}</span>
+                    <div className="flex items-baseline gap-3 pb-6 border-b border-white/10">
+                        <span className="text-2xl font-bold text-white">€{product.price.toFixed(2)}</span>
                         {product.originalPrice && (
-                            <span className="text-lg text-neutral-400 line-through">€{product.originalPrice.toFixed(2)}</span>
+                            <span className="text-lg text-neutral-500 line-through">€{product.originalPrice.toFixed(2)}</span>
                         )}
-                        <span className="text-sm text-neutral-500">
+                        <span className="text-sm text-neutral-400">
                             (€14.59 – €20.50)
                         </span>
                     </div>
                     
-                    <div className="mt-4 flex items-center gap-2 text-sm text-green-700 font-medium">
-                        <div className="w-2 h-2 rounded-full bg-green-600" />
+                    <div className="mt-4 flex items-center gap-2 text-sm text-green-400 font-medium">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
                         In Stock
                     </div>
                 </div>
@@ -163,8 +163,8 @@ export function ProductDetail() {
                     {/* Colors */}
                     {product.colors && (
                         <div className="space-y-3">
-                            <span className="text-sm font-bold text-neutral-900 flex items-center gap-2">
-                                Color: <span className="font-normal text-neutral-600">{selectedColor || 'Select'}</span>
+                            <span className="text-sm font-bold text-white flex items-center gap-2">
+                                Color: <span className="font-normal text-neutral-400">{selectedColor || 'Select'}</span>
                             </span>
                             <div className="flex flex-wrap gap-2">
                                 {product.colors.map(color => (
@@ -174,8 +174,8 @@ export function ProductDetail() {
                                         className={cn(
                                             "px-4 py-2 border rounded-full text-sm font-medium transition-all min-w-[3rem]",
                                             selectedColor === color 
-                                                ? "border-black bg-neutral-900 text-white shadow-sm" 
-                                                : "border-neutral-200 hover:border-black text-neutral-700 bg-white"
+                                                ? "border-white bg-white text-black shadow-sm" 
+                                                : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
                                         )}
                                     >
                                         {color}
@@ -188,10 +188,10 @@ export function ProductDetail() {
                     {/* Sizes */}
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-neutral-900 flex items-center gap-2">
-                                Size: <span className="font-normal text-neutral-600">{selectedSize || 'Select'}</span>
+                            <span className="text-sm font-bold text-white flex items-center gap-2">
+                                Size: <span className="font-normal text-neutral-400">{selectedSize || 'Select'}</span>
                             </span>
-                            <button className="text-xs underline text-neutral-500 hover:text-black">Size Guide</button>
+                            <button className="text-xs underline text-neutral-400 hover:text-white">Size Guide</button>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {product.sizes.map(size => (
@@ -201,8 +201,8 @@ export function ProductDetail() {
                                     className={cn(
                                         "min-w-[3.5rem] h-10 px-2 flex items-center justify-center border rounded-full text-sm font-medium transition-all",
                                         selectedSize === size 
-                                            ? "border-black bg-neutral-900 text-white shadow-sm" 
-                                            : "border-neutral-200 hover:border-black text-neutral-700 bg-white"
+                                            ? "border-white bg-white text-black shadow-sm" 
+                                            : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
                                     )}
                                 >
                                     {size}
@@ -213,17 +213,17 @@ export function ProductDetail() {
 
                     {/* Quantity + Add */}
                     <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                        <div className="flex items-center border border-neutral-300 rounded-md w-fit bg-white h-12">
+                        <div className="flex items-center border border-white/20 rounded-md w-fit bg-black h-12">
                             <button 
-                                className="px-3 h-full hover:bg-neutral-50 transition-colors disabled:opacity-30 text-neutral-600"
+                                className="px-3 h-full hover:bg-white/10 transition-colors disabled:opacity-30 text-neutral-400 hover:text-white"
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                 disabled={quantity <= 1}
                             >
                                 <Minus className="h-4 w-4" />
                             </button>
-                            <span className="w-10 text-center font-bold text-neutral-900 text-sm">{quantity}</span>
+                            <span className="w-10 text-center font-bold text-white text-sm">{quantity}</span>
                             <button 
-                                className="px-3 h-full hover:bg-neutral-50 transition-colors text-neutral-600"
+                                className="px-3 h-full hover:bg-white/10 transition-colors text-neutral-400 hover:text-white"
                                 onClick={() => setQuantity(quantity + 1)}
                             >
                                 <Plus className="h-4 w-4" />
@@ -231,7 +231,7 @@ export function ProductDetail() {
                         </div>
 
                         <Button 
-                            className="flex-1 h-12 text-sm font-bold uppercase tracking-wider bg-black text-white hover:bg-neutral-800 rounded-md shadow-md transition-all"
+                            className="flex-1 h-12 text-sm font-bold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 rounded-md shadow-md transition-all"
                             disabled={!selectedSize || (!!product.colors && !selectedColor)}
                             onClick={handleAddToCart}
                         >
@@ -242,24 +242,24 @@ export function ProductDetail() {
 
                 {/* Details Accordion */}
                 <div className="pt-6">
-                    <Accordion type="single" collapsible className="w-full border-t border-neutral-200">
-                        <AccordionItem value="description" className="border-b border-neutral-200">
-                            <AccordionTrigger className="text-sm font-bold text-neutral-900 hover:no-underline hover:text-neutral-600 py-4">
+                    <Accordion type="single" collapsible className="w-full border-t border-white/10">
+                        <AccordionItem value="description" className="border-b border-white/10">
+                            <AccordionTrigger className="text-sm font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
                                 Product Description
                             </AccordionTrigger>
-                            <AccordionContent className="text-neutral-600 leading-relaxed text-sm whitespace-pre-line pb-6">
+                            <AccordionContent className="text-neutral-400 leading-relaxed text-sm whitespace-pre-line pb-6">
                                 {product.description}
-                                <div className="mt-4 pt-4 border-t border-neutral-100 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-neutral-500">
-                                    <div>SKU: <span className="text-neutral-900 font-bold block mt-1">{product.sku || 'N/A'}</span></div>
-                                    <div>Brand: <span className="text-neutral-900 font-bold block mt-1">{product.brand}</span></div>
+                                <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-neutral-500">
+                                    <div>SKU: <span className="text-white font-bold block mt-1">{product.sku || 'N/A'}</span></div>
+                                    <div>Brand: <span className="text-white font-bold block mt-1">{product.brand}</span></div>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
-                        <AccordionItem value="shipping" className="border-b border-neutral-200">
-                            <AccordionTrigger className="text-sm font-bold text-neutral-900 hover:no-underline hover:text-neutral-600 py-4">
+                        <AccordionItem value="shipping" className="border-b border-white/10">
+                            <AccordionTrigger className="text-sm font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
                                 Shipping & Returns
                             </AccordionTrigger>
-                            <AccordionContent className="text-neutral-600 leading-relaxed text-sm pb-6">
+                            <AccordionContent className="text-neutral-400 leading-relaxed text-sm pb-6">
                                 Free shipping on orders over €50. Free returns within 30 days.
                             </AccordionContent>
                         </AccordionItem>
