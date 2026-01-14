@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 // Import generated hero images
 import bestSellerHero from '@assets/image_1768383078176.png';
-import summerHero from '@assets/image_1768383084511.png';
+import summerHero from '@assets/image_1768383551223.png';
 import outletHero from '@assets/generated_images/outlet_sale_hero.png';
 
 export interface HeroSlide {
