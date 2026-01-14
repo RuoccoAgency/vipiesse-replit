@@ -3,7 +3,7 @@ import newSeasonImg from '@assets/generated_images/new_season_summer_sliders.png
 import outletImg from '@assets/generated_images/outlet_sale_sliders.png';
 import donnaImg from '@assets/WhatsApp_Image_2026-01-12_at_11.22.53_1768217528955.jpeg';
 import uomoImg from '@assets/image_1768217545082.png';
-import bambinoImg from '@assets/generated_images/kids_colorful_sliders.png';
+import bambinoImg from '@assets/WhatsApp_Image_2026-01-12_at_12.12.15_1768383712607.jpeg';
 
 export type Category = 'donna' | 'uomo' | 'bambino';
 
