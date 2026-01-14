@@ -99,7 +99,7 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen pt-24">
       <div className="container mx-auto px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           {/* Left: Gallery (Updated Layout) */}
