@@ -7,9 +7,11 @@ import bambinoImg from '@assets/WhatsApp_Image_2026-01-12_at_12.12.15_1768383712
 
 import inbluGold from '@assets/image_1768384856832.png';
 import inbluSilver from '@assets/image_1768384862836.png';
+import inbluSilverSide from '@assets/image_1768385734202.png';
 import inbluWhite from '@assets/image_1768384873309.png';
 import inbluBlue from '@assets/image_1768384895088.png';
 import inbluDarkBlue from '@assets/image_1768384902607.png';
+import inbluDarkBlueSide from '@assets/image_1768385724058.png';
 
 export type Category = 'donna' | 'uomo' | 'bambino';
 
@@ -24,6 +26,7 @@ export interface Product {
   isNewSeason: boolean;
   image: string;
   gallery?: string[];
+  imagesByColor?: Record<string, string[]>;
   sizes: string[];
   colors?: string[];
   sku?: string;
@@ -54,6 +57,16 @@ const inbluProduct: Product = {
   isNewSeason: false,
   image: inbluGold,
   gallery: [inbluGold, inbluSilver, inbluWhite, inbluBlue, inbluDarkBlue],
+  imagesByColor: {
+    'Argento': [inbluSilver, inbluSilverSide],
+    'Azalea': [inbluGold], // Fallback
+    'Bianco': [inbluWhite],
+    'Blu': [inbluBlue],
+    'Blu Scuro': [inbluDarkBlue, inbluDarkBlueSide],
+    'Jeans': [inbluBlue], // Fallback
+    'Platino': [inbluGold],
+    'Rosa': [inbluGold], // Fallback
+  },
   sizes: ['35 EU', '36 EU', '37 EU', '38 EU', '39 EU', '40 EU', '41 EU'],
   colors: ['Argento', 'Azalea', 'Bianco', 'Blu', 'Blu Scuro', 'Jeans', 'Platino', 'Rosa'],
   sku: '5033AG39-1',

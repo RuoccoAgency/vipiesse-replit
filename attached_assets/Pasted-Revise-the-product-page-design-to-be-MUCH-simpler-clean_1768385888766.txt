@@ -1,0 +1,58 @@
+Revise the product page design to be MUCH simpler, cleaner, and more “e-commerce standard”.
+Keep the same product data (title, prices, SKU, brand, availability, variants, description text) but redesign the UI.
+
+DESIGN CHANGES (IMPORTANT)
+- Remove the black background and the dotted pattern entirely.
+- Use a light/neutral background (white or very light gray).
+- Use a clean layout with plenty of whitespace, minimal borders, and soft rounded corners.
+- Typography: modern, readable, not huge. Clear hierarchy.
+
+PRODUCT IMAGE GALLERY (FIX)
+- The product images currently look bad except the first one. Replace ALL the secondary images with the new ones I upload now (use ONLY the latest uploaded set).
+- Ensure every image is displayed correctly:
+  - No crop, no cut edges, no extreme zoom.
+  - Default: object-fit: contain, centered, full shoe visible.
+  - Add a subtle light background behind the image if needed.
+- Gallery style:
+  - Thumbnails on the left (desktop), main image on the right.
+  - On mobile: swipeable carousel + small dots/thumbnails below.
+  - Click-to-zoom/lightbox optional, but keep default simple.
+
+LAYOUT (DESKTOP)
+- Two columns:
+  LEFT: gallery (main image + thumbnails)
+  RIGHT: product info (title, price, availability, variants, quantity, CTA)
+- Put variants in a simple stacked format:
+  - “Taglia” pills (35–41)
+  - “Colore” pills (Argento, Azalea, Bianco, Blu, Blu Scuro, Jeans, Platino, Rosa)
+  - Selected state clearly visible.
+- Quantity selector small, next to the CTA.
+- CTA button prominent: “AGGIUNGI AL CARRELLO”.
+
+DETAILS SECTION
+- Below the fold: tabs or accordion (simple) with:
+  - “Dettagli prodotto”
+  - “Informazioni su questo articolo”
+Use the same text, do not rewrite.
+
+EXTRA
+- Remove unnecessary decorations/badges unless they look clean.
+- Make everything responsive and consistent with the rest of the site.
+
+After updating, show the improved product page with the new uploaded images applied.
+
+COLOR -> IMAGE SYNC (MUST)
+- When a customer clicks a color variant, the main product image MUST automatically switch to the corresponding shoe photo for that color.
+- Use a clear mapping between each color option and its image set (main image + optional additional angles).
+- The selected color must also update the thumbnail list to show the images for that color (or at least set the first image as the main one).
+- Default load: select the first color available (or the color of the first uploaded image) and show its images immediately.
+
+IMPLEMENTATION NOTES
+- Store images grouped by color (e.g. an object/dictionary like { "Argento": [...images], "Blu": [...images], ... } ).
+- On color change:
+  1) update selectedColor state
+  2) set galleryImages = imagesByColor[selectedColor]
+  3) set mainImage = galleryImages[0]
+- Ensure images are always displayed with object-fit: contain and never cropped.
+
+Use ONLY the latest images I upload for each color and ensure each color shows the correct shoe.
