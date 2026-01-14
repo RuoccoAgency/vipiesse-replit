@@ -49,7 +49,7 @@ const SIZES_KIDS = ['28', '29', '30', '31', '32', '33', '34', '35'];
 // Specific product requested
 const inbluProduct: Product = {
   id: '5033AG39-1',
-  name: 'inblu Pantofole Classische Clogs, Sandali a Ciabatta Donna Art. 5033',
+  name: 'inblu Classic Clogs Slippers, Women Slide Sandals Art. 5033',
   category: 'donna',
   price: 14.59,
   isOutlet: false,
@@ -58,30 +58,27 @@ const inbluProduct: Product = {
   image: inbluGold,
   gallery: [inbluGold, inbluSilver, inbluWhite, inbluBlue, inbluDarkBlue],
   imagesByColor: {
-    'Argento': [inbluSilver, inbluSilverSide],
-    'Azalea': [inbluGold], // Fallback
-    'Bianco': [inbluWhite],
-    'Blu': [inbluBlue],
-    'Blu Scuro': [inbluDarkBlue, inbluDarkBlueSide],
-    'Jeans': [inbluBlue], // Fallback
-    'Platino': [inbluGold],
-    'Rosa': [inbluGold], // Fallback
+    'Silver': [inbluSilver, inbluSilverSide],
+    'Azalea': [inbluGold], 
+    'White': [inbluWhite],
+    'Blue': [inbluBlue],
+    'Dark Blue': [inbluDarkBlue, inbluDarkBlueSide],
+    'Jeans': [inbluBlue],
+    'Platinum': [inbluGold],
+    'Pink': [inbluGold], 
   },
-  sizes: ['35 EU', '36 EU', '37 EU', '38 EU', '39 EU', '40 EU', '41 EU'],
-  colors: ['Argento', 'Azalea', 'Bianco', 'Blu', 'Blu Scuro', 'Jeans', 'Platino', 'Rosa'],
+  sizes: ['35', '36', '37', '38', '39', '40', '41'],
+  colors: ['Silver', 'Azalea', 'White', 'Blue', 'Dark Blue', 'Jeans', 'Platinum', 'Pink'],
   sku: '5033AG39-1',
   brand: 'Inblu',
-  description: `Dettagli prodotto / Informazioni su questo articolo
+  description: `Product Details
+Sole material: Synthetic
+Upper height: Ankle
+Platform height: 4.5 cm
+Outer material: Synthetic
 
-Materiale esterno: Sintetico
-Materiale suola: Poliuretano
-Chiusura: Senza chiusura
-Tipo di tacco: Senza tacco
-
-Informazioni aggiuntive:
-Le inblu 5033 sono una versione moderna e colorata degli zoccoli professionali classici, ideali per uso professionale e casalingo.
-Plantare anatomico in vera pelle imbottita che garantisce comfort duraturo.
-Leggere, flessibili e traspiranti.`,
+Product Description:
+ZOCCOLI – The colorful inblu clogs are a fresh and fun version of traditional professional clogs. These are lightweight and colorful slippers, perfect for seasonal changes and ideal for those who spend many hours standing, cleaning, or cooking. inblu professional clogs are available in a wide range of colors, also with elastic bands, velcro closure, and open versions.`,
 };
 
 // Generate 24 demo products

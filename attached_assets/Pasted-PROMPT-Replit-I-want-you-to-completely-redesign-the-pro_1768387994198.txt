@@ -1,0 +1,75 @@
+PROMPT (Replit):
+I want you to completely redesign the product page with a simple, clean, and classic e-commerce layout, similar to the reference image I provided (large main image on top + thumbnails below).
+The current page is not acceptable: dark background, too many effects, images are zoomed/cropped, and the layout is confusing.
+🎯 Layout & Style Goal
+Minimal, clean design
+Light background (white or very light gray)
+Classic e-commerce structure:
+Desktop layout
+Large main product image on the left
+Thumbnail images below the main image
+On the right:
+Product title
+Price
+Availability
+Color selection
+Size selection
+Quantity selector
+Add to Cart button
+Below: Description & product details in clean sections (accordion or simple blocks)
+Mobile layout
+Everything stacked vertically
+Image → thumbnails → product info → description
+🖼️ Product Images (VERY IMPORTANT)
+All images I upload to Replit must be fully visible
+NO cropping, NO zoom
+Use:
+object-fit: contain
+Main image centered inside a container with padding
+Keep a consistent aspect ratio (1:1 or 4:3)
+🎨 Color Selection → Automatic Image Change
+When a user selects a color:
+The main product image must automatically change to the corresponding color image
+Implement a mapping system like:
+Silver → img_silver
+Azalea → img_azalea
+White → img_white
+Blue → img_blue
+Dark Blue → img_dark_blue
+Jeans → img_jeans
+Platinum → img_platinum
+Pink → img_pink
+If a color does not have a specific image, keep the current image without breaking the UI.
+👟 Variant UI
+Colors displayed as clean pills or swatches
+Sizes displayed as pills: 35, 36, 37, 38, 39, 40, 41
+Active variant must be clearly highlighted (border or subtle shadow)
+Validation required:
+User cannot add to cart without selecting a size
+(and color if required)
+📦 Product Data (must be copied exactly)
+Category: Women
+Title: inblu Classic Clogs Slippers, Women Slide Sandals Art. 5033
+Price: €14.59 – €20.50
+Product Details
+Sole material: Synthetic
+Upper height: Ankle
+Platform height: 4.5 cm
+Outer material: Synthetic
+Product Description (copy exactly):
+ZOCCOLI – The colorful inblu clogs are a fresh and fun version of traditional professional clogs. These are lightweight and colorful slippers, perfect for seasonal changes and ideal for those who spend many hours standing, cleaning, or cooking. inblu professional clogs are available in a wide range of colors, also with elastic bands, velcro closure, and open versions.
+🧱 Thumbnail Section (like the reference)
+Thumbnails displayed below the main image
+Clicking a thumbnail changes the main image
+Grid layout:
+Desktop: 4–5 columns
+Mobile: 2–3 columns
+Highlight the active thumbnail
+🧠 UX & Performance
+No dark backgrounds
+No decorative dots or patterns
+No heavy animations
+Only light hover and transition effects (150–200ms)
+Fast, readable, and conversion-focused
+✅ Final Requirement
+Replace the existing product page with this new clean version, keeping the project structure intact but completely changing the product layout and styling as described above.
