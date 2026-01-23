@@ -1,0 +1,144 @@
+> Build a complete e-commerce backend using Node.js + Express + SQLite, designed to be deployed on Replit.
+
+Core requirements:
+
+1. SQLite database with the following tables:
+
+products (id, name, price_cents, active)
+
+collections (id, name, slug)
+
+product_collections (product_id, collection_id, position)
+
+
+A product can belong to multiple collections (many-to-many relationship).
+
+
+2. Admin authentication system:
+
+/login page
+
+Protected /admin area
+
+Login via email and password
+
+Admin credentials must be loaded from Environment Variables (Replit Secrets):
+
+ADMIN_EMAIL
+
+ADMIN_PASSWORD
+
+SESSION_SECRET
+
+
+Use httpOnly cookies for session handling
+
+
+
+3. Browser-based admin panel (no Replit account required):
+
+/admin/products
+
+create products
+
+edit name, price and active status
+
+assign products to multiple collections using checkboxes
+
+
+/admin/collections
+
+create and list collections (Men, Women, Kids, Outlet, Best Sellers, Seasonal, etc.)
+
+
+
+
+4. Security:
+
+All admin routes must be protected by an isAdmin middleware
+
+No secrets or credentials hard-coded in the source code
+
+All sensitive data must be stored only in Environment Variables
+
+
+
+5. Simple but functional UI:
+
+Server-rendered HTML
+
+Minimal “spreadsheet-like” layout
+
+Checkboxes for product-collection assignment
+
+
+
+6. Ready for Replit deployment:
+
+index.js as the entry point
+
+package.json with "start" script
+
+The app must run immediately when pressing Run
+
+
+
+
+Final goal:
+
+The client accesses the backend only via browser at /admin
+
+The client can manage products and collections independently
+
+The client does not need a Replit account
+
+The client never sees source code, database, or secrets
+
+
+Generate the full, working codebase.
+
+
+
+
+---
+
+🔧 How to use it (quick)
+
+1. Open Replit
+
+
+2. Open Replit AI / Ghostwriter
+
+
+3. Paste the prompt
+
+
+4. Generate
+
+
+5. Go to Tools → Secrets and add:
+
+ADMIN_EMAIL
+
+ADMIN_PASSWORD
+
+SESSION_SECRET
+
+
+
+6. Run → Deploy → send the /admin link to the client
+
+
+
+
+---
+
+If you want, I can:
+
+adapt this prompt to Next.js
+
+add orders & analytics
+
+make the admin UI more “Shopify-like”
+
+simplify it even more for a super-fast MVP
