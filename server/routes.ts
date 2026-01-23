@@ -104,13 +104,21 @@ export async function registerRoutes(
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
+    console.log("[LOGIN] Attempt with email:", email);
+    console.log("[LOGIN] Admin email configured:", adminEmail ? "YES" : "NO");
+    console.log("[LOGIN] Admin password configured:", adminPassword ? "YES" : "NO");
+
     if (!adminEmail || !adminPassword) {
+      console.log("[LOGIN] ERROR: Admin credentials not configured");
       return res.status(500).json({ error: "Admin credentials not configured" });
     }
 
     if (email !== adminEmail || password !== adminPassword) {
+      console.log("[LOGIN] ERROR: Invalid credentials - email match:", email === adminEmail, "password match:", password === adminPassword);
       return res.status(401).json({ error: "Invalid credentials" });
     }
+    
+    console.log("[LOGIN] SUCCESS for:", email);
 
     await storage.deleteExpiredSessions();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
