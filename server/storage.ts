@@ -26,8 +26,9 @@ import {
   type Session,
   type ProductWithVariants
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, and, inArray, desc, asc, gte, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
 
 export interface IStorage {
   // Products
@@ -89,6 +90,12 @@ export interface IStorage {
   
   // Stock operations
   decrementStock(variantId: number, quantity: number): Promise<boolean>;
+  
+  // Transactional order creation
+  createOrderWithItems(
+    order: InsertOrder,
+    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number }[]
+  ): Promise<{ order: Order; items: OrderItem[] } | { error: string }>;
   
   // Sessions
   createSession(email: string, expiresAt: Date): Promise<Session>;
@@ -407,6 +414,86 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return result.length > 0;
+  }
+
+  // Transactional order creation - ensures atomicity with row-level locking
+  async createOrderWithItems(
+    orderData: InsertOrder,
+    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number }[]
+  ): Promise<{ order: Order; items: OrderItem[] } | { error: string }> {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // Lock and validate all variants with SELECT FOR UPDATE to prevent race conditions
+      for (const item of items) {
+        const lockResult = await client.query(
+          'SELECT id, stock_qty FROM product_variants WHERE id = $1 FOR UPDATE',
+          [item.variantId]
+        );
+        
+        if (lockResult.rows.length === 0) {
+          await client.query('ROLLBACK');
+          return { error: `Variant not found: ${item.variantSku}` };
+        }
+        
+        const currentStock = lockResult.rows[0].stock_qty;
+        if (currentStock < item.quantity) {
+          await client.query('ROLLBACK');
+          return { error: `Insufficient stock for SKU: ${item.variantSku}. Available: ${currentStock}` };
+        }
+      }
+      
+      // Decrement stock for all variants (rows are now locked)
+      for (const item of items) {
+        await client.query(
+          'UPDATE product_variants SET stock_qty = stock_qty - $1 WHERE id = $2',
+          [item.quantity, item.variantId]
+        );
+      }
+      
+      // Create the order
+      const orderResult = await client.query(
+        `INSERT INTO orders (status, customer_email, customer_name, customer_phone, shipping_address, total_cents, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING *`,
+        [orderData.status, orderData.customerEmail, orderData.customerName, orderData.customerPhone, orderData.shippingAddress, orderData.totalCents]
+      );
+      const newOrder = orderResult.rows[0];
+      
+      // Create order items
+      const createdItems: OrderItem[] = [];
+      for (const item of items) {
+        const itemResult = await client.query(
+          `INSERT INTO order_items (order_id, variant_id, product_name, variant_sku, variant_color, variant_size, quantity, price_cents)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+          [newOrder.id, item.variantId, item.productName, item.variantSku, item.variantColor, item.variantSize, item.quantity, item.priceCents]
+        );
+        createdItems.push(itemResult.rows[0]);
+      }
+      
+      await client.query('COMMIT');
+      
+      // Map the raw SQL result to our Order type
+      const order: Order = {
+        id: newOrder.id,
+        status: newOrder.status,
+        customerEmail: newOrder.customer_email,
+        customerName: newOrder.customer_name,
+        customerPhone: newOrder.customer_phone,
+        shippingAddress: newOrder.shipping_address,
+        totalCents: newOrder.total_cents,
+        createdAt: newOrder.created_at,
+        updatedAt: newOrder.updated_at
+      };
+      
+      return { order, items: createdItems };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   // Sessions

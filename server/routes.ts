@@ -600,7 +600,7 @@ export async function registerRoutes(
   // PUBLIC API - Orders (Checkout)
   // ================================
   
-  // Create order with stock validation and decrement
+  // Create order with stock validation and decrement (transactional)
   app.post("/api/orders", async (req, res) => {
     try {
       const { items, customerEmail, customerName, customerPhone, shippingAddress } = req.body;
@@ -611,13 +611,16 @@ export async function registerRoutes(
       
       // Validate all items have required fields
       for (const item of items) {
-        if (!item.variantId || !item.quantity || item.quantity < 1) {
-          return res.status(400).json({ error: "Invalid item in cart" });
+        if (!item.variantId || typeof item.variantId !== 'number') {
+          return res.status(400).json({ error: "Invalid variantId in cart item" });
+        }
+        if (!item.quantity || typeof item.quantity !== 'number' || item.quantity < 1) {
+          return res.status(400).json({ error: "Invalid quantity in cart item" });
         }
       }
       
-      // First, validate stock for all items
-      const stockChecks: { variantId: number; quantity: number; variant: any; product: any }[] = [];
+      // Pre-validate stock and gather item details
+      const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number }[] = [];
       let totalCents = 0;
       
       for (const item of items) {
@@ -642,52 +645,39 @@ export async function registerRoutes(
         const priceCents = variant.priceCents || product.basePriceCents || 0;
         totalCents += priceCents * item.quantity;
         
-        stockChecks.push({ variantId: item.variantId, quantity: item.quantity, variant, product });
-      }
-      
-      // Create the order
-      const order = await storage.createOrder({
-        status: 'pending',
-        customerEmail: customerEmail || null,
-        customerName: customerName || null,
-        customerPhone: customerPhone || null,
-        shippingAddress: shippingAddress || null,
-        totalCents
-      });
-      
-      // Create order items and decrement stock atomically
-      for (const check of stockChecks) {
-        const priceCents = check.variant.priceCents || check.product.basePriceCents || 0;
-        
-        await storage.createOrderItem({
-          orderId: order.id,
-          variantId: check.variantId,
-          productName: check.product.name,
-          variantSku: check.variant.sku,
-          variantColor: check.variant.color,
-          variantSize: check.variant.size,
-          quantity: check.quantity,
+        orderItems.push({
+          variantId: item.variantId,
+          productName: product.name,
+          variantSku: variant.sku,
+          variantColor: variant.color,
+          variantSize: variant.size,
+          quantity: item.quantity,
           priceCents
         });
-        
-        // Decrement stock atomically
-        const decremented = await storage.decrementStock(check.variantId, check.quantity);
-        if (!decremented) {
-          // Race condition - stock was depleted between check and decrement
-          // In production, you'd want to roll back the order
-          return res.status(400).json({ 
-            error: `Stock for ${check.variant.sku} was just purchased. Please refresh and try again.` 
-          });
-        }
       }
       
-      // Update order status to paid (simulating successful payment)
-      const completedOrder = await storage.updateOrderStatus(order.id, 'paid');
+      // Create order with items in a single transaction (stock decrement included)
+      const result = await storage.createOrderWithItems(
+        {
+          status: 'paid', // Set to paid since we're simulating payment
+          customerEmail: customerEmail || null,
+          customerName: customerName || null,
+          customerPhone: customerPhone || null,
+          shippingAddress: shippingAddress || null,
+          totalCents
+        },
+        orderItems
+      );
+      
+      // Check for stock error (transaction rolled back)
+      if ('error' in result) {
+        return res.status(400).json({ error: result.error });
+      }
       
       res.status(201).json({ 
         success: true, 
-        orderId: order.id,
-        order: completedOrder,
+        orderId: result.order.id,
+        order: result.order,
         message: 'Order placed successfully' 
       });
     } catch (error) {
