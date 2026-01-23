@@ -1,56 +1,45 @@
 import { db } from "./db";
-import { products, collections, productCollections } from "@shared/schema";
+import { products, productVariants, productImages, collections, productCollections } from "@shared/schema";
 
 async function seed() {
-  console.log("Seeding database...");
+  console.log("Seeding database with new product/variant structure...");
 
   // Create collections first
-  const bestSellersCollection = await db.insert(collections).values({
+  const [bestSellers] = await db.insert(collections).values({
     name: "Best Sellers",
     slug: "best-sellers",
     description: "I più venduti",
   }).returning();
 
-  const donnaCollection = await db.insert(collections).values({
+  const [donna] = await db.insert(collections).values({
     name: "Women",
     slug: "donna",
     description: "Collezione Donna",
   }).returning();
 
-  const uomoCollection = await db.insert(collections).values({
+  const [uomo] = await db.insert(collections).values({
     name: "Men",
     slug: "uomo",
     description: "Collezione Uomo",
   }).returning();
 
-  const bambinoCollection = await db.insert(collections).values({
+  const [bambino] = await db.insert(collections).values({
     name: "Kids",
     slug: "bambino",
     description: "Collezione Bambino",
   }).returning();
 
-  const outletCollection = await db.insert(collections).values({
+  const [outlet] = await db.insert(collections).values({
     name: "Outlet",
     slug: "outlet",
     description: "Prodotti in saldo",
   }).returning();
 
-  const newSeasonCollection = await db.insert(collections).values({
-    name: "New Season",
-    slug: "new-season",
-    description: "Nuova stagione",
-  }).returning();
-
   console.log("Collections created");
 
-  // Create sample product with new Google Sheet fields
-  const inbluProduct = await db.insert(products).values({
-    articolo: "INBLU CLASSIC CLOGS 5033",
-    colore: "AZALEA",
-    sku: "5033AG39",
-    taglia: "39",
-    quantita: 10,
-    priceCents: 1459, // €14.59
+  // Create a sample product (base model)
+  const [inbluProduct] = await db.insert(products).values({
+    name: "INBLU Classic Clogs 5033",
     brand: "Inblu",
     description: `Product Details
 Sole material: Synthetic
@@ -60,30 +49,48 @@ Outer material: Synthetic
 
 Product Description:
 ZOCCOLI – The colorful inblu clogs are a fresh and fun version of traditional professional clogs.`,
-    image: "/assets/image_1768384856832-CTRfTKA7.png",
-    gallery: [
-      "/assets/image_1768384856832-CTRfTKA7.png",
-      "/assets/image_1768384862836-qyO-uCN4.png",
-      "/assets/image_1768384873309-CsgUpd3y.png",
-    ],
+    basePriceCents: 1459, // €14.59
     active: true,
-    category: "donna",
-    sizes: ["35", "36", "37", "38", "39", "40", "41"],
-    colors: ["Silver", "Azalea", "White", "Blue"],
-    isBestSeller: true,
-    isNewSeason: false,
-    isOutlet: false,
   }).returning();
 
-  console.log("Products created");
+  console.log("Product created:", inbluProduct.name);
+
+  // Add product images
+  await db.insert(productImages).values([
+    { productId: inbluProduct.id, imageUrl: "/assets/image_1768384856832-CTRfTKA7.png", sortOrder: 0 },
+    { productId: inbluProduct.id, imageUrl: "/assets/image_1768384862836-qyO-uCN4.png", sortOrder: 1 },
+    { productId: inbluProduct.id, imageUrl: "/assets/image_1768384873309-CsgUpd3y.png", sortOrder: 2 },
+  ]);
+
+  console.log("Product images added");
+
+  // Add variants (color + size combinations)
+  const colors = ["AZALEA", "SILVER", "WHITE", "BLUE"];
+  const sizes = ["36", "37", "38", "39", "40", "41"];
+  
+  for (const color of colors) {
+    for (const size of sizes) {
+      await db.insert(productVariants).values({
+        productId: inbluProduct.id,
+        color: color,
+        size: size,
+        sku: `5033${color.substring(0, 2)}${size}`,
+        stockQty: Math.floor(Math.random() * 20) + 5, // Random stock 5-24
+        priceCents: null, // Use base price
+        active: true,
+      });
+    }
+  }
+
+  console.log("Product variants created");
 
   // Assign product to collections
   await db.insert(productCollections).values([
-    { productId: inbluProduct[0].id, collectionId: bestSellersCollection[0].id, position: 0 },
-    { productId: inbluProduct[0].id, collectionId: donnaCollection[0].id, position: 0 },
+    { productId: inbluProduct.id, collectionId: bestSellers.id, position: 0 },
+    { productId: inbluProduct.id, collectionId: donna.id, position: 0 },
   ]);
 
-  console.log("Product-collection relationships created");
+  console.log("Product assigned to collections");
   console.log("Seeding complete!");
 }
 

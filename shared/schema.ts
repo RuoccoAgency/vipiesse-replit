@@ -3,44 +3,61 @@ import { pgTable, text, varchar, integer, boolean, timestamp, serial, primaryKey
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Products table - updated with Google Sheet fields
+// ================================
+// PRODUCTS - Base product/model (e.g., "ROMA TOPI WA20")
+// ================================
 export const products = pgTable("products", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  
-  // New fields from Google Sheet
-  articolo: text("articolo").notNull(), // e.g. "ROMA TOPI WA20"
-  colore: text("colore").notNull(), // e.g. "BORDEAUX", "BIANCO"
-  sku: text("sku").notNull().unique(), // e.g. "ROMATOPIWA20BO36/37" - UNIQUE
-  taglia: text("taglia").notNull(), // e.g. "36/37", "38/39"
-  quantita: integer("quantita").notNull().default(0), // stock quantity
-  
-  // Price fields
-  priceCents: integer("price_cents").notNull(), // stored as cents internally
-  
-  // Optional fields
-  name: text("name"), // Legacy field for backward compatibility
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // Product name / articolo
   brand: text("brand"),
   description: text("description"),
-  image: text("image"),
-  gallery: text("gallery").array(),
-  
-  // Status
+  basePriceCents: integer("base_price_cents"), // Default price if variant doesn't have one
   active: boolean("active").notNull().default(true),
-  
-  // Legacy fields (kept for compatibility)
-  category: varchar("category", { length: 50 }),
-  sizes: text("sizes").array(),
-  colors: text("colors").array(),
-  isBestSeller: boolean("is_best_seller").notNull().default(false),
-  isNewSeason: boolean("is_new_season").notNull().default(false),
-  isOutlet: boolean("is_outlet").notNull().default(false),
-  originalPriceCents: integer("original_price_cents"),
-  
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Collections table
+// ================================
+// PRODUCT VARIANTS - Color + Size combinations
+// ================================
+export const productVariants = pgTable("product_variants", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
+  color: text("color").notNull(),
+  size: text("size").notNull(),
+  sku: text("sku").notNull().unique(), // Globally unique SKU
+  stockQty: integer("stock_qty").notNull().default(0),
+  priceCents: integer("price_cents"), // If null, use product.basePriceCents
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  // Unique constraint: one variant per product/color/size combination
+  uniqueProductColorSize: uniqueIndex("unique_product_color_size").on(table.productId, table.color, table.size),
+}));
+
+// ================================
+// PRODUCT IMAGES - Gallery images for the product
+// ================================
+export const productImages = pgTable("product_images", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
+  imageUrl: text("image_url").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// ================================
+// VARIANT IMAGES - Images specific to a variant (color)
+// ================================
+export const variantImages = pgTable("variant_images", {
+  id: serial("id").primaryKey(),
+  variantId: integer("variant_id").notNull().references(() => productVariants.id, { onDelete: 'cascade' }),
+  imageUrl: text("image_url").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// ================================
+// COLLECTIONS - Product groupings
+// ================================
 export const collections = pgTable("collections", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -50,18 +67,20 @@ export const collections = pgTable("collections", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Product-Collection junction table (many-to-many)
+// ================================
+// PRODUCT COLLECTIONS - Many-to-many junction
+// ================================
 export const productCollections = pgTable("product_collections", {
-  productId: varchar("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
   collectionId: integer("collection_id").notNull().references(() => collections.id, { onDelete: 'cascade' }),
   position: integer("position").notNull().default(0),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.productId, table.collectionId] }),
-  };
-});
+}, (table) => ({
+  pk: primaryKey({ columns: [table.productId, table.collectionId] }),
+}));
 
-// Admin sessions table
+// ================================
+// ADMIN SESSIONS
+// ================================
 export const sessions = pgTable("sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull(),
@@ -69,18 +88,43 @@ export const sessions = pgTable("sessions", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Insert schemas with validation
+// ================================
+// INSERT SCHEMAS
+// ================================
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 }).extend({
+  name: z.string().min(1, "Product name is required"),
+});
+
+export const insertProductVariantSchema = createInsertSchema(productVariants).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  productId: z.number().int().positive(),
+  color: z.string().min(1, "Color is required"),
+  size: z.string().min(1, "Size is required"),
   sku: z.string().min(1, "SKU is required"),
-  articolo: z.string().min(1, "Articolo is required"),
-  colore: z.string().min(1, "Colore is required"),
-  taglia: z.string().min(1, "Taglia is required"),
-  quantita: z.number().int().min(0, "Quantità must be 0 or greater").default(0),
-  priceCents: z.number().int().min(0, "Price must be positive"),
+  stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
+  priceCents: z.number().int().min(0).nullable().optional(),
+});
+
+export const insertProductImageSchema = createInsertSchema(productImages).omit({
+  id: true,
+}).extend({
+  productId: z.number().int().positive(),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  sortOrder: z.number().int().default(0),
+});
+
+export const insertVariantImageSchema = createInsertSchema(variantImages).omit({
+  id: true,
+}).extend({
+  variantId: z.number().int().positive(),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  sortOrder: z.number().int().default(0),
 });
 
 export const insertCollectionSchema = createInsertSchema(collections).omit({
@@ -90,9 +134,20 @@ export const insertCollectionSchema = createInsertSchema(collections).omit({
 
 export const insertProductCollectionSchema = createInsertSchema(productCollections);
 
-// Types
+// ================================
+// TYPES
+// ================================
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
+
+export type InsertProductVariant = z.infer<typeof insertProductVariantSchema>;
+export type ProductVariant = typeof productVariants.$inferSelect;
+
+export type InsertProductImage = z.infer<typeof insertProductImageSchema>;
+export type ProductImage = typeof productImages.$inferSelect;
+
+export type InsertVariantImage = z.infer<typeof insertVariantImageSchema>;
+export type VariantImage = typeof variantImages.$inferSelect;
 
 export type InsertCollection = z.infer<typeof insertCollectionSchema>;
 export type Collection = typeof collections.$inferSelect;
@@ -101,3 +156,16 @@ export type InsertProductCollection = z.infer<typeof insertProductCollectionSche
 export type ProductCollection = typeof productCollections.$inferSelect;
 
 export type Session = typeof sessions.$inferSelect;
+
+// ================================
+// COMPOSITE TYPES FOR API RESPONSES
+// ================================
+export type ProductWithVariants = Product & {
+  variants: ProductVariant[];
+  images: ProductImage[];
+  collections: Collection[];
+};
+
+export type ProductVariantWithImages = ProductVariant & {
+  images: VariantImage[];
+};

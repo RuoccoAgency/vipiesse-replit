@@ -1,0 +1,150 @@
+Refactor the existing e-commerce project to support a Shopify-style product structure with variants, so that:
+
+- ONE product represents a model (e.g. "ROMA TOPI WA20", "VERONA EW A30")
+- Each product has MULTIPLE variants (color + size combinations)
+- Users select color and size on the SAME product page
+- Do NOT create separate products for each color or size
+- Each variant has its own SKU, stock quantity, and optional price
+- Each product supports multiple images (gallery), and optionally images per color/variant
+
+================================
+DATABASE STRUCTURE
+================================
+
+1) products
+- id (primary key)
+- name / articolo (string, required)
+- brand (string, nullable)
+- description (text, nullable)
+- active (boolean, default true)
+- created_at
+- updated_at
+
+2) product_variants
+- id (primary key)
+- product_id (foreign key -> products.id)
+- color (string, required)
+- size (string, required)
+- sku (string, UNIQUE, required)
+- stock_qty (integer, default 0)
+- price_cents (integer, nullable)  // if null, fallback to product price if exists
+- active (boolean, default true)
+
+Constraints:
+- UNIQUE(product_id, color, size)
+- sku must be globally unique
+
+3) product_images
+- id (primary key)
+- product_id (foreign key)
+- image_url (text, required)
+- sort_order (integer, default 0)
+
+4) variant_images (optional but implement)
+- id (primary key)
+- variant_id (foreign key -> product_variants.id)
+- image_url (text, required)
+- sort_order (integer, default 0)
+
+5) collections (keep existing)
+- id
+- name
+- slug
+- description
+
+6) product_collections (many-to-many)
+- product_id
+- collection_id
+- position
+
+================================
+ADMIN PANEL (BACKEND + UI)
+================================
+
+/admin/products
+
+A) Product management
+- Create/Edit Product:
+  - Name / Articolo
+  - Brand
+  - Description
+  - Active
+- Assign product to multiple collections using checkboxes
+- Collections apply to PRODUCT, not variants
+
+B) Variant management (inside product edit page)
+- Show a "Variants" section
+- List variants with:
+  - Color
+  - Size
+  - SKU
+  - Stock quantity
+  - Price
+  - Active
+- Add Variant modal:
+  - Color (text or dropdown)
+  - Size (text or dropdown)
+  - SKU (required, unique)
+  - Stock quantity (integer >= 0)
+  - Price (€ input, supports comma and dot)
+  - Active
+- Edit and delete variants
+- Show clear error if SKU already exists
+
+C) Images management
+- Product Images section:
+  - Add multiple image URLs
+  - Reorder images
+  - Delete images
+- Variant Images section:
+  - For each variant (or color), allow adding multiple images
+  - Reorder and delete images
+
+================================
+FRONTEND PRODUCT PAGE
+================================
+
+On product detail page:
+- Load product info, variants, product images, and variant images
+- Show:
+  - Product title
+  - Image gallery
+  - Color selector (derived from variants)
+  - Size selector (filtered by selected color)
+
+Behavior:
+- When color changes:
+  - Update available sizes
+  - Switch gallery to variant images if available
+- When size changes:
+  - Select the matching variant
+  - Update stock availability
+  - Update price (variant price if set)
+
+Cart logic:
+- Add to cart must store variant_id
+- Stock decrement must happen on product_variants.stock_qty
+
+================================
+MIGRATION & COMPATIBILITY
+================================
+
+- Safely migrate existing data:
+  - Existing products become base products
+  - Existing SKU-based products should be converted into variants if possible
+- Use ALTER TABLE where possible
+- Ensure app works with Run and in production
+
+================================
+GOAL
+================================
+
+End result:
+- One product page per model
+- User selects color and size without changing product
+- No duplicated products
+- Clean admin UX
+- Clean frontend UX
+- Same behavior as Shopify variable products
+
+Proceed with the implementation now.

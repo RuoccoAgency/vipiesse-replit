@@ -1,29 +1,59 @@
 import { 
   products, 
+  productVariants,
+  productImages,
+  variantImages,
   collections, 
   productCollections,
   sessions,
   type Product, 
   type InsertProduct,
+  type ProductVariant,
+  type InsertProductVariant,
+  type ProductImage,
+  type InsertProductImage,
+  type VariantImage,
+  type InsertVariantImage,
   type Collection,
   type InsertCollection,
-  type ProductCollection,
-  type InsertProductCollection,
-  type Session
+  type Session,
+  type ProductWithVariants
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, inArray, desc } from "drizzle-orm";
+import { eq, and, inArray, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   // Products
   getAllProducts(): Promise<Product[]>;
-  getProductById(id: string): Promise<Product | undefined>;
-  getProductBySku(sku: string): Promise<Product | undefined>;
-  getProductsByCategory(category: string): Promise<Product[]>;
-  getProductsByCollection(collectionSlug: string): Promise<Product[]>;
+  getProductById(id: number): Promise<Product | undefined>;
+  getProductWithVariants(id: number): Promise<ProductWithVariants | undefined>;
+  getAllProductsWithVariants(): Promise<ProductWithVariants[]>;
+  getProductsByCollection(collectionSlug: string): Promise<ProductWithVariants[]>;
   createProduct(product: InsertProduct): Promise<Product>;
-  updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
-  deleteProduct(id: string): Promise<void>;
+  updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<void>;
+  
+  // Product Variants
+  getVariantsByProduct(productId: number): Promise<ProductVariant[]>;
+  getVariantById(id: number): Promise<ProductVariant | undefined>;
+  getVariantBySku(sku: string): Promise<ProductVariant | undefined>;
+  createVariant(variant: InsertProductVariant): Promise<ProductVariant>;
+  updateVariant(id: number, variant: Partial<InsertProductVariant>): Promise<ProductVariant | undefined>;
+  deleteVariant(id: number): Promise<void>;
+  
+  // Product Images
+  getImagesByProduct(productId: number): Promise<ProductImage[]>;
+  createProductImage(image: InsertProductImage): Promise<ProductImage>;
+  updateProductImage(id: number, image: Partial<InsertProductImage>): Promise<ProductImage | undefined>;
+  deleteProductImage(id: number): Promise<void>;
+  deleteAllProductImages(productId: number): Promise<void>;
+  
+  // Variant Images
+  getImagesByVariant(variantId: number): Promise<VariantImage[]>;
+  createVariantImage(image: InsertVariantImage): Promise<VariantImage>;
+  updateVariantImage(id: number, image: Partial<InsertVariantImage>): Promise<VariantImage | undefined>;
+  deleteVariantImage(id: number): Promise<void>;
+  deleteAllVariantImages(variantId: number): Promise<void>;
   
   // Collections
   getAllCollections(): Promise<Collection[]>;
@@ -34,10 +64,10 @@ export interface IStorage {
   deleteCollection(id: number): Promise<void>;
   
   // Product-Collection relationships
-  assignProductToCollection(productId: string, collectionId: number, position?: number): Promise<void>;
-  removeProductFromCollection(productId: string, collectionId: number): Promise<void>;
-  getCollectionsByProduct(productId: string): Promise<Collection[]>;
-  clearProductCollections(productId: string): Promise<void>;
+  assignProductToCollection(productId: number, collectionId: number, position?: number): Promise<void>;
+  removeProductFromCollection(productId: number, collectionId: number): Promise<void>;
+  getCollectionsByProduct(productId: number): Promise<Collection[]>;
+  clearProductCollections(productId: number): Promise<void>;
   
   // Sessions
   createSession(email: string, expiresAt: Date): Promise<Session>;
@@ -52,23 +82,52 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(products).orderBy(desc(products.createdAt));
   }
 
-  async getProductById(id: string): Promise<Product | undefined> {
+  async getProductById(id: number): Promise<Product | undefined> {
     const [product] = await db.select().from(products).where(eq(products.id, id));
     return product || undefined;
   }
 
-  async getProductBySku(sku: string): Promise<Product | undefined> {
-    const [product] = await db.select().from(products).where(eq(products.sku, sku));
-    return product || undefined;
+  async getProductWithVariants(id: number): Promise<ProductWithVariants | undefined> {
+    const product = await this.getProductById(id);
+    if (!product) return undefined;
+
+    const [variants, images, productCols] = await Promise.all([
+      this.getVariantsByProduct(id),
+      this.getImagesByProduct(id),
+      this.getCollectionsByProduct(id)
+    ]);
+
+    return {
+      ...product,
+      variants,
+      images,
+      collections: productCols
+    };
   }
 
-  async getProductsByCategory(category: string): Promise<Product[]> {
-    return await db.select().from(products)
-      .where(and(eq(products.category, category), eq(products.active, true)))
-      .orderBy(desc(products.createdAt));
+  async getAllProductsWithVariants(): Promise<ProductWithVariants[]> {
+    const allProducts = await this.getAllProducts();
+    const result: ProductWithVariants[] = [];
+    
+    for (const product of allProducts) {
+      const [variants, images, productCols] = await Promise.all([
+        this.getVariantsByProduct(product.id),
+        this.getImagesByProduct(product.id),
+        this.getCollectionsByProduct(product.id)
+      ]);
+      
+      result.push({
+        ...product,
+        variants,
+        images,
+        collections: productCols
+      });
+    }
+    
+    return result;
   }
 
-  async getProductsByCollection(collectionSlug: string): Promise<Product[]> {
+  async getProductsByCollection(collectionSlug: string): Promise<ProductWithVariants[]> {
     const collection = await this.getCollectionBySlug(collectionSlug);
     if (!collection) return [];
     
@@ -78,11 +137,29 @@ export class DatabaseStorage implements IStorage {
     
     if (productIds.length === 0) return [];
     
-    return await db.select().from(products)
+    const collectionProducts = await db.select().from(products)
       .where(and(
         inArray(products.id, productIds.map(p => p.productId)),
         eq(products.active, true)
       ));
+    
+    const result: ProductWithVariants[] = [];
+    for (const product of collectionProducts) {
+      const [variants, images, productCols] = await Promise.all([
+        this.getVariantsByProduct(product.id),
+        this.getImagesByProduct(product.id),
+        this.getCollectionsByProduct(product.id)
+      ]);
+      
+      result.push({
+        ...product,
+        variants,
+        images,
+        collections: productCols
+      });
+    }
+    
+    return result;
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
@@ -90,7 +167,7 @@ export class DatabaseStorage implements IStorage {
     return newProduct;
   }
 
-  async updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined> {
+  async updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined> {
     const [updated] = await db.update(products)
       .set({ ...product, updatedAt: new Date() })
       .where(eq(products.id, id))
@@ -98,8 +175,98 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async deleteProduct(id: string): Promise<void> {
+  async deleteProduct(id: number): Promise<void> {
     await db.delete(products).where(eq(products.id, id));
+  }
+
+  // Product Variants
+  async getVariantsByProduct(productId: number): Promise<ProductVariant[]> {
+    return await db.select().from(productVariants)
+      .where(eq(productVariants.productId, productId))
+      .orderBy(asc(productVariants.color), asc(productVariants.size));
+  }
+
+  async getVariantById(id: number): Promise<ProductVariant | undefined> {
+    const [variant] = await db.select().from(productVariants).where(eq(productVariants.id, id));
+    return variant || undefined;
+  }
+
+  async getVariantBySku(sku: string): Promise<ProductVariant | undefined> {
+    const [variant] = await db.select().from(productVariants).where(eq(productVariants.sku, sku));
+    return variant || undefined;
+  }
+
+  async createVariant(variant: InsertProductVariant): Promise<ProductVariant> {
+    const [newVariant] = await db.insert(productVariants).values(variant).returning();
+    return newVariant;
+  }
+
+  async updateVariant(id: number, variant: Partial<InsertProductVariant>): Promise<ProductVariant | undefined> {
+    const [updated] = await db.update(productVariants)
+      .set(variant)
+      .where(eq(productVariants.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteVariant(id: number): Promise<void> {
+    await db.delete(productVariants).where(eq(productVariants.id, id));
+  }
+
+  // Product Images
+  async getImagesByProduct(productId: number): Promise<ProductImage[]> {
+    return await db.select().from(productImages)
+      .where(eq(productImages.productId, productId))
+      .orderBy(asc(productImages.sortOrder));
+  }
+
+  async createProductImage(image: InsertProductImage): Promise<ProductImage> {
+    const [newImage] = await db.insert(productImages).values(image).returning();
+    return newImage;
+  }
+
+  async updateProductImage(id: number, image: Partial<InsertProductImage>): Promise<ProductImage | undefined> {
+    const [updated] = await db.update(productImages)
+      .set(image)
+      .where(eq(productImages.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteProductImage(id: number): Promise<void> {
+    await db.delete(productImages).where(eq(productImages.id, id));
+  }
+
+  async deleteAllProductImages(productId: number): Promise<void> {
+    await db.delete(productImages).where(eq(productImages.productId, productId));
+  }
+
+  // Variant Images
+  async getImagesByVariant(variantId: number): Promise<VariantImage[]> {
+    return await db.select().from(variantImages)
+      .where(eq(variantImages.variantId, variantId))
+      .orderBy(asc(variantImages.sortOrder));
+  }
+
+  async createVariantImage(image: InsertVariantImage): Promise<VariantImage> {
+    const [newImage] = await db.insert(variantImages).values(image).returning();
+    return newImage;
+  }
+
+  async updateVariantImage(id: number, image: Partial<InsertVariantImage>): Promise<VariantImage | undefined> {
+    const [updated] = await db.update(variantImages)
+      .set(image)
+      .where(eq(variantImages.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteVariantImage(id: number): Promise<void> {
+    await db.delete(variantImages).where(eq(variantImages.id, id));
+  }
+
+  async deleteAllVariantImages(variantId: number): Promise<void> {
+    await db.delete(variantImages).where(eq(variantImages.variantId, variantId));
   }
 
   // Collections
@@ -135,7 +302,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Product-Collection relationships
-  async assignProductToCollection(productId: string, collectionId: number, position: number = 0): Promise<void> {
+  async assignProductToCollection(productId: number, collectionId: number, position: number = 0): Promise<void> {
     await db.insert(productCollections)
       .values({ productId, collectionId, position })
       .onConflictDoUpdate({
@@ -144,7 +311,7 @@ export class DatabaseStorage implements IStorage {
       });
   }
 
-  async removeProductFromCollection(productId: string, collectionId: number): Promise<void> {
+  async removeProductFromCollection(productId: number, collectionId: number): Promise<void> {
     await db.delete(productCollections)
       .where(and(
         eq(productCollections.productId, productId),
@@ -152,7 +319,7 @@ export class DatabaseStorage implements IStorage {
       ));
   }
 
-  async getCollectionsByProduct(productId: string): Promise<Collection[]> {
+  async getCollectionsByProduct(productId: number): Promise<Collection[]> {
     const collectionIds = await db.select({ collectionId: productCollections.collectionId })
       .from(productCollections)
       .where(eq(productCollections.productId, productId));
@@ -163,7 +330,7 @@ export class DatabaseStorage implements IStorage {
       .where(inArray(collections.id, collectionIds.map(c => c.collectionId)));
   }
 
-  async clearProductCollections(productId: string): Promise<void> {
+  async clearProductCollections(productId: number): Promise<void> {
     await db.delete(productCollections).where(eq(productCollections.productId, productId));
   }
 

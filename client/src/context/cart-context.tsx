@@ -1,18 +1,32 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { Product, SHIPPING_COST, SHIPPING_THRESHOLD } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 
+const SHIPPING_COST = 5.90;
+const SHIPPING_THRESHOLD = 50;
+
+export interface CartProduct {
+  id: string;
+  variantId?: number;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  color?: string;
+  size: string;
+  sku?: string;
+}
+
 export interface CartItem {
-  product: Product;
+  product: CartProduct;
   size: string;
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, size: string) => void;
-  removeFromCart: (productId: string, size: string) => void;
-  updateQuantity: (productId: string, size: string, quantity: number) => void;
+  addToCart: (product: CartProduct, size: string) => void;
+  removeFromCart: (productId: string, size: string, variantId?: number) => void;
+  updateQuantity: (productId: string, size: string, quantity: number, variantId?: number) => void;
   clearCart: () => void;
   itemsCount: number;
   subtotal: number;
@@ -26,33 +40,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
 
-  const addToCart = (product: Product, size: string) => {
+  const addToCart = (product: CartProduct, size: string) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id && item.size === size);
+      // Match by product id, variant id (if present), and size
+      const existing = prev.find((item) => 
+        item.product.id === product.id && 
+        item.product.variantId === product.variantId &&
+        item.size === size
+      );
+      
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id && item.size === size
+          item.product.id === product.id && 
+          item.product.variantId === product.variantId &&
+          item.size === size
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
       return [...prev, { product, size, quantity: 1 }];
     });
-    toast({
-      title: "Aggiunto al carrello",
-      description: `${product.name} (Taglia ${size})`,
-    });
   };
 
-  const removeFromCart = (productId: string, size: string) => {
-    setItems((prev) => prev.filter((item) => !(item.product.id === productId && item.size === size)));
+  const removeFromCart = (productId: string, size: string, variantId?: number) => {
+    setItems((prev) => prev.filter((item) => !(
+      item.product.id === productId && 
+      item.product.variantId === variantId &&
+      item.size === size
+    )));
   };
 
-  const updateQuantity = (productId: string, size: string, quantity: number) => {
+  const updateQuantity = (productId: string, size: string, quantity: number, variantId?: number) => {
     if (quantity < 1) return;
     setItems((prev) =>
       prev.map((item) =>
-        item.product.id === productId && item.size === size
+        item.product.id === productId && 
+        item.product.variantId === variantId &&
+        item.size === size
           ? { ...item, quantity }
           : item
       )

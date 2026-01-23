@@ -1,32 +1,75 @@
 import { Link } from "wouter";
-import { Product } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { useCart } from "@/context/cart-context";
-import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShoppingBag } from "lucide-react";
+import { useState, useMemo } from "react";
+
+interface ProductVariant {
+  id: number;
+  color: string;
+  size: string;
+  sku: string;
+  stockQty: number;
+  priceCents: number | null;
+  active: boolean;
+}
+
+interface ProductImage {
+  id: number;
+  imageUrl: string;
+  sortOrder: number;
+}
+
+interface ProductWithVariants {
+  id: number;
+  name: string;
+  brand: string | null;
+  basePriceCents: number | null;
+  active: boolean;
+  variants?: ProductVariant[];
+  images?: ProductImage[];
+}
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductWithVariants;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useCart();
-  const [selectedSize, setSelectedSize] = useState<string>("");
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!selectedSize) {
-      // Just shake or prompt (handled by disabled button state logic usually, or toast)
-      // For this card, let's auto-select first size if clicked without selection or just force user to enter details
-      // Better UX: Show quick add overlay
-      return;
+  // Get first image or placeholder
+  const mainImage = useMemo(() => {
+    if (product.images && product.images.length > 0) {
+      const sorted = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder);
+      return sorted[0].imageUrl;
     }
-    addToCart(product, selectedSize);
-    setSelectedSize(""); // Reset
-  };
+    return '/placeholder.jpg';
+  }, [product.images]);
+
+  // Get price to display (lowest variant price or base price)
+  const displayPrice = useMemo(() => {
+    if (product.variants && product.variants.length > 0) {
+      const prices = product.variants
+        .filter(v => v.active && v.stockQty > 0)
+        .map(v => v.priceCents || product.basePriceCents || 0)
+        .filter(p => p > 0);
+      if (prices.length > 0) {
+        return Math.min(...prices) / 100;
+      }
+    }
+    return (product.basePriceCents || 0) / 100;
+  }, [product.variants, product.basePriceCents]);
+
+  // Check if product has variants in stock
+  const hasStock = useMemo(() => {
+    if (!product.variants) return true;
+    return product.variants.some(v => v.active && v.stockQty > 0);
+  }, [product.variants]);
+
+  // Get unique colors count
+  const colorCount = useMemo(() => {
+    if (!product.variants) return 0;
+    const colors = new Set(product.variants.filter(v => v.active).map(v => v.color));
+    return colors.size;
+  }, [product.variants]);
 
   return (
     <motion.div 
@@ -36,68 +79,44 @@ export function ProductCard({ product }: ProductCardProps) {
       transition={{ duration: 0.4 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      data-testid={`product-card-${product.id}`}
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
-        {/* Badges */}
-        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-          {product.isOutlet && (
-            <span className="bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">
-              Sale
+      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-900 rounded-lg">
+        {!hasStock && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-neutral-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">
+              Out of Stock
             </span>
-          )}
-          {product.isNewSeason && (
-            <span className="bg-black text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">
-              New
-            </span>
-          )}
-        </div>
+          </div>
+        )}
 
         <Link href={`/product/${product.id}`}>
-          <div className="h-full w-full cursor-pointer">
+          <div className="h-full w-full cursor-pointer p-4 flex items-center justify-center">
             <motion.img
-              src={product.image}
+              src={mainImage}
               alt={product.name}
-              className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-105"
             />
           </div>
         </Link>
-        
-        {/* Quick Add Overlay - Always visible on mobile, hover on desktop */}
-        <div className={`absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-4 transition-transform duration-300 ease-in-out md:translate-y-full md:${isHovered ? 'translate-y-0' : ''}`}>
-          <div className="flex gap-2">
-            <Select value={selectedSize} onValueChange={setSelectedSize}>
-              <SelectTrigger className="h-9 bg-transparent border-gray-300 rounded-full text-xs">
-                <SelectValue placeholder="Taglia" />
-              </SelectTrigger>
-              <SelectContent>
-                {product.sizes.map(size => (
-                  <SelectItem key={size} value={size}>{size}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button 
-              size="sm" 
-              className="h-9 bg-black text-white hover:bg-neutral-800 rounded-full disabled:opacity-50"
-              disabled={!selectedSize}
-              onClick={handleAddToCart}
-            >
-              <ShoppingBag className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </div>
 
       <div className="mt-4 flex flex-col gap-1">
+        {product.brand && (
+          <span className="text-xs text-neutral-500 uppercase tracking-wider">{product.brand}</span>
+        )}
         <h3 className="text-sm font-medium uppercase tracking-wide text-white group-hover:text-gray-300 transition-colors">
           {product.name}
         </h3>
-        <div className="flex items-center gap-2 text-sm">
-          {product.originalPrice && (
-             <span className="text-gray-500 line-through">€{product.originalPrice.toFixed(2)}</span>
-          )}
-          <span className={product.isOutlet ? "text-red-500 font-bold" : "text-gray-200"}>
-            €{product.price.toFixed(2)}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-200 font-medium">
+            €{displayPrice.toFixed(2)}
           </span>
+          {colorCount > 0 && (
+            <span className="text-xs text-neutral-500">
+              {colorCount} color{colorCount > 1 ? 's' : ''}
+            </span>
+          )}
         </div>
       </div>
     </motion.div>
