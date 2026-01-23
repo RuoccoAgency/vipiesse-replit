@@ -79,6 +79,36 @@ export const productCollections = pgTable("product_collections", {
 }));
 
 // ================================
+// ORDERS
+// ================================
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  status: text("status").notNull().default("pending"), // pending, paid, shipped, completed, cancelled
+  customerEmail: text("customer_email"),
+  customerName: text("customer_name"),
+  customerPhone: text("customer_phone"),
+  shippingAddress: text("shipping_address"),
+  totalCents: integer("total_cents").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ================================
+// ORDER ITEMS
+// ================================
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  variantId: integer("variant_id").notNull().references(() => productVariants.id),
+  productName: text("product_name").notNull(), // Snapshot of product name at time of order
+  variantSku: text("variant_sku").notNull(), // Snapshot of variant SKU
+  variantColor: text("variant_color").notNull(),
+  variantSize: text("variant_size").notNull(),
+  quantity: integer("quantity").notNull(),
+  priceCents: integer("price_cents").notNull(), // Price per unit at time of order
+});
+
+// ================================
 // ADMIN SESSIONS
 // ================================
 export const sessions = pgTable("sessions", {
@@ -134,6 +164,16 @@ export const insertCollectionSchema = createInsertSchema(collections).omit({
 
 export const insertProductCollectionSchema = createInsertSchema(productCollections);
 
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
+});
+
 // ================================
 // TYPES
 // ================================
@@ -157,6 +197,12 @@ export type ProductCollection = typeof productCollections.$inferSelect;
 
 export type Session = typeof sessions.$inferSelect;
 
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type Order = typeof orders.$inferSelect;
+
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type OrderItem = typeof orderItems.$inferSelect;
+
 // ================================
 // COMPOSITE TYPES FOR API RESPONSES
 // ================================
@@ -168,4 +214,8 @@ export type ProductWithVariants = Product & {
 
 export type ProductVariantWithImages = ProductVariant & {
   images: VariantImage[];
+};
+
+export type OrderWithItems = Order & {
+  items: OrderItem[];
 };

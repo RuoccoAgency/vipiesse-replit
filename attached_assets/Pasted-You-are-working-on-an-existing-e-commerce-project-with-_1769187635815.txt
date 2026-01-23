@@ -1,0 +1,206 @@
+You are working on an existing e-commerce project with an admin panel already deployed on Replit. Right now the admin “Create Product” form errors with:
+
+"null value in column 'name' of relation 'products' violates not-null constraint"
+
+I want a FULL refactor to a Shopify/Amazon-style catalog with:
+- One main Product (model)
+- Variants (color + size) under the same product
+- Multiple images per product + optional images per variant/color
+- Collections (many-to-many) assigned to the PRODUCT (not variants)
+- Admin panel that lets me manage everything without touching code
+- No requirement for Replit accounts for customers; only browser admin login
+
+========================================
+A) TARGET DATA MODEL (DB)
+========================================
+
+Use the database already configured in the project (Postgres or SQLite). Implement safe migrations.
+
+1) products
+- id (PK)
+- name (TEXT NOT NULL)                 // REQUIRED: fix the current error by always setting this
+- brand (TEXT NULL)
+- description (TEXT NULL)
+- active (BOOLEAN NOT NULL DEFAULT true)
+- created_at, updated_at
+
+2) product_variants
+- id (PK)
+- product_id (FK -> products.id ON DELETE CASCADE)
+- color (TEXT NOT NULL)                // e.g. BORDEAUX, BLU, ROSA
+- size (TEXT NOT NULL)                 // e.g. 36/37, 38/39
+- sku (TEXT NOT NULL UNIQUE)           // globally unique
+- stock_qty (INT NOT NULL DEFAULT 0)   // >= 0
+- price_cents (INT NULL)               // store money as cents; if NULL fallback to product base price if you add it later
+- active (BOOLEAN NOT NULL DEFAULT true)
+Constraints:
+- UNIQUE(product_id, color, size)
+- sku UNIQUE
+
+3) product_images
+- id (PK)
+- product_id (FK -> products.id ON DELETE CASCADE)
+- image_url (TEXT NOT NULL)
+- sort_order (INT NOT NULL DEFAULT 0)
+
+4) variant_images (optional but implement)
+- id (PK)
+- variant_id (FK -> product_variants.id ON DELETE CASCADE)
+- image_url (TEXT NOT NULL)
+- sort_order (INT NOT NULL DEFAULT 0)
+
+5) collections (keep/ensure)
+- id (PK)
+- name (TEXT NOT NULL)
+- slug (TEXT NOT NULL UNIQUE)
+- description (TEXT NULL)
+
+6) product_collections (ensure many-to-many)
+- product_id (FK -> products.id ON DELETE CASCADE)
+- collection_id (FK -> collections.id ON DELETE CASCADE)
+- position (INT NOT NULL DEFAULT 0)
+Constraint: UNIQUE(product_id, collection_id)
+
+========================================
+B) MIGRATION REQUIREMENTS (SAFE)
+========================================
+
+- The existing `products.name` NOT NULL constraint must never be violated.
+- If the current system used “Articolo” field, map it to `products.name`.
+- Preserve existing products if possible:
+  - If existing rows represent sku/color/size already, migrate them into:
+    - products (group by article/name)
+    - product_variants (one per old sku/size/color)
+- Use ALTER TABLE where possible.
+- If SQLite has limitations, create new tables + copy data + swap safely.
+- Add indexes on `product_variants.sku` and `product_variants.product_id`.
+
+========================================
+C) ADMIN PANEL UX (SHOPIFY-LIKE)
+========================================
+
+/admin/products should become:
+
+1) Products list:
+- show: Name, Brand, Active, Collections, Variant count
+- actions: View/Edit, Delete
+
+2) Create Product (NO sku/size/color here):
+Fields:
+- Name (required)   // this writes to products.name and fixes the current error
+- Brand (optional)
+- Description (optional)
+- Active (Yes/No)
+- Collections (checkboxes: assign multiple)
+After saving, redirect to Product Edit page.
+
+3) Product Edit page (the main management screen):
+Sections:
+
+A) Product details
+- Name, Brand, Description, Active
+- Collections checkbox list (persisted)
+
+B) Variants section (most important)
+- Table shows: Color, Size, SKU, Stock Qty, Price (€), Active
+- Buttons:
+  - "Add Variant"
+  - Edit variant
+  - Delete variant
+Add/Edit Variant modal fields:
+- Color (text)
+- Size (text)
+- SKU (required, unique)
+- Stock quantity (int >= 0)
+- Price (€) input: accepts "14,90" or "14.90" -> convert to cents
+- Active Yes/No
+Validations:
+- SKU unique -> show clear error: "SKU already exists"
+- stock_qty must be integer >= 0
+- price must be valid number
+
+C) Images section
+1) Product images (gallery)
+- Add multiple image URLs (one per line textarea) OR add one-by-one
+- Reorder (optional: up/down)
+- Delete
+Persist to product_images
+
+2) Variant images (per variant)
+- For each variant row, add “Manage images”
+- Add multiple URLs
+- Reorder + delete
+Persist to variant_images
+
+/admin/collections remains:
+- Create collections with Name, Slug, Description
+- Slug auto-suggest from Name (lowercase, hyphens) if empty
+- Slug must be unique
+
+========================================
+D) FRONTEND STORE BEHAVIOR (SHOPIFY-LIKE)
+========================================
+
+1) Product detail page:
+- Load product + variants + product_images + variant_images
+- UI:
+  - Gallery
+  - Color selector (unique colors from variants)
+  - Size selector filtered by selected color
+- When user selects Color+Size:
+  - identify the matching variant
+  - show stock availability based on variant.stock_qty
+  - show price (variant price if set; if not set, show “Contact” or fallback logic)
+  - if variant has images, switch gallery to variant_images; else show product_images
+- Add to cart must store variant_id (not product_id)
+
+2) Product listing pages / collection pages:
+- Show products (not variants) and main image:
+  - main image = first product_images by sort_order, else placeholder
+
+========================================
+E) ORDER / STOCK DECREMENT (IMPORTANT)
+========================================
+
+If the project already has checkout/orders:
+- Ensure order items store variant_id and quantity.
+- On successful completed/paid order:
+  - decrement product_variants.stock_qty by ordered quantity using an atomic update:
+    UPDATE product_variants
+    SET stock_qty = stock_qty - :qty
+    WHERE id = :variant_id AND stock_qty >= :qty
+- If insufficient stock, reject checkout with a clear message.
+
+If the project does NOT yet have orders:
+- Add a minimal orders implementation:
+  tables:
+  - orders(id, created_at, status)
+  - order_items(order_id, variant_id, quantity, price_cents)
+- Create an endpoint that simulates “Complete Order” and performs the stock decrement.
+- This is required so stock can auto-decrease on purchase.
+
+========================================
+F) REMOVE OLD FIELDS THAT ARE NOW WRONG
+========================================
+
+The current Create Product modal includes fields:
+- Colore, SKU, Taglia, Quantità, Prezzo
+These belong to VARIANTS now, not product creation.
+Refactor UI accordingly:
+- Product create: only product-level fields + collections
+- Variant create/edit: variant-level fields
+
+========================================
+G) IMPLEMENTATION OUTPUT
+========================================
+
+- Update backend routes/services to:
+  - create/read/update/delete products
+  - create/read/update/delete variants
+  - manage collections assignments (product_collections sync)
+  - manage product_images and variant_images
+- Update admin HTML/JS to support the new flows.
+- Add migration script/function that runs at startup to ensure schema is correct.
+- Ensure everything works in Replit “Run” and in production deploy.
+
+Proceed with the changes now. Make sure the 'products.name' issue is fixed permanently by enforcing that product creation always sets 'name'.
