@@ -39,10 +39,27 @@ Preferred communication style: Simple, everyday language.
 - **ORM**: Drizzle ORM with drizzle-kit for migrations
 - **Schema Location**: `shared/schema.ts` (shared between frontend and backend)
 - **Key Tables**:
-  - `products`: Core product data with prices stored in cents
+  - `products`: Base product/model with name, brand, description, base price (cents)
+  - `product_variants`: Color + size combinations with unique SKU, stock quantity, optional variant price
+  - `product_images`: Gallery images per product with sort order
+  - `variant_images`: Images specific to a variant/color
   - `collections`: Product groupings (best sellers, outlet, seasonal, etc.)
   - `product_collections`: Many-to-many junction table with position ordering
+  - `orders`: Customer orders with status, contact info, shipping address
+  - `order_items`: Order line items referencing variant_id with price snapshot
   - `sessions`: Admin authentication sessions
+
+### Product/Variant Model (Shopify-style)
+- One **Product** represents a base model (e.g., "INBLU Classic Clogs")
+- Each product has multiple **Variants** representing color + size combinations
+- Each variant has a unique **SKU**, stock quantity, and optional price (falls back to base price)
+- Collections are assigned to products, not variants
+- Cart and orders reference variant IDs to track specific color/size combinations
+
+### Stock Management
+- Stock is tracked per variant in `product_variants.stock_qty`
+- Order creation uses transactional SELECT FOR UPDATE to prevent overselling
+- Atomic stock decrement with rollback on failure
 
 ### Build System
 - **Dev Server**: Vite with HMR for frontend, tsx for backend
