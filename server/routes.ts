@@ -502,12 +502,16 @@ export async function registerRoutes(
           document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const errorDiv = document.getElementById('error');
+            const btn = document.querySelector('.btn');
             errorDiv.style.display = 'none';
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
             
             try {
               const res = await fetch('/api/admin/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                   email: document.getElementById('email').value,
                   password: document.getElementById('password').value
@@ -515,16 +519,23 @@ export async function registerRoutes(
               });
               
               const data = await res.json();
+              console.log('Login response:', data, 'status:', res.status);
               
-              if (res.ok) {
-                window.location.href = '/admin';
+              if (res.ok && data.success) {
+                console.log('Redirecting to /admin...');
+                window.location.replace('/admin');
               } else {
                 errorDiv.textContent = data.error || 'Login failed';
                 errorDiv.style.display = 'block';
+                btn.textContent = 'Login';
+                btn.disabled = false;
               }
             } catch (error) {
+              console.error('Login error:', error);
               errorDiv.textContent = 'Network error';
               errorDiv.style.display = 'block';
+              btn.textContent = 'Login';
+              btn.disabled = false;
             }
           });
         </script>
