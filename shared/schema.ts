@@ -153,67 +153,54 @@ export const sessions = pgTable("sessions", {
 // ================================
 // INSERT SCHEMAS
 // ================================
-export const insertProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  brand: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  basePriceCents: z.number().int().nullable().optional(),
-  active: z.boolean().default(true),
+export const insertProductSchema = createInsertSchema(products)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    name: z.string().min(1, "Product name is required"),
+  });
+
+export const insertProductVariantSchema = createInsertSchema(productVariants)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    productId: z.number().int().positive(),
+    color: z.string().min(1, "Color is required"),
+    size: z.string().min(1, "Size is required"),
+    sku: z.string().min(1, "SKU is required"),
+    stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
+    priceCents: z.number().int().min(0).nullable().optional(),
+  });
+
+export const insertProductImageSchema = createInsertSchema(productImages)
+  .omit({ id: true })
+  .extend({
+    productId: z.number().int().positive(),
+    imageUrl: z.string().min(1, "Image URL is required"),
+    sortOrder: z.number().int().default(0),
+  });
+
+export const insertVariantImageSchema = createInsertSchema(variantImages)
+  .omit({ id: true })
+  .extend({
+    variantId: z.number().int().positive(),
+    imageUrl: z.string().min(1, "Image URL is required"),
+    sortOrder: z.number().int().default(0),
+  });
+
+export const insertCollectionSchema = createInsertSchema(collections).omit({
+  id: true,
+  createdAt: true,
 });
 
-export const insertProductVariantSchema = z.object({
-  productId: z.number().int().positive(),
-  color: z.string().min(1, "Color is required"),
-  size: z.string().min(1, "Size is required"),
-  sku: z.string().min(1, "SKU is required"),
-  stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
-  priceCents: z.number().int().min(0).nullable().optional(),
-  active: z.boolean().default(true),
+export const insertProductCollectionSchema = createInsertSchema(productCollections);
+
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-export const insertProductImageSchema = z.object({
-  productId: z.number().int().positive(),
-  imageUrl: z.string().min(1, "Image URL is required"),
-  sortOrder: z.number().int().default(0),
-});
-
-export const insertVariantImageSchema = z.object({
-  variantId: z.number().int().positive(),
-  imageUrl: z.string().min(1, "Image URL is required"),
-  sortOrder: z.number().int().default(0),
-});
-
-export const insertCollectionSchema = z.object({
-  name: z.string().min(1, "Collection name is required"),
-  slug: z.string().min(1, "Slug is required"),
-  description: z.string().nullable().optional(),
-  image: z.string().nullable().optional(),
-});
-
-export const insertProductCollectionSchema = z.object({
-  productId: z.number().int().positive(),
-  collectionId: z.number().int().positive(),
-  position: z.number().int().default(0),
-});
-
-export const insertOrderSchema = z.object({
-  status: z.string().default("pending"),
-  customerEmail: z.string().nullable().optional(),
-  customerName: z.string().nullable().optional(),
-  customerPhone: z.string().nullable().optional(),
-  shippingAddress: z.string().nullable().optional(),
-  totalCents: z.number().int().default(0),
-});
-
-export const insertOrderItemSchema = z.object({
-  orderId: z.number().int().positive(),
-  variantId: z.number().int().positive(),
-  productName: z.string(),
-  variantSku: z.string(),
-  variantColor: z.string(),
-  variantSize: z.string(),
-  quantity: z.number().int().positive(),
-  priceCents: z.number().int(),
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
 });
 
 // ================================
