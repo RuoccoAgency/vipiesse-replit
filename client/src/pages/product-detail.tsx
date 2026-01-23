@@ -133,7 +133,7 @@ export function ProductDetail() {
   if (isLoading) {
     return (
       <div className="bg-black min-h-screen pt-24 text-white flex items-center justify-center">
-        <div className="text-center">Loading...</div>
+        <div className="text-center">Caricamento...</div>
       </div>
     );
   }
@@ -143,8 +143,8 @@ export function ProductDetail() {
   const handleAddToCart = () => {
     if (!selectedColor) {
       toast({
-        title: "Color required",
-        description: "Please select a color to proceed.",
+        title: "Colore richiesto",
+        description: "Seleziona un colore per procedere.",
         variant: "destructive"
       });
       return;
@@ -152,8 +152,8 @@ export function ProductDetail() {
 
     if (!selectedSize) {
       toast({
-        title: "Size required",
-        description: "Please select a size to proceed.",
+        title: "Taglia richiesta",
+        description: "Seleziona una taglia per procedere.",
         variant: "destructive"
       });
       return;
@@ -161,8 +161,8 @@ export function ProductDetail() {
 
     if (!selectedVariant) {
       toast({
-        title: "Selection invalid",
-        description: "Please select a valid color and size combination.",
+        title: "Selezione non valida",
+        description: "Seleziona una combinazione valida di colore e taglia.",
         variant: "destructive"
       });
       return;
@@ -170,8 +170,8 @@ export function ProductDetail() {
 
     if (!stockStatus.inStock) {
       toast({
-        title: "Out of stock",
-        description: "This variant is currently out of stock.",
+        title: "Esaurito",
+        description: "Questa variante è attualmente esaurita.",
         variant: "destructive"
       });
       return;
@@ -193,8 +193,8 @@ export function ProductDetail() {
     }
 
     toast({
-      title: "Added to cart",
-      description: `${product.name} (${selectedColor}, ${selectedSize}) has been added to your cart.`,
+      title: "Aggiunto al carrello",
+      description: `${product.name} (${selectedColor}, ${selectedSize}) è stato aggiunto al carrello.`,
     });
   };
 
@@ -267,7 +267,7 @@ export function ProductDetail() {
                     "w-2 h-2 rounded-full",
                     stockStatus.inStock ? "bg-green-500" : "bg-red-500"
                   )} />
-                  {stockStatus.inStock ? `In Stock (${stockStatus.qty} available)` : "Out of Stock"}
+                  {stockStatus.inStock ? `Disponibile (${stockStatus.qty} pezzi)` : "Esaurito"}
                 </div>
               )}
             </div>
@@ -278,7 +278,7 @@ export function ProductDetail() {
               {availableColors.length > 0 && (
                 <div className="space-y-3">
                   <span className="text-sm font-bold text-white flex items-center gap-2">
-                    Color: <span className="font-normal text-neutral-400">{selectedColor || 'Select'}</span>
+                    Colore: <span className="font-normal text-neutral-400">{selectedColor || 'Seleziona'}</span>
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {availableColors.map((color) => (
@@ -304,9 +304,9 @@ export function ProductDetail() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold text-white flex items-center gap-2">
-                    Size: <span className="font-normal text-neutral-400">{selectedSize || 'Select'}</span>
+                    Taglia: <span className="font-normal text-neutral-400">{selectedSize || 'Seleziona'}</span>
                   </span>
-                  <button className="text-xs underline text-neutral-400 hover:text-white">Size Guide</button>
+                  <button className="text-xs underline text-neutral-400 hover:text-white">Guida Taglie</button>
                 </div>
                 {availableSizes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -327,9 +327,9 @@ export function ProductDetail() {
                     ))}
                   </div>
                 ) : selectedColor ? (
-                  <p className="text-sm text-neutral-500">No sizes available for this color</p>
+                  <p className="text-sm text-neutral-500">Nessuna taglia disponibile per questo colore</p>
                 ) : (
-                  <p className="text-sm text-neutral-500">Select a color to see available sizes</p>
+                  <p className="text-sm text-neutral-500">Seleziona un colore per vedere le taglie disponibili</p>
                 )}
               </div>
 
@@ -361,7 +361,7 @@ export function ProductDetail() {
                   onClick={handleAddToCart}
                   data-testid="add-to-cart-button"
                 >
-                  {stockStatus.inStock ? 'ADD TO CART' : 'OUT OF STOCK'}
+                  {stockStatus.inStock ? 'AGGIUNGI AL CARRELLO' : 'ESAURITO'}
                 </Button>
               </div>
             </div>
@@ -371,24 +371,24 @@ export function ProductDetail() {
               <Accordion type="single" collapsible className="w-full border-t border-white/10">
                 <AccordionItem value="description" className="border-b border-white/10">
                   <AccordionTrigger className="text-sm font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
-                    Product Description
+                    Descrizione Prodotto
                   </AccordionTrigger>
                   <AccordionContent className="text-neutral-400 leading-relaxed text-sm whitespace-pre-line pb-6">
-                    {product.description || 'No description available.'}
+                    {product.description || 'Nessuna descrizione disponibile.'}
                     {selectedVariant && (
                       <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-neutral-500">
                         <div>SKU: <span className="text-white font-bold block mt-1">{selectedVariant.sku}</span></div>
-                        <div>Brand: <span className="text-white font-bold block mt-1">{product.brand || 'N/A'}</span></div>
+                        <div>Marca: <span className="text-white font-bold block mt-1">{product.brand || 'N/A'}</span></div>
                       </div>
                     )}
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="shipping" className="border-b border-white/10">
                   <AccordionTrigger className="text-sm font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
-                    Shipping & Returns
+                    Spedizione e Resi
                   </AccordionTrigger>
                   <AccordionContent className="text-neutral-400 leading-relaxed text-sm pb-6">
-                    Free shipping on orders over €50. Free returns within 30 days.
+                    Spedizione gratuita per ordini superiori a €50. Resi gratuiti entro 30 giorni.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

@@ -40,7 +40,7 @@ export function Shop({ collection }: ShopProps) {
       </div>
 
       {isLoading && (
-        <div className="text-center py-16 text-neutral-400">Loading products...</div>
+        <div className="text-center py-16 text-neutral-400">Caricamento prodotti...</div>
       )}
 
       {!isLoading && products.length > 0 ? (

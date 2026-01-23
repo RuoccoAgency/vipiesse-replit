@@ -51,7 +51,7 @@ export function Navbar() {
              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                <div>
                  <img src={logoImage} alt="VIPIESSE" className="h-12 w-auto object-contain" />
-                 <SheetDescription className="text-gray-400 text-xs uppercase tracking-widest mt-1">Wholesale Fashion</SheetDescription>
+                 <SheetDescription className="text-gray-400 text-xs uppercase tracking-widest mt-1">Ingrosso Calzature</SheetDescription>
                </div>
                {/* Close button is auto-added by SheetContent usually, but we can customize if needed. Default is fine. */}
              </div>
@@ -107,7 +107,7 @@ export function Navbar() {
                <div className="px-8 pb-8 pt-4 mt-auto border-t border-gray-100">
                   <div className="flex flex-col space-y-2 text-xs text-gray-400 uppercase tracking-widest font-medium">
                     <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">La Nostra Storia</Link>
-                    <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">Brands</Link>
+                    <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">Marchi</Link>
                   </div>
                </div>
              </div>

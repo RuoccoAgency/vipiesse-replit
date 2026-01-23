@@ -85,7 +85,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {!hasStock && (
           <div className="absolute top-2 left-2 z-10">
             <span className="bg-neutral-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">
-              Out of Stock
+              Esaurito
             </span>
           </div>
         )}
