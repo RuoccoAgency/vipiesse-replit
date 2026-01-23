@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, serial, primaryKey, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  varchar,
+  integer,
+  boolean,
+  timestamp,
+  primaryKey,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,7 +16,7 @@ import { z } from "zod";
 // PRODUCTS - Base product/model (e.g., "ROMA TOPI WA20")
 // ================================
 export const products = pgTable("products", {
-  id: serial("id").primaryKey(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(), // Product name / articolo
   brand: text("brand"),
   description: text("description"),
@@ -20,27 +29,38 @@ export const products = pgTable("products", {
 // ================================
 // PRODUCT VARIANTS - Color + Size combinations
 // ================================
-export const productVariants = pgTable("product_variants", {
-  id: serial("id").primaryKey(),
-  productId: integer("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
-  color: text("color").notNull(),
-  size: text("size").notNull(),
-  sku: text("sku").notNull().unique(), // Globally unique SKU
-  stockQty: integer("stock_qty").notNull().default(0),
-  priceCents: integer("price_cents"), // If null, use product.basePriceCents
-  active: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-}, (table) => ({
-  // Unique constraint: one variant per product/color/size combination
-  uniqueProductColorSize: uniqueIndex("unique_product_color_size").on(table.productId, table.color, table.size),
-}));
+export const productVariants = pgTable(
+  "product_variants",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    color: text("color").notNull(),
+    size: text("size").notNull(),
+    sku: text("sku").notNull().unique(), // Globally unique SKU
+    stockQty: integer("stock_qty").notNull().default(0),
+    priceCents: integer("price_cents"), // If null, use product.basePriceCents
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueProductColorSize: uniqueIndex("unique_product_color_size").on(
+      table.productId,
+      table.color,
+      table.size
+    ),
+  })
+);
 
 // ================================
 // PRODUCT IMAGES - Gallery images for the product
 // ================================
 export const productImages = pgTable("product_images", {
-  id: serial("id").primaryKey(),
-  productId: integer("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
   imageUrl: text("image_url").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
 });
@@ -49,8 +69,10 @@ export const productImages = pgTable("product_images", {
 // VARIANT IMAGES - Images specific to a variant (color)
 // ================================
 export const variantImages = pgTable("variant_images", {
-  id: serial("id").primaryKey(),
-  variantId: integer("variant_id").notNull().references(() => productVariants.id, { onDelete: 'cascade' }),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  variantId: integer("variant_id")
+    .notNull()
+    .references(() => productVariants.id, { onDelete: "cascade" }),
   imageUrl: text("image_url").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
 });
@@ -59,7 +81,7 @@ export const variantImages = pgTable("variant_images", {
 // COLLECTIONS - Product groupings
 // ================================
 export const collections = pgTable("collections", {
-  id: serial("id").primaryKey(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(),
   slug: varchar("slug", { length: 100 }).notNull().unique(),
   description: text("description"),
@@ -70,19 +92,27 @@ export const collections = pgTable("collections", {
 // ================================
 // PRODUCT COLLECTIONS - Many-to-many junction
 // ================================
-export const productCollections = pgTable("product_collections", {
-  productId: integer("product_id").notNull().references(() => products.id, { onDelete: 'cascade' }),
-  collectionId: integer("collection_id").notNull().references(() => collections.id, { onDelete: 'cascade' }),
-  position: integer("position").notNull().default(0),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.productId, table.collectionId] }),
-}));
+export const productCollections = pgTable(
+  "product_collections",
+  {
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    collectionId: integer("collection_id")
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+    position: integer("position").notNull().default(0),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.productId, table.collectionId] }),
+  })
+);
 
 // ================================
 // ORDERS
 // ================================
 export const orders = pgTable("orders", {
-  id: serial("id").primaryKey(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   status: text("status").notNull().default("pending"), // pending, paid, shipped, completed, cancelled
   customerEmail: text("customer_email"),
   customerName: text("customer_name"),
@@ -97,15 +127,17 @@ export const orders = pgTable("orders", {
 // ORDER ITEMS
 // ================================
 export const orderItems = pgTable("order_items", {
-  id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  orderId: integer("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
   variantId: integer("variant_id").notNull().references(() => productVariants.id),
-  productName: text("product_name").notNull(), // Snapshot of product name at time of order
-  variantSku: text("variant_sku").notNull(), // Snapshot of variant SKU
+  productName: text("product_name").notNull(), // Snapshot at time of order
+  variantSku: text("variant_sku").notNull(),
   variantColor: text("variant_color").notNull(),
   variantSize: text("variant_size").notNull(),
   quantity: integer("quantity").notNull(),
-  priceCents: integer("price_cents").notNull(), // Price per unit at time of order
+  priceCents: integer("price_cents").notNull(), // unit price at time of order
 });
 
 // ================================
@@ -121,57 +153,67 @@ export const sessions = pgTable("sessions", {
 // ================================
 // INSERT SCHEMAS
 // ================================
-export const insertProductSchema = createInsertSchema(products).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
+export const insertProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
+  brand: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  basePriceCents: z.number().int().nullable().optional(),
+  active: z.boolean().default(true),
 });
 
-export const insertProductVariantSchema = createInsertSchema(productVariants).omit({
-  id: true,
-  createdAt: true,
-}).extend({
+export const insertProductVariantSchema = z.object({
   productId: z.number().int().positive(),
   color: z.string().min(1, "Color is required"),
   size: z.string().min(1, "Size is required"),
   sku: z.string().min(1, "SKU is required"),
   stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
   priceCents: z.number().int().min(0).nullable().optional(),
+  active: z.boolean().default(true),
 });
 
-export const insertProductImageSchema = createInsertSchema(productImages).omit({
-  id: true,
-}).extend({
+export const insertProductImageSchema = z.object({
   productId: z.number().int().positive(),
   imageUrl: z.string().min(1, "Image URL is required"),
   sortOrder: z.number().int().default(0),
 });
 
-export const insertVariantImageSchema = createInsertSchema(variantImages).omit({
-  id: true,
-}).extend({
+export const insertVariantImageSchema = z.object({
   variantId: z.number().int().positive(),
   imageUrl: z.string().min(1, "Image URL is required"),
   sortOrder: z.number().int().default(0),
 });
 
-export const insertCollectionSchema = createInsertSchema(collections).omit({
-  id: true,
-  createdAt: true,
+export const insertCollectionSchema = z.object({
+  name: z.string().min(1, "Collection name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  description: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
 });
 
-export const insertProductCollectionSchema = createInsertSchema(productCollections);
-
-export const insertOrderSchema = createInsertSchema(orders).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertProductCollectionSchema = z.object({
+  productId: z.number().int().positive(),
+  collectionId: z.number().int().positive(),
+  position: z.number().int().default(0),
 });
 
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
-  id: true,
+export const insertOrderSchema = z.object({
+  status: z.string().default("pending"),
+  customerEmail: z.string().nullable().optional(),
+  customerName: z.string().nullable().optional(),
+  customerPhone: z.string().nullable().optional(),
+  shippingAddress: z.string().nullable().optional(),
+  totalCents: z.number().int().default(0),
+});
+
+export const insertOrderItemSchema = z.object({
+  orderId: z.number().int().positive(),
+  variantId: z.number().int().positive(),
+  productName: z.string(),
+  variantSku: z.string(),
+  variantColor: z.string(),
+  variantSize: z.string(),
+  quantity: z.number().int().positive(),
+  priceCents: z.number().int(),
 });
 
 // ================================

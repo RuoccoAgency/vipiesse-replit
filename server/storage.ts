@@ -313,7 +313,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCollection(collection: InsertCollection): Promise<Collection> {
-    const [newCollection] = await db.insert(collections).values(collection).returning();
+    const [newCollection] = await db.insert(collections).values(collection as any).returning();
     return newCollection;
   }
 
@@ -395,7 +395,7 @@ export class DatabaseStorage implements IStorage {
 
   // Order Items
   async createOrderItem(item: InsertOrderItem): Promise<OrderItem> {
-    const [newItem] = await db.insert(orderItems).values(item).returning();
+    const [newItem] = await db.insert(orderItems).values(item as any).returning();
     return newItem;
   }
 
