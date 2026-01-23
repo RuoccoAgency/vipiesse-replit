@@ -1,5 +1,4 @@
 import { useRoute } from "wouter";
-import { products } from "@/lib/data";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
@@ -8,6 +7,8 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import NotFound from "./not-found";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProductById } from "@/lib/api";
 import {
   Accordion,
   AccordionContent,
@@ -17,7 +18,11 @@ import {
 
 export function ProductDetail() {
   const [, params] = useRoute("/product/:id");
-  const product = products.find(p => p.id === params?.id);
+  const { data: product, isLoading } = useQuery({
+    queryKey: ['product', params?.id],
+    queryFn: () => fetchProductById(params!.id),
+    enabled: !!params?.id,
+  });
   const { addToCart } = useCart();
   const { toast } = useToast();
 
@@ -56,6 +61,14 @@ export function ProductDetail() {
           setActiveImage(newImages[0]);
       }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-black min-h-screen pt-24 text-white flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
 
   if (!product) return <NotFound />;
 
@@ -167,7 +180,7 @@ export function ProductDetail() {
                                 Color: <span className="font-normal text-neutral-400">{selectedColor || 'Select'}</span>
                             </span>
                             <div className="flex flex-wrap gap-2">
-                                {product.colors.map(color => (
+                                {product.colors.map((color: string) => (
                                     <button
                                         key={color}
                                         onClick={() => handleColorChange(color)}
@@ -194,7 +207,7 @@ export function ProductDetail() {
                             <button className="text-xs underline text-neutral-400 hover:text-white">Size Guide</button>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            {product.sizes.map(size => (
+                            {product.sizes.map((size: string) => (
                                 <button
                                     key={size}
                                     onClick={() => setSelectedSize(size)}
