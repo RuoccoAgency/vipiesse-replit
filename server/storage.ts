@@ -5,6 +5,8 @@ import {
   variantImages,
   collections, 
   productCollections,
+  orders,
+  orderItems,
   sessions,
   type Product, 
   type InsertProduct,
@@ -16,11 +18,16 @@ import {
   type InsertVariantImage,
   type Collection,
   type InsertCollection,
+  type Order,
+  type InsertOrder,
+  type OrderItem,
+  type InsertOrderItem,
+  type OrderWithItems,
   type Session,
   type ProductWithVariants
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, inArray, desc, asc } from "drizzle-orm";
+import { eq, and, inArray, desc, asc, gte, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Products
@@ -68,6 +75,20 @@ export interface IStorage {
   removeProductFromCollection(productId: number, collectionId: number): Promise<void>;
   getCollectionsByProduct(productId: number): Promise<Collection[]>;
   clearProductCollections(productId: number): Promise<void>;
+  
+  // Orders
+  createOrder(order: InsertOrder): Promise<Order>;
+  getOrderById(id: number): Promise<Order | undefined>;
+  getOrderWithItems(id: number): Promise<OrderWithItems | undefined>;
+  getAllOrders(): Promise<Order[]>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  
+  // Order Items
+  createOrderItem(item: InsertOrderItem): Promise<OrderItem>;
+  getOrderItems(orderId: number): Promise<OrderItem[]>;
+  
+  // Stock operations
+  decrementStock(variantId: number, quantity: number): Promise<boolean>;
   
   // Sessions
   createSession(email: string, expiresAt: Date): Promise<Session>;
@@ -332,6 +353,60 @@ export class DatabaseStorage implements IStorage {
 
   async clearProductCollections(productId: number): Promise<void> {
     await db.delete(productCollections).where(eq(productCollections.productId, productId));
+  }
+
+  // Orders
+  async createOrder(order: InsertOrder): Promise<Order> {
+    const [newOrder] = await db.insert(orders).values(order).returning();
+    return newOrder;
+  }
+
+  async getOrderById(id: number): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order || undefined;
+  }
+
+  async getOrderWithItems(id: number): Promise<OrderWithItems | undefined> {
+    const order = await this.getOrderById(id);
+    if (!order) return undefined;
+    
+    const items = await this.getOrderItems(id);
+    return { ...order, items };
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [updated] = await db.update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  // Order Items
+  async createOrderItem(item: InsertOrderItem): Promise<OrderItem> {
+    const [newItem] = await db.insert(orderItems).values(item).returning();
+    return newItem;
+  }
+
+  async getOrderItems(orderId: number): Promise<OrderItem[]> {
+    return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  }
+
+  // Stock operations - Atomic decrement with stock check
+  async decrementStock(variantId: number, quantity: number): Promise<boolean> {
+    const result = await db.update(productVariants)
+      .set({ stockQty: sql`${productVariants.stockQty} - ${quantity}` })
+      .where(and(
+        eq(productVariants.id, variantId),
+        gte(productVariants.stockQty, quantity)
+      ))
+      .returning();
+    
+    return result.length > 0;
   }
 
   // Sessions
