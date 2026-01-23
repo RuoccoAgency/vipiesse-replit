@@ -103,6 +103,7 @@ export async function registerRoutes(
     const { email, password } = req.body;
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
+    const isFormSubmit = req.headers['content-type']?.includes('application/x-www-form-urlencoded');
 
     console.log("[LOGIN] Attempt with email:", email);
     console.log("[LOGIN] Admin email configured:", adminEmail ? "YES" : "NO");
@@ -110,11 +111,13 @@ export async function registerRoutes(
 
     if (!adminEmail || !adminPassword) {
       console.log("[LOGIN] ERROR: Admin credentials not configured");
+      if (isFormSubmit) return res.redirect('/login?error=1');
       return res.status(500).json({ error: "Admin credentials not configured" });
     }
 
     if (email !== adminEmail || password !== adminPassword) {
       console.log("[LOGIN] ERROR: Invalid credentials - email match:", email === adminEmail, "password match:", password === adminPassword);
+      if (isFormSubmit) return res.redirect('/login?error=1');
       return res.status(401).json({ error: "Invalid credentials" });
     }
     
@@ -132,7 +135,12 @@ export async function registerRoutes(
       path: "/"
     });
 
-    res.json({ success: true, email });
+    // Form submit gets redirect, JSON requests get JSON response
+    if (isFormSubmit) {
+      res.redirect('/admin');
+    } else {
+      res.json({ success: true, email });
+    }
   });
 
   app.post("/api/admin/logout", isAdmin, async (req, res) => {
@@ -485,59 +493,22 @@ export async function registerRoutes(
       <body>
         <div class="login-box">
           <h1>VIPIESSE Admin</h1>
-          <div class="error" id="error"></div>
-          <form id="loginForm">
+          <div class="error" id="error">${req.query.error ? 'Credenziali non valide' : ''}</div>
+          <form method="POST" action="/api/admin/login">
             <div class="form-group">
               <label>Email</label>
-              <input type="email" id="email" required>
+              <input type="email" name="email" required>
             </div>
             <div class="form-group">
               <label>Password</label>
-              <input type="password" id="password" required>
+              <input type="password" name="password" required>
             </div>
             <button type="submit" class="btn">Login</button>
           </form>
         </div>
         <script>
-          document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const errorDiv = document.getElementById('error');
-            const btn = document.querySelector('.btn');
-            errorDiv.style.display = 'none';
-            btn.textContent = 'Loading...';
-            btn.disabled = true;
-            
-            try {
-              const res = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                  email: document.getElementById('email').value,
-                  password: document.getElementById('password').value
-                })
-              });
-              
-              const data = await res.json();
-              console.log('Login response:', data, 'status:', res.status);
-              
-              if (res.ok && data.success) {
-                console.log('Redirecting to /admin...');
-                window.location.replace('/admin');
-              } else {
-                errorDiv.textContent = data.error || 'Login failed';
-                errorDiv.style.display = 'block';
-                btn.textContent = 'Login';
-                btn.disabled = false;
-              }
-            } catch (error) {
-              console.error('Login error:', error);
-              errorDiv.textContent = 'Network error';
-              errorDiv.style.display = 'block';
-              btn.textContent = 'Login';
-              btn.disabled = false;
-            }
-          });
+          const err = document.getElementById('error');
+          if (err.textContent.trim()) err.style.display = 'block';
         </script>
       </body>
       </html>
