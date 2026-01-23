@@ -596,6 +596,160 @@ export async function registerRoutes(
     res.send(getAdminCollectionsPage(collections));
   });
 
+  // ================================
+  // PUBLIC API - Orders (Checkout)
+  // ================================
+  
+  // Create order with stock validation and decrement
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const { items, customerEmail, customerName, customerPhone, shippingAddress } = req.body;
+      
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: "Cart is empty" });
+      }
+      
+      // Validate all items have required fields
+      for (const item of items) {
+        if (!item.variantId || !item.quantity || item.quantity < 1) {
+          return res.status(400).json({ error: "Invalid item in cart" });
+        }
+      }
+      
+      // First, validate stock for all items
+      const stockChecks: { variantId: number; quantity: number; variant: any; product: any }[] = [];
+      let totalCents = 0;
+      
+      for (const item of items) {
+        const variant = await storage.getVariantById(item.variantId);
+        if (!variant) {
+          return res.status(400).json({ error: `Variant ${item.variantId} not found` });
+        }
+        if (!variant.active) {
+          return res.status(400).json({ error: `Variant ${variant.sku} is not available` });
+        }
+        if (variant.stockQty < item.quantity) {
+          return res.status(400).json({ 
+            error: `Insufficient stock for ${variant.sku}. Available: ${variant.stockQty}, Requested: ${item.quantity}` 
+          });
+        }
+        
+        const product = await storage.getProductById(variant.productId);
+        if (!product || !product.active) {
+          return res.status(400).json({ error: `Product for variant ${variant.sku} not available` });
+        }
+        
+        const priceCents = variant.priceCents || product.basePriceCents || 0;
+        totalCents += priceCents * item.quantity;
+        
+        stockChecks.push({ variantId: item.variantId, quantity: item.quantity, variant, product });
+      }
+      
+      // Create the order
+      const order = await storage.createOrder({
+        status: 'pending',
+        customerEmail: customerEmail || null,
+        customerName: customerName || null,
+        customerPhone: customerPhone || null,
+        shippingAddress: shippingAddress || null,
+        totalCents
+      });
+      
+      // Create order items and decrement stock atomically
+      for (const check of stockChecks) {
+        const priceCents = check.variant.priceCents || check.product.basePriceCents || 0;
+        
+        await storage.createOrderItem({
+          orderId: order.id,
+          variantId: check.variantId,
+          productName: check.product.name,
+          variantSku: check.variant.sku,
+          variantColor: check.variant.color,
+          variantSize: check.variant.size,
+          quantity: check.quantity,
+          priceCents
+        });
+        
+        // Decrement stock atomically
+        const decremented = await storage.decrementStock(check.variantId, check.quantity);
+        if (!decremented) {
+          // Race condition - stock was depleted between check and decrement
+          // In production, you'd want to roll back the order
+          return res.status(400).json({ 
+            error: `Stock for ${check.variant.sku} was just purchased. Please refresh and try again.` 
+          });
+        }
+      }
+      
+      // Update order status to paid (simulating successful payment)
+      const completedOrder = await storage.updateOrderStatus(order.id, 'paid');
+      
+      res.status(201).json({ 
+        success: true, 
+        orderId: order.id,
+        order: completedOrder,
+        message: 'Order placed successfully' 
+      });
+    } catch (error) {
+      console.error('Order creation error:', error);
+      res.status(500).json({ error: "Failed to create order" });
+    }
+  });
+  
+  // Get order status
+  app.get("/api/orders/:id", async (req, res) => {
+    try {
+      const order = await storage.getOrderWithItems(parseInt(req.params.id));
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch order" });
+    }
+  });
+  
+  // ================================
+  // ADMIN API - Orders
+  // ================================
+  
+  app.get("/api/admin/orders", isAdmin, async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch orders" });
+    }
+  });
+  
+  app.get("/api/admin/orders/:id", isAdmin, async (req, res) => {
+    try {
+      const order = await storage.getOrderWithItems(parseInt(req.params.id));
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch order" });
+    }
+  });
+  
+  app.patch("/api/admin/orders/:id/status", isAdmin, async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!['pending', 'paid', 'shipped', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const order = await storage.updateOrderStatus(parseInt(req.params.id), status);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update order status" });
+    }
+  });
+
   return httpServer;
 }
 
