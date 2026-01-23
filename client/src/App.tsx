@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route } from "wouter";
 import { Layout } from "./components/layout";
 import { Home } from "./pages/home";
 import { Shop } from "./pages/shop";
@@ -17,46 +17,23 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/product/:id" component={ProductDetail} />
       
-      {/* Shop Routes */}
       <Route path="/shop">
          {() => <Shop />}
       </Route>
-      <Route path="/shop/donna">
-         {() => <Shop category="donna" />}
-      </Route>
-      <Route path="/shop/uomo">
-         {() => <Shop category="uomo" />}
-      </Route>
-      <Route path="/shop/bambino">
-         {() => <Shop category="bambino" />}
-      </Route>
-
-      {/* Outlet Routes */}
-      <Route path="/outlet">
-         {() => <Shop isOutlet={true} />}
-      </Route>
-      <Route path="/outlet/donna">
-         {() => <Shop category="donna" isOutlet={true} />}
-      </Route>
-      <Route path="/outlet/uomo">
-         {() => <Shop category="uomo" isOutlet={true} />}
-      </Route>
-      <Route path="/outlet/bambino">
-         {() => <Shop category="bambino" isOutlet={true} />}
+      <Route path="/shop/:collection">
+         {(params) => <Shop collection={params.collection} />}
       </Route>
 
       <Route path="/business" component={Business} />
       <Route path="/login" component={Login} />
       <Route path="/checkout" component={Checkout} />
 
-      {/* Help Routes */}
       <Route path="/help/contattaci" component={ContactPage} />
       <Route path="/help/taglie" component={SizeGuidePage} />
       <Route path="/help/condizioni" component={TermsPage} />
       <Route path="/help/pagamenti" component={PaymentsPage} />
       <Route path="/help/spedizioni-resi" component={ShippingPage} />
 
-      {/* Fallback for other help routes or 404 */}
       <Route path="/help/:topic">
         {(params) => (
            <div className="container mx-auto py-20 px-4 text-center">
@@ -76,6 +53,7 @@ function App() {
     <Layout>
       <ScrollToTop />
       <Router />
+      <Toaster />
     </Layout>
   );
 }
