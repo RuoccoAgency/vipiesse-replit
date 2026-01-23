@@ -126,9 +126,10 @@ export async function registerRoutes(
 
     res.cookie("admin_session", session.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: false,
+      sameSite: "lax",
       expires: expiresAt,
+      path: "/"
     });
 
     res.json({ success: true, email });
