@@ -43,13 +43,15 @@ async function seed() {
 
   console.log("Collections created");
 
-  // Create the inblu product
+  // Create sample product with new Google Sheet fields
   const inbluProduct = await db.insert(products).values({
-    name: "inblu Classic Clogs Slippers, Women Slide Sandals Art. 5033",
+    articolo: "INBLU CLASSIC CLOGS 5033",
+    colore: "AZALEA",
+    sku: "5033AG39",
+    taglia: "39",
+    quantita: 10,
     priceCents: 1459, // €14.59
-    category: "donna",
     brand: "Inblu",
-    sku: "5033AG39-1",
     description: `Product Details
 Sole material: Synthetic
 Upper height: Ankle
@@ -57,18 +59,17 @@ Platform height: 4.5 cm
 Outer material: Synthetic
 
 Product Description:
-ZOCCOLI – The colorful inblu clogs are a fresh and fun version of traditional professional clogs. These are lightweight and colorful slippers, perfect for seasonal changes and ideal for those who spend many hours standing, cleaning, or cooking. inblu professional clogs are available in a wide range of colors, also with elastic bands, velcro closure, and open versions.`,
-    image: "/assets/image_1768384856832-CTRfTKA7.png", // Gold/Azalea
+ZOCCOLI – The colorful inblu clogs are a fresh and fun version of traditional professional clogs.`,
+    image: "/assets/image_1768384856832-CTRfTKA7.png",
     gallery: [
-      "/assets/image_1768384856832-CTRfTKA7.png", // Gold
-      "/assets/image_1768384862836-qyO-uCN4.png", // Silver
-      "/assets/image_1768384873309-CsgUpd3y.png", // White
-      "/assets/image_1768384895088-B_s1FLnR.png", // Blue
-      "/assets/image_1768384902607-BBKEdHN1.png", // Dark Blue
+      "/assets/image_1768384856832-CTRfTKA7.png",
+      "/assets/image_1768384862836-qyO-uCN4.png",
+      "/assets/image_1768384873309-CsgUpd3y.png",
     ],
-    sizes: ["35", "36", "37", "38", "39", "40", "41"],
-    colors: ["Silver", "Azalea", "White", "Blue", "Dark Blue", "Jeans", "Platinum", "Pink"],
     active: true,
+    category: "donna",
+    sizes: ["35", "36", "37", "38", "39", "40", "41"],
+    colors: ["Silver", "Azalea", "White", "Blue"],
     isBestSeller: true,
     isNewSeason: false,
     isOutlet: false,

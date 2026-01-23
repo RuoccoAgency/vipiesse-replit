@@ -1,0 +1,76 @@
+PRODUCT FIELDS (from Google Sheet)
+Exclude the fields “Data invio” and “Data caricamento”.
+Each product must support:
+articolo (string) — e.g. "ROMA TOPI WA20", "VERONA EW A30"
+colore (string) — e.g. "BORDEAUX", "BIANCO", "ROSA", "GRIGIO", "BLU", "FANTASIA"
+sku (string, unique) — e.g. "ROMATOPIWA20BO36/37"
+taglia (string) — e.g. "36/37", "38/39", "40/41"
+quantita (integer) — stock quantity
+prezzo (decimal input) — product price in euros (e.g. 14.9)
+price_cents (integer, internal storage) — derived from prezzo
+active (boolean) — Yes / No
+brand (string, optional)
+DATABASE (SQLite)
+If the products table already exists, update the schema by adding missing columns using safe migrations (ALTER TABLE where possible).
+sku must be UNIQUE.
+quantita must default to 0.
+Prices must be stored internally as price_cents (integer) to avoid floating-point issues.
+Ensure backward compatibility with existing data.
+ADMIN UI — PRODUCTS
+In /admin/products (product list + Create/Edit Product modal):
+Display and allow editing of:
+Articolo
+Colore
+SKU
+Taglia
+Quantità
+Prezzo (€)
+Brand
+Active (Yes / No)
+Remove the existing Category field entirely or make it optional and unused.
+The products list must display at least:
+Articolo
+Colore
+SKU
+Taglia
+Quantità
+Prezzo
+Active
+VALIDATIONS
+sku is required and must be unique.
+If a duplicate SKU is submitted, show a clear error message in the admin UI: “SKU already exists”.
+quantita must be an integer ≥ 0.
+prezzo must accept valid numbers and also support comma format (e.g. 14,90).
+MULTI-COLLECTION SUPPORT (IMPORTANT)
+Add support for assigning multiple collections to a single product (e.g. “Donna” + “Best Sellers”).
+Database
+Maintain or create these tables:
+collections (id, name, slug, description)
+product_collections (product_id, collection_id, position)
+Admin UI — Product Form
+In Create Product and Edit Product, display a list of checkboxes containing all existing collections.
+Allow selecting multiple collections at the same time.
+When editing a product, previously selected collections must remain checked (state persistence).
+Backend Logic
+On product creation:
+Save the product
+Insert related rows into product_collections
+On product update:
+Update product fields
+Synchronize product_collections:
+Remove old relations
+Insert newly selected collections
+COLLECTION MANAGEMENT
+In /admin/collections:
+Allow creating new collections (Donna, Uomo, Bambino, Outlet, Best Sellers, Seasonal, etc.)
+Only collections that exist must appear as checkboxes in the product form.
+PRODUCT LIST
+In the products table/list, also show assigned collections (e.g. Donna, Best Sellers).
+ACCESS REQUIREMENTS
+No Replit account should ever be required.
+Everything must be accessible via browser using admin login only.
+OUTPUT
+Generate all required changes to backend routes, database logic, and admin HTML.
+If necessary, create a migration script or schema-update function that runs at startup.
+Ensure the application works correctly with Run and in production after changes.
+Proceed with the implementation now.

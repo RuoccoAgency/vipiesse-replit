@@ -162,21 +162,42 @@ export async function registerRoutes(
   app.post("/api/admin/products", isAdmin, async (req, res) => {
     try {
       const validated = insertProductSchema.parse(req.body);
+      
+      // Check for duplicate SKU
+      const existingProduct = await storage.getProductBySku(validated.sku);
+      if (existingProduct) {
+        return res.status(400).json({ error: "SKU already exists" });
+      }
+      
       const product = await storage.createProduct(validated);
       res.json(product);
-    } catch (error) {
-      res.status(400).json({ error: "Invalid product data" });
+    } catch (error: any) {
+      if (error.code === '23505') { // PostgreSQL unique violation
+        return res.status(400).json({ error: "SKU already exists" });
+      }
+      res.status(400).json({ error: error.message || "Invalid product data" });
     }
   });
 
   app.patch("/api/admin/products/:id", isAdmin, async (req, res) => {
     try {
+      // If updating SKU, check for duplicates
+      if (req.body.sku) {
+        const existingProduct = await storage.getProductBySku(req.body.sku);
+        if (existingProduct && existingProduct.id !== req.params.id) {
+          return res.status(400).json({ error: "SKU already exists" });
+        }
+      }
+      
       const product = await storage.updateProduct(req.params.id, req.body);
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
       res.json(product);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === '23505') {
+        return res.status(400).json({ error: "SKU already exists" });
+      }
       res.status(400).json({ error: "Failed to update product" });
     }
   });
@@ -402,6 +423,13 @@ export async function registerRoutes(
     const products = await storage.getAllProducts();
     const collections = await storage.getAllCollections();
     
+    // Get collections for each product
+    const productCollectionsMap: Record<string, string[]> = {};
+    for (const p of products) {
+      const pCollections = await storage.getCollectionsByProduct(p.id);
+      productCollectionsMap[p.id] = pCollections.map(c => c.name);
+    }
+    
     res.send(`
       <!DOCTYPE html>
       <html>
@@ -419,26 +447,34 @@ export async function registerRoutes(
           .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
           .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
           .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
-          .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+          .container { padding: 2rem; max-width: 1600px; margin: 0 auto; overflow-x: auto; }
           .controls { margin-bottom: 1.5rem; }
           .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
           .btn:hover { background: #333; }
-          table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-          th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
-          th { background: #f8f8f8; font-weight: 600; }
-          .active-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; }
+          .btn-small { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+          table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 0.9rem; }
+          th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+          th { background: #f8f8f8; font-weight: 600; white-space: nowrap; }
+          .active-badge { display: inline-block; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600; }
           .active-badge.yes { background: #d4edda; color: #155724; }
           .active-badge.no { background: #f8d7da; color: #721c24; }
-          .actions button { margin-right: 0.5rem; padding: 0.25rem 0.75rem; font-size: 0.85rem; }
-          .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+          .collections-list { font-size: 0.75rem; color: #666; max-width: 150px; }
+          .actions { white-space: nowrap; }
+          .actions button { margin-right: 0.25rem; }
+          .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
           .modal.show { display: flex; }
-          .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+          .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 700px; width: 95%; max-height: 90vh; overflow-y: auto; }
+          .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
           .form-group { margin-bottom: 1rem; }
-          label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-          input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-          .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
-          .checkbox-group label { font-weight: normal; display: flex; align-items: center; }
+          .form-group.full { grid-column: 1 / -1; }
+          label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+          input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+          .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; margin-top: 0.5rem; }
+          .checkbox-group label { font-weight: normal; display: flex; align-items: center; font-size: 0.85rem; }
           .checkbox-group input { width: auto; margin-right: 0.5rem; }
+          .error-msg { color: #dc3545; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+          .error-msg.show { display: block; }
+          .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
         </style>
       </head>
       <body>
@@ -457,9 +493,13 @@ export async function registerRoutes(
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Category</th>
+                <th>Articolo</th>
+                <th>Colore</th>
+                <th>SKU</th>
+                <th>Taglia</th>
+                <th>Quantità</th>
+                <th>Prezzo</th>
+                <th>Brand</th>
                 <th>Active</th>
                 <th>Collections</th>
                 <th>Actions</th>
@@ -468,14 +508,18 @@ export async function registerRoutes(
             <tbody>
               ${products.map(p => `
                 <tr>
-                  <td>${p.name}</td>
+                  <td>${p.articolo || '-'}</td>
+                  <td>${p.colore || '-'}</td>
+                  <td>${p.sku || '-'}</td>
+                  <td>${p.taglia || '-'}</td>
+                  <td>${p.quantita || 0}</td>
                   <td>€${(p.priceCents / 100).toFixed(2)}</td>
-                  <td>${p.category}</td>
+                  <td>${p.brand || '-'}</td>
                   <td><span class="active-badge ${p.active ? 'yes' : 'no'}">${p.active ? 'Yes' : 'No'}</span></td>
-                  <td><button class="btn" onclick="editCollections('${p.id}')">Edit</button></td>
+                  <td class="collections-list">${productCollectionsMap[p.id]?.join(', ') || '-'}</td>
                   <td class="actions">
-                    <button class="btn" onclick="editProduct('${p.id}')">Edit</button>
-                    <button class="btn" onclick="deleteProduct('${p.id}')">Delete</button>
+                    <button class="btn btn-small" onclick="editProduct('${p.id}')">Edit</button>
+                    <button class="btn btn-small" onclick="deleteProduct('${p.id}')">Delete</button>
                   </td>
                 </tr>
               `).join('')}
@@ -488,60 +532,79 @@ export async function registerRoutes(
             <h2 id="modalTitle">Create Product</h2>
             <form id="productForm">
               <input type="hidden" id="productId">
-              <div class="form-group">
-                <label>Name</label>
-                <input type="text" id="name" required>
+              <div class="error-msg" id="formError"></div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Articolo *</label>
+                  <input type="text" id="articolo" required placeholder="e.g. ROMA TOPI WA20">
+                </div>
+                <div class="form-group">
+                  <label>Colore *</label>
+                  <input type="text" id="colore" required placeholder="e.g. BORDEAUX">
+                </div>
               </div>
-              <div class="form-group">
-                <label>Price (€)</label>
-                <input type="number" step="0.01" id="price" required>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>SKU * (unique)</label>
+                  <input type="text" id="sku" required placeholder="e.g. ROMATOPIWA20BO36/37">
+                </div>
+                <div class="form-group">
+                  <label>Taglia *</label>
+                  <input type="text" id="taglia" required placeholder="e.g. 36/37">
+                </div>
               </div>
-              <div class="form-group">
-                <label>Category</label>
-                <select id="category" required>
-                  <option value="donna">Donna</option>
-                  <option value="uomo">Uomo</option>
-                  <option value="bambino">Bambino</option>
-                </select>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Quantità</label>
+                  <input type="number" id="quantita" min="0" value="0">
+                </div>
+                <div class="form-group">
+                  <label>Prezzo (€) *</label>
+                  <input type="text" id="prezzo" required placeholder="e.g. 14,90 or 14.90">
+                </div>
               </div>
-              <div class="form-group">
-                <label>Brand</label>
-                <input type="text" id="brand" required>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Brand</label>
+                  <input type="text" id="brand" placeholder="e.g. Inblu">
+                </div>
+                <div class="form-group">
+                  <label>Active</label>
+                  <select id="active">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
               </div>
-              <div class="form-group">
-                <label>Active</label>
-                <select id="active">
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
+              
+              <div class="form-group full">
+                <label>Collections</label>
+                <div class="checkbox-group" id="collectionsCheckboxes">
+                  ${collections.map(c => `
+                    <label>
+                      <input type="checkbox" name="collection" value="${c.id}">
+                      ${c.name}
+                    </label>
+                  `).join('')}
+                </div>
               </div>
-              <button type="submit" class="btn">Save</button>
-              <button type="button" class="btn" onclick="closeModal()">Cancel</button>
-            </form>
-          </div>
-        </div>
-        
-        <div id="collectionsModal" class="modal">
-          <div class="modal-content">
-            <h2>Assign Collections</h2>
-            <form id="collectionsForm">
-              <input type="hidden" id="collectionProductId">
-              <div class="checkbox-group">
-                ${collections.map(c => `
-                  <label>
-                    <input type="checkbox" name="collection" value="${c.id}">
-                    ${c.name}
-                  </label>
-                `).join('')}
+              
+              <div class="form-actions">
+                <button type="submit" class="btn">Save</button>
+                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
               </div>
-              <button type="submit" class="btn" style="margin-top: 1rem;">Save</button>
-              <button type="button" class="btn" onclick="closeCollectionsModal()">Cancel</button>
             </form>
           </div>
         </div>
         
         <script>
           const products = ${JSON.stringify(products)};
+          const productCollectionsMap = ${JSON.stringify(productCollectionsMap)};
+          const allCollections = ${JSON.stringify(collections)};
           
           async function logout() {
             await fetch('/api/admin/logout', { method: 'POST' });
@@ -552,18 +615,34 @@ export async function registerRoutes(
             document.getElementById('modalTitle').textContent = 'Create Product';
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
+            document.getElementById('formError').classList.remove('show');
+            // Uncheck all collections
+            document.querySelectorAll('#collectionsCheckboxes input').forEach(cb => cb.checked = false);
             document.getElementById('productModal').classList.add('show');
           }
           
-          function editProduct(id) {
+          async function editProduct(id) {
             const product = products.find(p => p.id === id);
             document.getElementById('modalTitle').textContent = 'Edit Product';
             document.getElementById('productId').value = id;
-            document.getElementById('name').value = product.name;
-            document.getElementById('price').value = (product.priceCents / 100).toFixed(2);
-            document.getElementById('category').value = product.category;
-            document.getElementById('brand').value = product.brand;
+            document.getElementById('articolo').value = product.articolo || '';
+            document.getElementById('colore').value = product.colore || '';
+            document.getElementById('sku').value = product.sku || '';
+            document.getElementById('taglia').value = product.taglia || '';
+            document.getElementById('quantita').value = product.quantita || 0;
+            document.getElementById('prezzo').value = (product.priceCents / 100).toFixed(2);
+            document.getElementById('brand').value = product.brand || '';
             document.getElementById('active').value = product.active.toString();
+            document.getElementById('formError').classList.remove('show');
+            
+            // Load collections for this product
+            const response = await fetch('/api/admin/products/' + id + '/collections');
+            const productCols = await response.json();
+            const productColIds = productCols.map(c => c.id);
+            document.querySelectorAll('#collectionsCheckboxes input').forEach(cb => {
+              cb.checked = productColIds.includes(parseInt(cb.value));
+            });
+            
             document.getElementById('productModal').classList.add('show');
           }
           
@@ -572,74 +651,83 @@ export async function registerRoutes(
           }
           
           async function deleteProduct(id) {
-            if (!confirm('Are you sure?')) return;
+            if (!confirm('Are you sure you want to delete this product?')) return;
             await fetch('/api/admin/products/' + id, { method: 'DELETE' });
             location.reload();
           }
           
-          async function editCollections(productId) {
-            document.getElementById('collectionProductId').value = productId;
-            const response = await fetch('/api/admin/products/' + productId + '/collections');
-            const productCollections = await response.json();
-            const checkboxes = document.querySelectorAll('#collectionsForm input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-              cb.checked = productCollections.some(c => c.id == cb.value);
-            });
-            document.getElementById('collectionsModal').classList.add('show');
-          }
-          
-          function closeCollectionsModal() {
-            document.getElementById('collectionsModal').classList.remove('show');
+          // Parse price with comma support
+          function parsePrice(str) {
+            if (!str) return 0;
+            return parseFloat(str.replace(',', '.'));
           }
           
           document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const errorDiv = document.getElementById('formError');
+            errorDiv.classList.remove('show');
+            
             const id = document.getElementById('productId').value;
+            const prezzo = parsePrice(document.getElementById('prezzo').value);
+            
+            if (isNaN(prezzo) || prezzo < 0) {
+              errorDiv.textContent = 'Invalid price format';
+              errorDiv.classList.add('show');
+              return;
+            }
+            
             const data = {
-              name: document.getElementById('name').value,
-              priceCents: Math.round(parseFloat(document.getElementById('price').value) * 100),
-              category: document.getElementById('category').value,
-              brand: document.getElementById('brand').value,
-              active: document.getElementById('active').value === 'true',
-              image: '/placeholder.jpg',
-              sizes: ['36', '37', '38', '39', '40', '41'],
-              description: '',
-              sku: '',
-              gallery: [],
-              colors: [],
-              isBestSeller: false,
-              isNewSeason: false,
-              isOutlet: false
+              articolo: document.getElementById('articolo').value,
+              colore: document.getElementById('colore').value,
+              sku: document.getElementById('sku').value,
+              taglia: document.getElementById('taglia').value,
+              quantita: parseInt(document.getElementById('quantita').value) || 0,
+              priceCents: Math.round(prezzo * 100),
+              brand: document.getElementById('brand').value || null,
+              active: document.getElementById('active').value === 'true'
             };
             
-            if (id) {
-              await fetch('/api/admin/products/' + id, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-              });
-            } else {
-              await fetch('/api/admin/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-              });
-            }
-            location.reload();
-          });
-          
-          document.getElementById('collectionsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const productId = document.getElementById('collectionProductId').value;
-            const collectionIds = Array.from(document.querySelectorAll('#collectionsForm input:checked'))
+            // Get selected collections
+            const collectionIds = Array.from(document.querySelectorAll('#collectionsCheckboxes input:checked'))
               .map(cb => parseInt(cb.value));
             
-            await fetch('/api/admin/products/' + productId + '/collections', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ collectionIds })
-            });
-            closeCollectionsModal();
+            try {
+              let response;
+              if (id) {
+                response = await fetch('/api/admin/products/' + id, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                });
+              } else {
+                response = await fetch('/api/admin/products', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                });
+              }
+              
+              const result = await response.json();
+              
+              if (!response.ok) {
+                errorDiv.textContent = result.error || 'Failed to save product';
+                errorDiv.classList.add('show');
+                return;
+              }
+              
+              // Update collections
+              const productId = id || result.id;
+              await fetch('/api/admin/products/' + productId + '/collections', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ collectionIds })
+              });
+              
+              location.reload();
+            } catch (err) {
+              errorDiv.textContent = 'Network error';
+              errorDiv.classList.add('show');
+            }
           });
         </script>
       </body>
