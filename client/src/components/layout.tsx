@@ -8,7 +8,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen flex flex-col bg-black text-white font-sans selection:bg-white selection:text-black">
+        <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans selection:bg-black selection:text-white">
           <Navbar />
           <main className="flex-grow">
             {children}

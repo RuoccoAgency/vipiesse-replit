@@ -114,7 +114,7 @@ export function CartDrawer({ triggerClassName }: { triggerClassName?: string }) 
                 ? `Aggiungi altri €${(50 - subtotal).toFixed(2)} per la spedizione gratuita!`
                 : "Spedizione gratuita applicata!"}
             </p>
-            <Button onClick={handleCheckout} className="w-full bg-black hover:bg-neutral-800 text-white font-heading uppercase tracking-widest h-12">
+            <Button onClick={handleCheckout} className="w-full bg-gray-900 hover:bg-gray-800 text-white font-heading uppercase tracking-widest h-12">
               Procedi al Checkout
             </Button>
           </div>

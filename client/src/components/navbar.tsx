@@ -29,14 +29,14 @@ export function Navbar() {
   const closeMenu = () => setIsOpen(false);
   const isHome = location === "/";
 
-  // Transparent behavior only on Home, otherwise always sticky white
+  // Transparent behavior on pages with hero (home), white with blur on scroll for all pages
   const isTransparent = isHome && !isScrolled;
 
   return (
     <nav className={`fixed top-0 z-50 w-full transition-all duration-300 ${
       isTransparent 
         ? "bg-transparent text-white border-transparent" 
-        : "bg-white text-black border-b border-gray-100 shadow-sm"
+        : "bg-white/95 backdrop-blur-md text-black border-b border-gray-100 shadow-sm"
     }`}>
       <div className="w-full px-6 md:px-8 h-20 flex items-center justify-between">
         {/* Left: Mobile Menu */}

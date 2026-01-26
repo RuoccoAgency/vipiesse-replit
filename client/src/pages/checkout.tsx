@@ -98,8 +98,8 @@ export function Checkout() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-heading uppercase font-bold mb-8 border-b border-neutral-800 pb-4">Checkout</h1>
+    <div className="container mx-auto px-4 py-12 pt-24">
+      <h1 className="text-3xl font-heading uppercase font-bold mb-8 border-b border-gray-200 pb-4 text-gray-900">Checkout</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div>
@@ -114,7 +114,7 @@ export function Checkout() {
                     <FormItem>
                       <FormLabel>Nome</FormLabel>
                       <FormControl>
-                        <Input placeholder="Mario" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-firstName" />
+                        <Input placeholder="Mario" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-firstName" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -127,7 +127,7 @@ export function Checkout() {
                     <FormItem>
                       <FormLabel>Cognome</FormLabel>
                       <FormControl>
-                        <Input placeholder="Rossi" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-lastName" />
+                        <Input placeholder="Rossi" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-lastName" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -142,7 +142,7 @@ export function Checkout() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="mario.rossi@email.com" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-email" />
+                      <Input placeholder="mario.rossi@email.com" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-email" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +156,7 @@ export function Checkout() {
                   <FormItem>
                     <FormLabel>Telefono (opzionale)</FormLabel>
                     <FormControl>
-                      <Input placeholder="+39 333 1234567" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-phone" />
+                      <Input placeholder="+39 333 1234567" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-phone" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -170,7 +170,7 @@ export function Checkout() {
                   <FormItem>
                     <FormLabel>Indirizzo</FormLabel>
                     <FormControl>
-                      <Input placeholder="Via Roma 1" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-address" />
+                      <Input placeholder="Via Roma 1" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-address" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -185,7 +185,7 @@ export function Checkout() {
                     <FormItem>
                       <FormLabel>Città</FormLabel>
                       <FormControl>
-                        <Input placeholder="Napoli" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-city" />
+                        <Input placeholder="Napoli" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-city" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -198,7 +198,7 @@ export function Checkout() {
                     <FormItem>
                       <FormLabel>CAP</FormLabel>
                       <FormControl>
-                        <Input placeholder="80100" {...field} className="bg-neutral-900 border-neutral-800 focus:border-white transition-colors" data-testid="input-zip" />
+                        <Input placeholder="80100" {...field} className="bg-white border-gray-300 focus:border-gray-900 transition-colors" data-testid="input-zip" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -208,7 +208,7 @@ export function Checkout() {
 
               <Button 
                 type="submit" 
-                className="w-full bg-white text-black hover:bg-gray-200 font-heading uppercase font-bold tracking-widest h-12 text-lg"
+                className="w-full bg-gray-900 text-white hover:bg-gray-800 font-heading uppercase font-bold tracking-widest h-12 text-lg"
                 disabled={isProcessing}
                 data-testid="button-submit-order"
               >
@@ -225,38 +225,38 @@ export function Checkout() {
           </Form>
         </div>
 
-        <div className="bg-neutral-900 p-8 h-fit border border-neutral-800">
-           <h3 className="font-heading text-lg mb-6 border-b border-neutral-800 pb-2">Riepilogo Ordine</h3>
+        <div className="bg-gray-50 p-8 h-fit border border-gray-200 rounded-lg">
+           <h3 className="font-heading text-lg mb-6 border-b border-gray-200 pb-2 text-gray-900">Riepilogo Ordine</h3>
            <div className="space-y-4 mb-6">
              {items.map((item) => (
                <div key={`${item.product.id}-${item.product.variantId}-${item.size}`} className="flex gap-4 text-sm" data-testid={`order-item-${item.product.variantId}`}>
-                 <div className="h-16 w-12 bg-gray-800 overflow-hidden rounded">
+                 <div className="h-16 w-12 bg-gray-200 overflow-hidden rounded">
                    <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                  </div>
                  <div className="flex-1">
-                   <p className="font-medium line-clamp-1">{item.product.name}</p>
-                   <p className="text-neutral-400 text-xs">
+                   <p className="font-medium line-clamp-1 text-gray-900">{item.product.name}</p>
+                   <p className="text-gray-500 text-xs">
                      {item.product.color && `${item.product.color} / `}Taglia: {item.size} x {item.quantity}
                    </p>
                    {item.product.sku && (
-                     <p className="text-neutral-500 text-xs">SKU: {item.product.sku}</p>
+                     <p className="text-gray-400 text-xs">SKU: {item.product.sku}</p>
                    )}
                  </div>
-                 <p className="font-medium">€{(item.product.price * item.quantity).toFixed(2)}</p>
+                 <p className="font-medium text-gray-900">€{(item.product.price * item.quantity).toFixed(2)}</p>
                </div>
              ))}
            </div>
            
-           <div className="space-y-2 pt-4 border-t border-neutral-800 text-sm">
-             <div className="flex justify-between text-neutral-400">
+           <div className="space-y-2 pt-4 border-t border-gray-200 text-sm">
+             <div className="flex justify-between text-gray-500">
                <span>Subtotale</span>
                <span>€{subtotal.toFixed(2)}</span>
              </div>
-             <div className="flex justify-between text-neutral-400">
+             <div className="flex justify-between text-gray-500">
                <span>Spedizione</span>
                <span>{shippingCost === 0 ? "Gratis" : `€${shippingCost.toFixed(2)}`}</span>
              </div>
-             <div className="flex justify-between text-xl font-bold text-white pt-2">
+             <div className="flex justify-between text-xl font-bold text-gray-900 pt-2">
                <span>Totale</span>
                <span>€{total.toFixed(2)}</span>
              </div>

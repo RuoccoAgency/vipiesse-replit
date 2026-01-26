@@ -21,10 +21,10 @@ export function Shop({ collection }: ShopProps) {
     : 'Tutti i prodotti';
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-neutral-800 pb-4 gap-4">
+    <div className="container mx-auto px-4 py-8 min-h-screen pt-24">
+      <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-gray-200 pb-4 gap-4">
         <div>
-          <span className="text-xs text-neutral-400 uppercase tracking-widest">
+          <span className="text-xs text-gray-500 uppercase tracking-widest">
             {products.length} Prodotti
           </span>
           <h1 className="text-4xl md:text-5xl font-heading font-bold uppercase tracking-tighter mt-2">
@@ -33,14 +33,14 @@ export function Shop({ collection }: ShopProps) {
         </div>
         
         <div className="flex gap-4">
-           <button className="flex items-center gap-2 text-sm uppercase tracking-wide hover:text-neutral-400">
+           <button className="flex items-center gap-2 text-sm uppercase tracking-wide hover:text-gray-500">
              <SlidersHorizontal className="h-4 w-4" /> Filtra
            </button>
         </div>
       </div>
 
       {isLoading && (
-        <div className="text-center py-16 text-neutral-400">Caricamento prodotti...</div>
+        <div className="text-center py-16 text-gray-500">Caricamento prodotti...</div>
       )}
 
       {!isLoading && products.length > 0 ? (
@@ -50,7 +50,7 @@ export function Shop({ collection }: ShopProps) {
           ))}
         </div>
       ) : !isLoading ? (
-        <div className="py-20 text-center text-neutral-500">
+        <div className="py-20 text-center text-gray-500">
           <p>Nessun prodotto trovato in questa categoria.</p>
         </div>
       ) : null}

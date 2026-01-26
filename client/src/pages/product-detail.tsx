@@ -48,7 +48,7 @@ interface ProductWithVariants {
 export function ProductDetail() {
   const [, params] = useRoute("/product/:id");
   const { data: product, isLoading } = useQuery<ProductWithVariants>({
-    queryKey: ['product', params?.id],
+    queryKey: ["product", params?.id],
     queryFn: () => fetchProductById(params!.id),
     enabled: !!params?.id,
   });
@@ -60,19 +60,18 @@ export function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState<string>("");
 
-  // Get unique colors from variants
   const availableColors = useMemo(() => {
     if (!product?.variants) return [];
     const colorSet = new Set(product.variants.filter(v => v.active).map(v => v.color));
     return Array.from(colorSet).sort();
   }, [product?.variants]);
 
-  // Get available sizes for selected color
   const availableSizes = useMemo(() => {
     if (!product?.variants || !selectedColor) return [];
     const sizes = product.variants
       .filter(v => v.color === selectedColor && v.active && v.stockQty > 0)
       .map(v => v.size);
+
     return Array.from(new Set(sizes)).sort((a, b) => {
       const numA = parseInt(a);
       const numB = parseInt(b);
@@ -81,38 +80,30 @@ export function ProductDetail() {
     });
   }, [product?.variants, selectedColor]);
 
-  // Get the selected variant
   const selectedVariant = useMemo(() => {
     if (!product?.variants || !selectedColor || !selectedSize) return null;
-    return product.variants.find(v => v.color === selectedColor && v.size === selectedSize);
+    return product.variants.find(v => v.color === selectedColor && v.size === selectedSize) || null;
   }, [product?.variants, selectedColor, selectedSize]);
 
-  // Get gallery images
   const galleryImages = useMemo(() => {
-    if (!product?.images || product.images.length === 0) {
-      return ['/placeholder.jpg'];
-    }
-    return product.images.sort((a, b) => a.sortOrder - b.sortOrder).map(img => img.imageUrl);
+    if (!product?.images || product.images.length === 0) return ["/placeholder.jpg"];
+    return product.images
+      .slice()
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(img => img.imageUrl);
   }, [product?.images]);
 
-  // Get display price
   const displayPrice = useMemo(() => {
-    if (selectedVariant?.priceCents) {
-      return selectedVariant.priceCents / 100;
-    }
-    if (product?.basePriceCents) {
-      return product.basePriceCents / 100;
-    }
+    if (selectedVariant?.priceCents) return selectedVariant.priceCents / 100;
+    if (product?.basePriceCents) return product.basePriceCents / 100;
     return 0;
   }, [selectedVariant, product?.basePriceCents]);
 
-  // Get stock status
   const stockStatus = useMemo(() => {
     if (!selectedVariant) return { inStock: false, qty: 0 };
     return { inStock: selectedVariant.stockQty > 0, qty: selectedVariant.stockQty };
   }, [selectedVariant]);
 
-  // Initialize selections
   useEffect(() => {
     if (product && availableColors.length > 0 && !selectedColor) {
       setSelectedColor(availableColors[0]);
@@ -125,14 +116,13 @@ export function ProductDetail() {
     }
   }, [galleryImages, activeImage]);
 
-  // Reset size when color changes
   useEffect(() => {
     setSelectedSize("");
   }, [selectedColor]);
 
   if (isLoading) {
     return (
-      <div className="bg-black min-h-screen pt-24 text-white flex items-center justify-center">
+      <div className="bg-white min-h-screen pt-24 text-gray-900 flex items-center justify-center">
         <div className="text-center">Caricamento...</div>
       </div>
     );
@@ -145,7 +135,7 @@ export function ProductDetail() {
       toast({
         title: "Colore richiesto",
         description: "Seleziona un colore per procedere.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -154,7 +144,7 @@ export function ProductDetail() {
       toast({
         title: "Taglia richiesta",
         description: "Seleziona una taglia per procedere.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -163,7 +153,7 @@ export function ProductDetail() {
       toast({
         title: "Selezione non valida",
         description: "Seleziona una combinazione valida di colore e taglia.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -172,24 +162,26 @@ export function ProductDetail() {
       toast({
         title: "Esaurito",
         description: "Questa variante è attualmente esaurita.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    // Add to cart with variant info
     for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id.toString(),
-        variantId: selectedVariant.id,
-        name: product.name,
-        brand: product.brand || '',
-        price: displayPrice,
-        image: galleryImages[0] || '/placeholder.jpg',
-        color: selectedColor,
-        size: selectedSize,
-        sku: selectedVariant.sku
-      }, selectedSize);
+      addToCart(
+        {
+          id: product.id.toString(),
+          variantId: selectedVariant.id,
+          name: product.name,
+          brand: product.brand || "",
+          price: displayPrice,
+          image: galleryImages[0] || "/placeholder.jpg",
+          color: selectedColor,
+          size: selectedSize,
+          sku: selectedVariant.sku,
+        },
+        selectedSize
+      );
     }
 
     toast({
@@ -199,13 +191,15 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="bg-black min-h-screen pt-24 text-white font-sans">
+    <div className="bg-white min-h-screen pt-24 text-gray-900 font-sans">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
+
           {/* LEFT COLUMN: Main Image + Thumbnails */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="w-full bg-black rounded-lg overflow-hidden border border-white/10 p-8 flex items-center justify-center aspect-[4/3] relative">
+
+            {/* CARD IMMAGINE */}
+            <div className="w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-200 p-8 flex items-center justify-center aspect-[4/3] relative">
               <motion.img
                 key={activeImage}
                 src={activeImage}
@@ -217,6 +211,7 @@ export function ProductDetail() {
               />
             </div>
 
+            {/* THUMBNAILS */}
             {galleryImages.length > 1 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                 {galleryImages.map((img, idx) => (
@@ -224,14 +219,16 @@ export function ProductDetail() {
                     key={idx}
                     onClick={() => setActiveImage(img)}
                     className={cn(
-                      "relative w-full aspect-square border rounded-md overflow-hidden transition-all bg-black p-2 flex items-center justify-center",
-                      activeImage === img ? "border-white ring-1 ring-white" : "border-white/20 hover:border-white/40"
+                      "relative w-full aspect-square border rounded-md overflow-hidden transition-all bg-gray-100 p-2 flex items-center justify-center",
+                      activeImage === img
+                        ? "border-gray-900 ring-1 ring-gray-900"
+                        : "border-gray-300 hover:border-gray-400"
                     )}
                   >
-                    <img 
-                      src={img} 
-                      alt={`View ${idx}`} 
-                      className="w-full h-full object-contain" 
+                    <img
+                      src={img}
+                      alt={`View ${idx}`}
+                      className="w-full h-full object-contain"
                     />
                   </button>
                 ))}
@@ -244,30 +241,38 @@ export function ProductDetail() {
             <div>
               {product.brand && (
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">{product.brand}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {product.brand}
+                  </span>
                 </div>
               )}
-              
-              <h1 className="text-2xl md:text-3xl font-medium text-white leading-tight mb-4">
+
+              <h1 className="text-2xl md:text-3xl font-medium text-gray-900 leading-tight mb-4">
                 {product.name}
               </h1>
-              
-              <div className="flex items-baseline gap-3 pb-6 border-b border-white/10">
-                <span className="text-2xl font-bold text-white">
+
+              <div className="flex items-baseline gap-3 pb-6 border-b border-gray-200">
+                <span className="text-2xl font-bold text-gray-900">
                   €{displayPrice.toFixed(2)}
                 </span>
               </div>
-              
+
               {selectedVariant && (
-                <div className={cn(
-                  "mt-4 flex items-center gap-2 text-sm font-medium",
-                  stockStatus.inStock ? "text-green-400" : "text-red-400"
-                )}>
-                  <div className={cn(
-                    "w-2 h-2 rounded-full",
-                    stockStatus.inStock ? "bg-green-500" : "bg-red-500"
-                  )} />
-                  {stockStatus.inStock ? `Disponibile (${stockStatus.qty} pezzi)` : "Esaurito"}
+                <div
+                  className={cn(
+                    "mt-4 flex items-center gap-2 text-sm font-medium",
+                    stockStatus.inStock ? "text-green-400" : "text-red-400"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "w-2 h-2 rounded-full",
+                      stockStatus.inStock ? "bg-green-500" : "bg-red-500"
+                    )}
+                  />
+                  {stockStatus.inStock
+                    ? `Disponibile (${stockStatus.qty} pezzi)`
+                    : "Esaurito"}
                 </div>
               )}
             </div>
@@ -277,20 +282,23 @@ export function ProductDetail() {
               {/* Colors */}
               {availableColors.length > 0 && (
                 <div className="space-y-3">
-                  <span className="text-sm font-bold text-white flex items-center gap-2">
-                    Colore: <span className="font-normal text-neutral-400">{selectedColor || 'Seleziona'}</span>
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    Colore:{" "}
+                    <span className="font-normal text-gray-500">
+                      {selectedColor || "Seleziona"}
+                    </span>
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {availableColors.map((color) => (
+                    {availableColors.map(color => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
                         data-testid={`color-${color.toLowerCase()}`}
                         className={cn(
                           "px-4 py-2 border rounded-full text-sm font-medium transition-all min-w-[3rem]",
-                          selectedColor === color 
-                            ? "border-white bg-white text-black shadow-sm" 
-                            : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
+                          selectedColor === color
+                            ? "border-gray-900 bg-gray-900 text-white shadow-sm"
+                            : "border-gray-300 hover:border-gray-400 text-gray-700 bg-white"
                         )}
                       >
                         {color}
@@ -303,23 +311,29 @@ export function ProductDetail() {
               {/* Sizes */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-white flex items-center gap-2">
-                    Taglia: <span className="font-normal text-neutral-400">{selectedSize || 'Seleziona'}</span>
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    Taglia:{" "}
+                    <span className="font-normal text-gray-500">
+                      {selectedSize || "Seleziona"}
+                    </span>
                   </span>
-                  <button className="text-xs underline text-neutral-400 hover:text-white">Guida Taglie</button>
+                  <button className="text-xs underline text-gray-500 hover:text-gray-900">
+                    Guida Taglie
+                  </button>
                 </div>
+
                 {availableSizes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {availableSizes.map((size) => (
+                    {availableSizes.map(size => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         data-testid={`size-${size}`}
                         className={cn(
                           "min-w-[3.5rem] h-10 px-2 flex items-center justify-center border rounded-full text-sm font-medium transition-all",
-                          selectedSize === size 
-                            ? "border-white bg-white text-black shadow-sm" 
-                            : "border-white/20 hover:border-white/40 text-neutral-300 bg-black"
+                          selectedSize === size
+                            ? "border-gray-900 bg-gray-900 text-white shadow-sm"
+                            : "border-gray-300 hover:border-gray-400 text-gray-700 bg-white"
                         )}
                       >
                         {size}
@@ -327,26 +341,37 @@ export function ProductDetail() {
                     ))}
                   </div>
                 ) : selectedColor ? (
-                  <p className="text-sm text-neutral-500">Nessuna taglia disponibile per questo colore</p>
+                  <p className="text-sm text-gray-500">
+                    Nessuna taglia disponibile per questo colore
+                  </p>
                 ) : (
-                  <p className="text-sm text-neutral-500">Seleziona un colore per vedere le taglie disponibili</p>
+                  <p className="text-sm text-gray-500">
+                    Seleziona un colore per vedere le taglie disponibili
+                  </p>
                 )}
               </div>
 
               {/* Quantity + Add */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <div className="flex items-center border border-white/20 rounded-md w-fit bg-black h-12">
-                  <button 
-                    className="px-3 h-full hover:bg-white/10 transition-colors disabled:opacity-30 text-neutral-400 hover:text-white"
+                <div className="flex items-center border border-gray-300 rounded-md w-fit bg-white h-12">
+                  <button
+                    className="px-3 h-full hover:bg-gray-100 transition-colors disabled:opacity-30 text-gray-500 hover:text-gray-900"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
                     data-testid="quantity-decrease"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="w-10 text-center font-bold text-white text-sm" data-testid="quantity-value">{quantity}</span>
-                  <button 
-                    className="px-3 h-full hover:bg-white/10 transition-colors text-neutral-400 hover:text-white"
+
+                  <span
+                    className="w-10 text-center font-bold text-gray-900 text-sm"
+                    data-testid="quantity-value"
+                  >
+                    {quantity}
+                  </span>
+
+                  <button
+                    className="px-3 h-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900 disabled:opacity-30"
                     onClick={() => setQuantity(Math.min(stockStatus.qty || 99, quantity + 1))}
                     disabled={quantity >= (stockStatus.qty || 99)}
                     data-testid="quantity-increase"
@@ -355,45 +380,53 @@ export function ProductDetail() {
                   </button>
                 </div>
 
-                <Button 
-                  className="flex-1 h-12 text-sm font-bold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 rounded-md shadow-md transition-all disabled:opacity-50"
+                <Button
+                  className="flex-1 h-12 text-sm font-bold uppercase tracking-wider bg-gray-900 text-white hover:bg-gray-800 rounded-md shadow-md transition-all disabled:opacity-50"
                   disabled={!selectedColor || !selectedSize || !stockStatus.inStock}
                   onClick={handleAddToCart}
                   data-testid="add-to-cart-button"
                 >
-                  {stockStatus.inStock ? 'AGGIUNGI AL CARRELLO' : 'ESAURITO'}
+                  {stockStatus.inStock ? "AGGIUNGI AL CARRELLO" : "ESAURITO"}
                 </Button>
               </div>
             </div>
 
             {/* Details Accordion */}
             <div className="pt-6">
-              <Accordion type="single" collapsible className="w-full border-t border-white/10">
-                <AccordionItem value="description" className="border-b border-white/10">
-                  <AccordionTrigger className="text-sm font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
+              <Accordion type="single" collapsible className="w-full border-t border-gray-200">
+                <AccordionItem value="description" className="border-b border-gray-200">
+                  <AccordionTrigger className="text-sm font-bold text-gray-900 hover:no-underline hover:text-gray-600 py-4">
                     Descrizione Prodotto
                   </AccordionTrigger>
-                  <AccordionContent className="text-neutral-400 leading-relaxed text-sm whitespace-pre-line pb-6">
-                    {product.description || 'Nessuna descrizione disponibile.'}
+                  <AccordionContent className="text-gray-600 leading-relaxed text-sm whitespace-pre-line pb-6">
+                    {product.description || "Nessuna descrizione disponibile."}
                     {selectedVariant && (
-                      <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-neutral-500">
-                        <div>SKU: <span className="text-white font-bold block mt-1">{selectedVariant.sku}</span></div>
-                        <div>Marca: <span className="text-white font-bold block mt-1">{product.brand || 'N/A'}</span></div>
+                      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 text-xs uppercase tracking-wider text-gray-500">
+                        <div>
+                          SKU:
+                          <span className="text-gray-900 font-bold block mt-1">{selectedVariant.sku}</span>
+                        </div>
+                        <div>
+                          Marca:
+                          <span className="text-gray-900 font-bold block mt-1">{product.brand || "N/A"}</span>
+                        </div>
                       </div>
                     )}
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="shipping" className="border-b border-white/10">
-                  <AccordionTrigger className="text-sm font-bold text-white hover:no-underline hover:text-neutral-300 py-4">
+
+                <AccordionItem value="shipping" className="border-b border-gray-200">
+                  <AccordionTrigger className="text-sm font-bold text-gray-900 hover:no-underline hover:text-gray-600 py-4">
                     Spedizione e Resi
                   </AccordionTrigger>
-                  <AccordionContent className="text-neutral-400 leading-relaxed text-sm pb-6">
+                  <AccordionContent className="text-gray-600 leading-relaxed text-sm pb-6">
                     Spedizione gratuita per ordini superiori a €50. Resi gratuiti entro 30 giorni.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
             </div>
           </div>
+
         </div>
       </div>
     </div>

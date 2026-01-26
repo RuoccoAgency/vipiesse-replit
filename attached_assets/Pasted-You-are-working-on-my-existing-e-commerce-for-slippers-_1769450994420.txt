@@ -1,0 +1,69 @@
+You are working on my existing e-commerce for slippers. I need a UI + data rule refactor.
+
+GOALS
+1) Make the ENTIRE site background white on every page (home, shop, product, cart, any other route).
+2) Update all text colors and UI elements so the design remains readable and premium on white (no white text on white).
+3) Implement a global navbar behavior:
+   - At the very top of the page: navbar is TRANSPARENT (overlay).
+   - When the user scrolls down: navbar becomes visible with a white background + subtle shadow/blur.
+   - This behavior must work on ALL pages (not just home), consistently.
+4) Product images rule:
+   - For EVERY product (already in DB and future products created in the backend), the FIRST image uploaded/attached must be used as the main product image (cover/thumbnail) on product cards and product listings.
+   - On product detail, that first image must also be the default selected image in the gallery.
+
+IMPORTANT DETAILS
+- Currently some product cards show blank/white image area while product detail shows images correctly. Fix this.
+- Standardize image handling so listings and detail both use the same source.
+- Do NOT break existing routes/pages.
+
+IMPLEMENTATION REQUIREMENTS
+
+A) GLOBAL WHITE THEME
+- Set body/background to #ffffff globally.
+- Ensure all pages wrappers use white background (remove dark backgrounds).
+- Update text colors (e.g. headings near-black, body dark gray).
+- Buttons/inputs should look good on white: borders, hover states, focus rings.
+- Keep the site clean/minimal.
+
+B) GLOBAL NAVBAR WITH SCROLL BEHAVIOR
+- Create a single Navbar component used by the main layout so every page uses it.
+- Transparent at top:
+  - background: transparent
+  - text/icon color: dark (since background is white) OR, if overlaying hero image, dynamically switch (prefer simple: dark always, and hero section must not make it unreadable).
+- On scroll (e.g. scrollY > 30):
+  - background: white with slight blur (backdrop-filter) and subtle shadow
+  - keep consistent height
+- Must work with page refresh at a scrolled position.
+- Must not jump layout: use fixed positioning + add top padding to content.
+
+C) “FIRST IMAGE = COVER” RULE (BACKEND + FRONTEND)
+- Inspect the database schema: products table and product_images (or images array) or variants.
+- Ensure ordering of images is stored:
+  - If images are in a separate table: add a position integer (or sortOrder) and default first uploaded as 0.
+  - If images are stored as an array/json: preserve insertion order and always treat index 0 as cover.
+- When creating product in backend:
+  - the first uploaded image becomes position 0 (cover)
+  - subsequent images increment.
+- When editing product:
+  - keep order unless explicitly changed.
+- FRONTEND:
+  - In product card/listing: use cover image = first image (position 0 / images[0]).
+  - In product detail gallery: default selected image = cover.
+  - Add safe fallback: if no images, show a placeholder image.
+
+D) FIX LISTING IMAGE BUG
+- Currently the product cards show blank/white areas.
+- Diagnose why (wrong path, missing image URL, CSS object-fit, container height, lazy loading).
+- Ensure images display on the Shop grid:
+  - consistent aspect ratio
+  - object-fit: cover
+  - no white overlay hiding it
+- Make sure it works both in dev and deployed.
+
+OUTPUT
+- Apply changes in code. Tell me exactly which files you changed/created.
+- After changes, I should see:
+  - white background across the site,
+  - navbar transparent at top then appears on scroll everywhere,
+  - product cards show the first image automatically for all products (existing and future),
+  - no more blank product images.

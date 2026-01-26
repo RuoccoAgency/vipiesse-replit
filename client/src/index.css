@@ -41,38 +41,38 @@
   --font-heading: 'Oswald', sans-serif;
 }
 
-/* VIPIESSE THEME: Premium Dark Mode */
+/* VIPIESSE THEME: Premium White Mode */
 :root {
-  /* True Black Backgrounds */
-  --background: 0 0% 0%; /* #000000 */
-  --foreground: 0 0% 100%;
+  /* White Backgrounds */
+  --background: 0 0% 100%; /* #FFFFFF */
+  --foreground: 0 0% 10%; /* Near black text */
 
-  /* Dark Charcoal Cards */
-  --card: 0 0% 5%;
-  --card-foreground: 0 0% 100%;
+  /* White Cards */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
 
-  --popover: 0 0% 5%;
-  --popover-foreground: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
 
-  --primary: 0 0% 100%;
-  --primary-foreground: 0 0% 0%;
+  --primary: 0 0% 10%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 12%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 10%;
 
-  --muted: 0 0% 10%;
-  --muted-foreground: 0 0% 60%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
 
-  --accent: 0 0% 15%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 10%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
 
   /* Subtle Borders */
-  --border: 0 0% 15%;
-  --input: 0 0% 15%;
-  --ring: 0 0% 80%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 0 0% 40%;
 
   /* Roundness Upgrade */
   --radius: 1.5rem; /* 24px default radius for cards */
