@@ -74,8 +74,8 @@ export function ProductCard({ product }: ProductCardProps) {
       transition={{ duration: 0.4 }}
       data-testid={`product-card-${product.id}`}
     >
-      {/* IMMAGINE → SFONDO GRIGIO CHIARO */}
-      <div className="relative aspect-[3/4] rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
+      {/* IMMAGINE → SFONDO BIANCO con bordo nero */}
+      <div className="relative aspect-[3/4] rounded-2xl bg-white overflow-hidden border border-gray-900">
         {!hasStock && (
           <span className="absolute top-2 left-2 z-10 bg-black text-white text-[10px] font-bold px-2 py-1 uppercase">
             Esaurito
@@ -88,6 +88,11 @@ export function ProductCard({ product }: ProductCardProps) {
               src={mainImage}
               alt={product.name}
               className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = "/placeholder.jpg";
+              }}
             />
           </div>
         </Link>

@@ -199,7 +199,7 @@ export function ProductDetail() {
           <div className="lg:col-span-7 space-y-6">
 
             {/* CARD IMMAGINE */}
-            <div className="w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-200 p-8 flex items-center justify-center aspect-[4/3] relative">
+            <div className="w-full bg-white rounded-lg overflow-hidden border border-gray-900 p-8 flex items-center justify-center aspect-[4/3] relative">
               <motion.img
                 key={activeImage}
                 src={activeImage}
@@ -208,6 +208,11 @@ export function ProductDetail() {
                 transition={{ duration: 0.2 }}
                 alt={product.name}
                 className="w-full h-full object-contain max-h-[70vh]"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.onerror = null;
+                  target.src = "/placeholder.jpg";
+                }}
               />
             </div>
 
@@ -219,16 +224,21 @@ export function ProductDetail() {
                     key={idx}
                     onClick={() => setActiveImage(img)}
                     className={cn(
-                      "relative w-full aspect-square border rounded-md overflow-hidden transition-all bg-gray-100 p-2 flex items-center justify-center",
+                      "relative w-full aspect-square border rounded-md overflow-hidden transition-all bg-white p-2 flex items-center justify-center",
                       activeImage === img
                         ? "border-gray-900 ring-1 ring-gray-900"
-                        : "border-gray-300 hover:border-gray-400"
+                        : "border-gray-400 hover:border-gray-900"
                     )}
                   >
                     <img
                       src={img}
                       alt={`View ${idx}`}
                       className="w-full h-full object-contain"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.onerror = null;
+                        target.src = "/placeholder.jpg";
+                      }}
                     />
                   </button>
                 ))}
