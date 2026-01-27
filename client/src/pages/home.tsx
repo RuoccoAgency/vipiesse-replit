@@ -7,7 +7,7 @@ import { HeroSlider } from "@/components/hero-slider";
 
 export function Home() {
   return (
-    <div className="flex flex-col gap-16 pb-20">
+    <div className="flex flex-col gap-16 pb-20 bg-black text-white">
       
       {/* SECTION A: HERO SLIDER */}
       <HeroSlider />
@@ -60,17 +60,17 @@ export function Home() {
         >
           {/* Header */}
           <div className="space-y-4">
-            <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-gray-500">Dal 1990</span>
+            <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-neutral-500">Dal 1990</span>
             <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-gray-900 uppercase tracking-widest">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white uppercase tracking-widest">
                 La Nostra Storia
               </h2>
-              <div className="h-[1px] w-16 bg-gray-300 mx-auto" />
+              <div className="h-[1px] w-16 bg-neutral-700 mx-auto" />
             </div>
           </div>
 
           {/* Paragraph */}
-          <p className="text-gray-600 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
             VIPIESSE nasce a Napoli dalla passione per la calzatura e per il lavoro fatto bene. 
             Da oltre trent’anni selezioniamo e distribuiamo calzature all’ingrosso, unendo stile, comfort e prezzi competitivi. 
             Ogni stagione curiamo collezioni pensate per rivenditori e negozianti, con disponibilità costante, 
@@ -80,7 +80,7 @@ export function Home() {
           {/* CTA */}
           <div className="pt-2">
             <Link href="/business">
-              <span className="inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-600 transition-colors cursor-pointer border-b border-transparent hover:border-gray-400 pb-1">
+              <span className="inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-neutral-400 transition-colors cursor-pointer border-b border-transparent hover:border-neutral-600 pb-1">
                 Scopri di più <ArrowRight className="ml-2 h-3 w-3" />
               </span>
             </Link>
@@ -89,9 +89,9 @@ export function Home() {
       </section>
 
       {/* SECTION D: Brands Strip */}
-      <section className="bg-gray-50 py-24 md:py-32 overflow-hidden border-t border-gray-200">
+      <section className="bg-neutral-900 py-24 md:py-32 overflow-hidden border-t border-neutral-800">
         <div className="container mx-auto px-4">
-           <p className="text-center text-gray-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">Distributori Ufficiali</p>
+           <p className="text-center text-neutral-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">Distributori Ufficiali</p>
            
            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 px-4 md:px-20">
              {/* Text logos with new styling */}
@@ -99,7 +99,7 @@ export function Home() {
                <span 
                  key={brand}
                  className={`font-heading text-3xl md:text-4xl font-bold transition-all duration-500 cursor-default
-                   text-gray-700 hover:text-gray-900 hover:scale-105
+                   text-neutral-400 hover:text-white hover:scale-105
                    ${brand === 'inblu' ? 'italic' : ''}
                  `}
                >
@@ -111,7 +111,7 @@ export function Home() {
       </section>
 
       {/* SECTION E: Help Section Redesigned */}
-      <section className="container mx-auto px-4 py-16 md:py-24 border-t border-gray-200">
+      <section className="container mx-auto px-4 py-16 md:py-24 border-t border-neutral-800">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -121,17 +121,17 @@ export function Home() {
         >
           {/* Header */}
           <div className="space-y-4">
-            <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-gray-500">Supporto Clienti</span>
+            <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-neutral-500">Supporto Clienti</span>
             <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-gray-900 uppercase tracking-widest">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white uppercase tracking-widest">
                 Serve Aiuto?
               </h2>
-              <div className="h-[1px] w-16 bg-gray-300 mx-auto" />
+              <div className="h-[1px] w-16 bg-neutral-700 mx-auto" />
             </div>
           </div>
 
           {/* Intro Text */}
-          <p className="text-gray-600 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
              Il nostro team è a tua disposizione. Consulta le guide rapide o contattaci per assistenza dedicata sui tuoi ordini.
           </p>
 
@@ -144,7 +144,7 @@ export function Home() {
               { label: "Condizioni", href: "/help/condizioni" },
             ].map((item) => (
               <Link key={item.label} href={item.href}>
-                <span className="group inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-600 transition-colors cursor-pointer border-b border-transparent hover:border-gray-400 pb-1">
+                <span className="group inline-flex items-center text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-neutral-400 transition-colors cursor-pointer border-b border-transparent hover:border-neutral-600 pb-1">
                   {item.label} <ArrowRight className="ml-2 h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                 </span>
               </Link>
