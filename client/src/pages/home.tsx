@@ -105,7 +105,7 @@ export function Home() {
             {[
               { src: inbluLogo, alt: "inblu" },
               { src: tiglioLogo, alt: "Tiglio" },
-              { src: uspoloLogo, alt: "U.S. Polo Assn.", boost: true },
+              { src: uspoloLogo, alt: "U.S. Polo Assn." },
               { src: sanitalLogo, alt: "Sanital Light", boost: true },
               { src: defonsecaLogo, alt: "De Fonseca" },
             ].map((brand) => (
@@ -118,7 +118,7 @@ export function Home() {
                   src={brand.src}
                   alt={brand.alt}
                   style={{
-                    height: brand.boost ? "86" : "48px",
+                    height: brand.boost ? "56" : "48px",
                     width: "auto",
                     maxWidth: brand.boost ? "200px" : "180px",
                     objectFit: "contain",
