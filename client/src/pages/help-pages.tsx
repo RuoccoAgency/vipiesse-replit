@@ -78,62 +78,109 @@ export function ContactPage() {
 
 /* --- AIUTO TAGLIE --- */
 export function SizeGuidePage() {
+  const sizesUomo = [
+    { eu: "39", uk: "5 ½", us: "9 ½", cm: "25" },
+    { eu: "39 ½", uk: "6", us: "7", cm: "25,4" },
+    { eu: "40", uk: "6 ½", us: "7 ½", cm: "25,8" },
+    { eu: "40 ½", uk: "20.9", us: "3", cm: "26,1" },
+    { eu: "41", uk: "7", us: "8", cm: "26,4" },
+    { eu: "41 ½", uk: "7 ½", us: "8 ½", cm: "26,8" },
+    { eu: "42", uk: "8", us: "9", cm: "27,2" },
+    { eu: "42 ½", uk: "8 ½", us: "9 ½", cm: "27,6" },
+    { eu: "43", uk: "9", us: "10", cm: "28" },
+    { eu: "43 ½", uk: "20.9", us: "3", cm: "28,2" },
+    { eu: "44", uk: "9 ½", us: "10 ½", cm: "28,5" },
+    { eu: "44 ½", uk: "10", us: "11", cm: "28,7" },
+    { eu: "45", uk: "10 ½", us: "11 ½", cm: "29" },
+    { eu: "45 ½", uk: "20.9", us: "3", cm: "29,4" },
+    { eu: "46", uk: "11", us: "12", cm: "29,8" },
+    { eu: "46 ½", uk: "11 ½", us: "12 ½", cm: "30,2" },
+    { eu: "47", uk: "12", us: "13", cm: "30,7" },
+    { eu: "47 ½", uk: "12 ½", us: "13 ½", cm: "31,1" },
+    { eu: "48", uk: "13", us: "14", cm: "31,5" },
+  ];
+
+  const sizesDonna = [
+    { eu: "35", uk: "2 ½", us: "4 ½", cm: "22,3" },
+    { eu: "35 ½", uk: "3", us: "5", cm: "22,5" },
+    { eu: "36", uk: "3 ½", us: "5 ½", cm: "22,8" },
+    { eu: "36 ½", uk: "20.9", us: "3", cm: "22,9" },
+    { eu: "37", uk: "4", us: "6", cm: "23,6" },
+    { eu: "37 ½", uk: "4 ½", us: "6 ½", cm: "24" },
+    { eu: "38", uk: "5", us: "7", cm: "24,3" },
+    { eu: "38 ½", uk: "20.9", us: "3", cm: "24,6" },
+    { eu: "39", uk: "5 ½", us: "9 ½", cm: "25" },
+    { eu: "39 ½", uk: "6", us: "7", cm: "25,4" },
+    { eu: "40", uk: "6 ½", us: "7 ½", cm: "25,8" },
+    { eu: "40 ½", uk: "20.9", us: "3", cm: "26,1" },
+    { eu: "41", uk: "7", us: "9", cm: "26,4" },
+    { eu: "41 ½", uk: "7 ½", us: "9 ½", cm: "26,8" },
+  ];
+
+  const sizesBambino = [
+    { eu: "19", uk: "3", us: "3 ½", cm: "12" },
+    { eu: "20", uk: "3 ½", us: "4 ½", cm: "13" },
+    { eu: "21", uk: "4 ½", us: "5", cm: "13,8" },
+    { eu: "22", uk: "5 ½", us: "6", cm: "14,5" },
+    { eu: "23", uk: "6", us: "6 ½", cm: "15,3" },
+    { eu: "24", uk: "7", us: "7 ½", cm: "16" },
+    { eu: "25", uk: "7 ½", us: "8 ½", cm: "16,5" },
+    { eu: "26", uk: "8 ½", us: "9 ½", cm: "17" },
+    { eu: "27", uk: "9", us: "10", cm: "17,7" },
+    { eu: "28", uk: "10", us: "11", cm: "18,4" },
+    { eu: "29", uk: "11", us: "12", cm: "19" },
+    { eu: "30", uk: "11 ½", us: "12 ½", cm: "19,5" },
+    { eu: "31", uk: "12 ½", us: "13", cm: "20,2" },
+    { eu: "32", uk: "13 ½", us: "1", cm: "20,9" },
+    { eu: "33", uk: "1", us: "1 ½", cm: "21,5" },
+    { eu: "34", uk: "1 ½", us: "2 ½", cm: "22" },
+  ];
+
+  const SizeTable = ({ data }: { data: { eu: string; uk: string; us: string; cm: string }[] }) => (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-gray-200 hover:bg-transparent">
+            <TableHead className="text-gray-500">Taglia EU</TableHead>
+            <TableHead className="text-gray-500">Taglia UK</TableHead>
+            <TableHead className="text-gray-500">Taglia US</TableHead>
+            <TableHead className="text-gray-500 text-right">cm</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((size, i) => (
+            <TableRow key={i} className="border-gray-200 hover:bg-gray-100">
+              <TableCell className="font-bold text-gray-900">{size.eu}</TableCell>
+              <TableCell className="text-gray-600">{size.uk}</TableCell>
+              <TableCell className="text-gray-600">{size.us}</TableCell>
+              <TableCell className="text-right text-gray-600">{size.cm}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
   return (
     <HelpLayout title="Guida alle Taglie" subtitle="Trova la misura perfetta per te consultando le nostre tabelle di conversione.">
       <div className="space-y-12">
         
-        {/* DONNA */}
-        <div>
-          <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">Donna</h3>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-gray-200 hover:bg-transparent">
-                  <TableHead className="text-gray-500">EU</TableHead>
-                  <TableHead className="text-gray-500">US</TableHead>
-                  <TableHead className="text-gray-500">UK</TableHead>
-                  <TableHead className="text-gray-500 text-right">CM</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[36, 37, 38, 39, 40, 41].map((size, i) => (
-                  <TableRow key={size} className="border-gray-200 hover:bg-gray-100">
-                    <TableCell className="font-bold text-gray-900">{size}</TableCell>
-                    <TableCell className="text-gray-600">{size - 30}</TableCell>
-                    <TableCell className="text-gray-600">{size - 32}</TableCell>
-                    <TableCell className="text-right text-gray-600">{22 + (i * 0.5)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
         {/* UOMO */}
         <div>
-          <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">Uomo</h3>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-gray-200 hover:bg-transparent">
-                  <TableHead className="text-gray-500">EU</TableHead>
-                  <TableHead className="text-gray-500">US</TableHead>
-                  <TableHead className="text-gray-500">UK</TableHead>
-                  <TableHead className="text-gray-500 text-right">CM</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[40, 41, 42, 43, 44, 45, 46].map((size, i) => (
-                  <TableRow key={size} className="border-gray-200 hover:bg-gray-100">
-                    <TableCell className="font-bold text-gray-900">{size}</TableCell>
-                    <TableCell className="text-gray-600">{size - 33}</TableCell>
-                    <TableCell className="text-gray-600">{size - 34}</TableCell>
-                    <TableCell className="text-right text-gray-600">{25 + (i * 0.5)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">Scarpe Uomo</h3>
+          <SizeTable data={sizesUomo} />
+        </div>
+
+        {/* DONNA */}
+        <div>
+          <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">Scarpe Donna</h3>
+          <SizeTable data={sizesDonna} />
+        </div>
+
+        {/* BAMBINO */}
+        <div>
+          <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">Scarpe Bambino</h3>
+          <SizeTable data={sizesBambino} />
         </div>
 
         <div className="bg-white border border-gray-200 p-6 rounded-xl flex items-start gap-4">
