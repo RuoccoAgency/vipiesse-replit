@@ -97,34 +97,36 @@ export function Home() {
       {/* SECTION D: Brands Strip */}
       <section className="bg-black py-24 md:py-32 overflow-hidden border-t border-neutral-800">
         <div className="container mx-auto px-4">
-           <p className="text-center text-neutral-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">Distributori Ufficiali</p>
-           
-           <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 px-4 md:px-20">
-             {[
-               { src: inbluLogo, alt: "inblu" },
-               { src: tiglioLogo, alt: "Tiglio" },
-               { src: uspoloLogo, alt: "U.S. Polo Assn." },
-               { src: sanitalLogo, alt: "Sanital Light" },
-               { src: defonsecaLogo, alt: "De Fonseca" },
-             ].map((brand) => (
-               <div 
-                 key={brand.alt}
-                 className="flex items-center justify-center transition-all duration-500 hover:scale-105 opacity-80 hover:opacity-100"
-                 style={{ height: '48px' }}
-               >
-                 <img 
-                   src={brand.src} 
-                   alt={brand.alt} 
-                   style={{ 
-                     height: '48px', 
-                     width: 'auto', 
-                     maxWidth: '180px',
-                     objectFit: 'contain' 
-                   }}
-                 />
-               </div>
-             ))}
-           </div>
+          <p className="text-center text-neutral-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">
+            Distributori Ufficiali
+          </p>
+
+          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 px-4 md:px-20">
+            {[
+              { src: inbluLogo, alt: "inblu" },
+              { src: tiglioLogo, alt: "Tiglio" },
+              { src: uspoloLogo, alt: "U.S. Polo Assn.", boost: true },
+              { src: sanitalLogo, alt: "Sanital Light", boost: true },
+              { src: defonsecaLogo, alt: "De Fonseca" },
+            ].map((brand) => (
+              <div
+                key={brand.alt}
+                className="flex items-center justify-center transition-all duration-500 hover:scale-105 opacity-80 hover:opacity-100"
+                style={{ height: "56px" }}
+              >
+                <img
+                  src={brand.src}
+                  alt={brand.alt}
+                  style={{
+                    height: brand.boost ? "86" : "48px",
+                    width: "auto",
+                    maxWidth: brand.boost ? "200px" : "180px",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
