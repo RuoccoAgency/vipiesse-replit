@@ -105,7 +105,7 @@ export function Home() {
             {[
               { src: inbluLogo, alt: "inblu" },
               { src: tiglioLogo, alt: "Tiglio" },
-              { src: uspoloLogo, alt: "U.S. Polo Assn." },
+              { src: uspoloLogo, alt: "U.S. Polo Assn.", boost: true },
               { src: sanitalLogo, alt: "Sanital Light", boost: true },
               { src: defonsecaLogo, alt: "De Fonseca" },
             ].map((brand) => (
