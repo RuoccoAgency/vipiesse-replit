@@ -5,6 +5,12 @@ import { ArrowRight, Star, TrendingUp, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/hero-slider";
 
+import inbluLogo from "@/assets/logos/inblu.png";
+import tiglioLogo from "@/assets/logos/tiglio.png";
+import uspoloLogo from "@/assets/logos/uspolo.png";
+import sanitalLogo from "@/assets/logos/sanital.png";
+import defonsecaLogo from "@/assets/logos/defonseca.png";
+
 export function Home() {
   return (
     <div className="flex flex-col gap-16 pb-20 bg-black text-white">
@@ -89,22 +95,28 @@ export function Home() {
       </section>
 
       {/* SECTION D: Brands Strip */}
-      <section className="bg-neutral-900 py-24 md:py-32 overflow-hidden border-t border-neutral-800">
+      <section className="bg-black py-24 md:py-32 overflow-hidden border-t border-neutral-800">
         <div className="container mx-auto px-4">
            <p className="text-center text-neutral-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">Distributori Ufficiali</p>
            
-           <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 px-4 md:px-20">
-             {/* Text logos with new styling */}
-             {['ADIDAS', 'NIKE', 'PUMA', 'inblu', 'VIPIESSE'].map((brand, i) => (
-               <span 
-                 key={brand}
-                 className={`font-heading text-3xl md:text-4xl font-bold transition-all duration-500 cursor-default
-                   text-neutral-400 hover:text-white hover:scale-105
-                   ${brand === 'inblu' ? 'italic' : ''}
-                 `}
+           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 px-4 md:px-20">
+             {[
+               { src: inbluLogo, alt: "inblu" },
+               { src: tiglioLogo, alt: "Tiglio" },
+               { src: uspoloLogo, alt: "U.S. Polo Assn." },
+               { src: sanitalLogo, alt: "Sanital Light" },
+               { src: defonsecaLogo, alt: "De Fonseca" },
+             ].map((brand) => (
+               <div 
+                 key={brand.alt}
+                 className="h-12 md:h-16 flex items-center justify-center transition-all duration-500 hover:scale-105 opacity-80 hover:opacity-100"
                >
-                 {brand}
-               </span>
+                 <img 
+                   src={brand.src} 
+                   alt={brand.alt} 
+                   className="h-full w-auto object-contain"
+                 />
+               </div>
              ))}
            </div>
         </div>
