@@ -105,22 +105,22 @@ export function Home() {
             {[
               { src: inbluLogo, alt: "inblu" },
               { src: tiglioLogo, alt: "Tiglio" },
-              { src: uspoloLogo, alt: "U.S. Polo Assn.", boost: true },
-              { src: sanitalLogo, alt: "Sanital Light", boost: true },
+              { src: uspoloLogo, alt: "U.S. Polo Assn." },
+              { src: sanitalLogo, alt: "Sanital Light" },
               { src: defonsecaLogo, alt: "De Fonseca" },
             ].map((brand) => (
               <div
                 key={brand.alt}
                 className="flex items-center justify-center transition-all duration-500 hover:scale-105 opacity-80 hover:opacity-100"
-                style={{ height: "56px" }}
+                style={{ height: "48px" }}
               >
                 <img
                   src={brand.src}
                   alt={brand.alt}
                   style={{
-                    height: brand.boost ? "56" : "48px",
+                    height: "48px",
                     width: "auto",
-                    maxWidth: brand.boost ? "200px" : "180px",
+                    maxWidth: "180px",
                     objectFit: "contain",
                   }}
                 />
