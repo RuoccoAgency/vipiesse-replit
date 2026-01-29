@@ -99,7 +99,7 @@ export function Home() {
         <div className="container mx-auto px-4">
            <p className="text-center text-neutral-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">Distributori Ufficiali</p>
            
-           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 px-4 md:px-20">
+           <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 px-4 md:px-20">
              {[
                { src: inbluLogo, alt: "inblu" },
                { src: tiglioLogo, alt: "Tiglio" },
@@ -109,12 +109,18 @@ export function Home() {
              ].map((brand) => (
                <div 
                  key={brand.alt}
-                 className="h-12 md:h-16 flex items-center justify-center transition-all duration-500 hover:scale-105 opacity-80 hover:opacity-100"
+                 className="flex items-center justify-center transition-all duration-500 hover:scale-105 opacity-80 hover:opacity-100"
+                 style={{ height: '48px' }}
                >
                  <img 
                    src={brand.src} 
                    alt={brand.alt} 
-                   className="h-full w-auto object-contain"
+                   style={{ 
+                     height: '48px', 
+                     width: 'auto', 
+                     maxWidth: '180px',
+                     objectFit: 'contain' 
+                   }}
                  />
                </div>
              ))}
