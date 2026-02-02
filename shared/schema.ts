@@ -109,16 +109,39 @@ export const productCollections = pgTable(
 );
 
 // ================================
+// USERS
+// ================================
+export const users = pgTable("users", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: text("name").notNull(),
+  surname: text("surname").notNull(),
+  phone: text("phone"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ================================
 // ORDERS
 // ================================
 export const orders = pgTable("orders", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  status: text("status").notNull().default("pending"), // pending, pending_bank_transfer, paid, shipped, completed, cancelled
-  paymentMethod: text("payment_method"), // paypal, card, bank_transfer
-  customerEmail: text("customer_email"),
-  customerName: text("customer_name"),
+  orderNumber: text("order_number").notNull().unique(),
+  userId: integer("user_id").references(() => users.id),
+  status: text("status").notNull().default("pending_payment"), // pending_payment, paid, awaiting_bank, shipped, completed, cancelled
+  paymentMethod: text("payment_method"), // paypal, bank_transfer
+  paypalOrderId: text("paypal_order_id"),
+  customerEmail: text("customer_email").notNull(),
+  customerName: text("customer_name").notNull(),
+  customerSurname: text("customer_surname"),
   customerPhone: text("customer_phone"),
-  shippingAddress: text("shipping_address"),
+  shippingAddress: text("shipping_address").notNull(),
+  shippingCity: text("shipping_city"),
+  shippingCap: text("shipping_cap"),
+  shippingCountry: text("shipping_country").default("IT"),
+  notes: text("notes"),
+  subtotalCents: integer("subtotal_cents").notNull().default(0),
+  shippingCents: integer("shipping_cents").notNull().default(0),
   totalCents: integer("total_cents").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -139,15 +162,30 @@ export const orderItems = pgTable("order_items", {
   variantSize: text("variant_size").notNull(),
   quantity: integer("quantity").notNull(),
   priceCents: integer("price_cents").notNull(), // unit price at time of order
+  imageUrl: text("image_url"),
 });
 
 // ================================
-// ADMIN SESSIONS
+// SESSIONS (user + admin)
 // ================================
 export const sessions = pgTable("sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull(),
+  userId: integer("user_id").references(() => users.id),
+  isAdmin: boolean("is_admin").notNull().default(false),
   expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ================================
+// CONTACT MESSAGES
+// ================================
+export const contactMessages = pgTable("contact_messages", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -204,6 +242,23 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
   id: true,
 });
 
+export const insertUserSchema = createInsertSchema(users)
+  .omit({ id: true, createdAt: true, passwordHash: true })
+  .extend({
+    email: z.string().email("Email non valida"),
+    password: z.string().min(6, "La password deve avere almeno 6 caratteri"),
+    name: z.string().min(1, "Nome richiesto"),
+    surname: z.string().min(1, "Cognome richiesto"),
+  });
+
+export const insertContactMessageSchema = createInsertSchema(contactMessages)
+  .omit({ id: true, createdAt: true, status: true })
+  .extend({
+    name: z.string().min(1, "Nome richiesto"),
+    email: z.string().email("Email non valida"),
+    message: z.string().min(10, "Il messaggio deve avere almeno 10 caratteri"),
+  });
+
 // ================================
 // TYPES
 // ================================
@@ -232,6 +287,12 @@ export type Order = typeof orders.$inferSelect;
 
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
+
+export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+export type ContactMessage = typeof contactMessages.$inferSelect;
 
 // ================================
 // COMPOSITE TYPES FOR API RESPONSES

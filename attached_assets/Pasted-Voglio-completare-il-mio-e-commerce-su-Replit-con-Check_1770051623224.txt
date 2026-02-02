@@ -1,0 +1,221 @@
+Voglio completare il mio e-commerce su Replit con:
+- Checkout con metodi pagamento: PayPal (normale) + Bonifico bancario
+- Ordini salvati in DB (con prodotti, totale, stato)
+- Account utenti (register/login) + pagina “I miei ordini”
+- Pagina admin per vedere ordini e messaggi contatto
+- Form “Contattaci” che salva e invia email al negozio
+- UI checkout in 2 colonne: sinistra spedizione (compatta), destra pagamento + riepilogo
+
+NON usare Stripe e NON usare paypal.me. Voglio PayPal Checkout API (Smart Buttons o redirect) con conferma pagamento e stato ordine aggiornato.
+
+========================================================
+A) SECRETS / ENV (obbligatori)
+========================================================
+Leggi da env:
+PAYPAL_CLIENT_ID=
+PAYPAL_CLIENT_SECRET=
+PAYPAL_MODE=live   (o sandbox)
+BASE_URL=https://vipiesse.com   (in dev: url replit)
+
+BANK_HOLDER=VIPIESSE S.R.L.
+BANK_IBAN=...
+BANK_NAME=Banca di Credito Cooperativo di Scafati e Cetara – Agenzia di Pompei
+
+ADMIN_PASSWORD=...
+
+CONTACT_RECEIVER_EMAIL=...
+(Se invio email via SMTP)
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASS=
+
+========================================================
+B) DATABASE (tabelle)
+========================================================
+Implementa DB semplice e persistente (Postgres/SQLite già presente nel progetto; scegli quello già usato).
+Crea tabelle:
+
+users:
+- id (pk)
+- email (unique)
+- password_hash
+- name
+- surname
+- phone (nullable)
+- created_at
+
+orders:
+- id (pk)
+- order_number (unique)
+- user_id (nullable)
+- email
+- name
+- surname
+- phone (nullable)
+- address
+- city
+- cap
+- country (default IT)
+- notes (nullable)
+- payment_method (enum: paypal, bank_transfer)
+- status (enum: pending_payment, paid, awaiting_bank, cancelled)
+- subtotal_cents
+- shipping_cents
+- total_cents
+- created_at
+
+order_items:
+- id (pk)
+- order_id (fk)
+- product_id
+- product_name
+- qty
+- unit_price_cents
+- line_total_cents
+- image_url (nullable)
+
+contact_messages:
+- id (pk)
+- name
+- email
+- message
+- created_at
+- status (default "new")
+
+========================================================
+C) CHECKOUT UI (layout + campi)
+========================================================
+Modifica la pagina checkout:
+1) Layout desktop: 2 colonne
+- SINISTRA: “Dati di spedizione” (compatti, griglia 2 colonne quando possibile)
+  Campi: Nome, Cognome, Email, Telefono(opz), Indirizzo, Città, CAP
+- DESTRA: “Metodo di pagamento” + “Riepilogo ordine”
+2) Metodo di pagamento: radio
+- PayPal
+- Bonifico bancario
+3) Riepilogo: lista prodotti (nome, qty, prezzo) + totale (mai 0)
+
+Regole:
+- Disabilita il bottone se mancano campi obbligatori o metodo pagamento non scelto.
+- Totale deve essere calcolato dal carrello (somma priceCents*qty) + shippingCents.
+- Se total_cents <= 0 blocca e mostra errore.
+
+========================================================
+D) API / BACKEND (minimo ma completo)
+========================================================
+Crea questi endpoint:
+
+1) POST /api/orders
+- input: customer + shipping + cart items
+- server-side ricalcola subtotal/total dai items (non fidarti del client)
+- crea order + order_items
+- status iniziale:
+  - paypal => pending_payment
+  - bank_transfer => awaiting_bank
+- return: { orderId, orderNumber, totalCents }
+
+2) GET /api/orders/:id
+- se utente loggato: può leggere solo i propri ordini
+- se admin: può leggere tutti
+- ritorna order + items
+
+3) GET /api/my/orders
+- richiede login
+- ritorna lista ordini utente (id, date, status, total)
+
+4) POST /api/contact
+- valida name/email/message
+- salva in contact_messages
+- invia email a CONTACT_RECEIVER_EMAIL (se SMTP disponibile), altrimenti solo salva
+- return ok
+
+========================================================
+E) PAYPAL “NORMALE” (Checkout API)
+========================================================
+Implementa pagamento PayPal così:
+
+1) POST /api/paypal/create-order
+- input: orderId
+- recupera order dal DB
+- crea PayPal order (amount = totalCents/100, currency EUR)
+- description include: "Ordine #<orderNumber> - <primo prodotto o 'N prodotti'>"
+- salva providerId se serve
+- return: { paypalOrderId }
+
+2) POST /api/paypal/capture-order
+- input: orderId, paypalOrderId
+- chiama capture su PayPal
+- se success:
+  - aggiorna orders.status = paid
+  - return ok
+- se fail:
+  - lascia pending_payment e return error
+
+Checkout flow frontend:
+- Se utente seleziona PayPal e clicca “Paga ora”:
+  - chiama POST /api/orders per creare ordine (se non esiste)
+  - poi avvia PayPal Buttons/redirect:
+    - createOrder => chiama /api/paypal/create-order
+    - onApprove => chiama /api/paypal/capture-order
+  - al termine vai a /order/success/:orderId
+
+========================================================
+F) BONIFICO (manuale)
+========================================================
+Se seleziona bonifico e clicca “Conferma ordine”:
+- chiama POST /api/orders (payment_method=bank_transfer)
+- vai a pagina /order/bank/:orderId che mostra:
+  - intestatario (BANK_HOLDER)
+  - IBAN (BANK_IBAN)
+  - banca (BANK_NAME)
+  - causale: "Ordine #<orderNumber>"
+  - importo: total con 2 decimali
+  - lista prodotti (nome + qty)
+- ordine resta awaiting_bank
+
+========================================================
+G) PAGINE DI CONFERMA
+========================================================
+Crea:
+- /order/success/:orderId
+  - mostra: "Pagamento completato"
+  - orderNumber, totale, lista prodotti
+- /order/bank/:orderId
+  - mostra: "In attesa di bonifico" + coordinate + lista prodotti
+- /account/orders (I miei ordini)
+  - lista + dettaglio
+
+========================================================
+H) ACCOUNT (register/login)
+========================================================
+Implementa auth semplice:
+- POST /api/auth/register (email+password+name+surname)
+- POST /api/auth/login (email+password)
+- session via cookie httpOnly o JWT (scegli soluzione più semplice e sicura per il progetto)
+- Proteggi /account/orders
+
+Guest checkout:
+- Consentito anche senza account:
+  - ordine salvato con user_id null ma email obbligatoria
+- Dopo acquisto, invito a creare account con la stessa email.
+
+========================================================
+I) ADMIN (ordini + contatti)
+========================================================
+Crea pagina /admin protetta da password (ADMIN_PASSWORD):
+- Lista ordini + ricerca per email/orderNumber
+- Cambia status manuale (es. awaiting_bank -> paid quando arriva bonifico)
+- Lista messaggi contatto
+
+========================================================
+J) FIX IMPORTANTI (quelli che ora ti danno 0 e “nome prodotto mancante”)
+========================================================
+- Salva SEMPRE order_items con product_name e unit_price_cents.
+- Totale mostrato in checkout e nelle pagine conferma deve venire da orders.total_cents nel DB.
+- Mai usare variabili vuote tipo total=0 o placeholder.
+
+DELIVERABLE:
+- Codice funzionante end-to-end
+- Nessun dato carta salvato
+- PayPal vero con conferma paid
+- Bonifico con istruzioni + ordine awaiting_bank
