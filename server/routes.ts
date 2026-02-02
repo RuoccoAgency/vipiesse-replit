@@ -138,7 +138,12 @@ export async function registerRoutes(
 
   // Payment config endpoint (PayPal.me URL + bank info)
   app.get("/api/payment-config", (req, res) => {
+    const paypalClientId = process.env.PAYPAL_CLIENT_ID || "";
+    const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET || "";
+    
     res.json({
+      paypalEnabled: Boolean(paypalClientId && paypalClientSecret),
+      paypalClientId: paypalClientId,
       paypalMeUrl: process.env.PAYPAL_ME_URL || "",
       bankIban: process.env.BANK_IBAN || "",
       bankAccountName: process.env.BANK_ACCOUNT_NAME || "",
@@ -1080,6 +1085,20 @@ export async function registerRoutes(
     }
   });
   
+  // Get order by order number (for order confirmation pages)
+  app.get("/api/orders/by-number/:orderNumber", async (req, res) => {
+    try {
+      const order = await storage.getOrderByNumber(req.params.orderNumber);
+      if (!order) {
+        return res.status(404).json({ error: "Ordine non trovato" });
+      }
+      const items = await storage.getOrderItems(order.id);
+      res.json({ order: { ...order, items } });
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel recupero dell'ordine" });
+    }
+  });
+
   // Get order status
   app.get("/api/orders/:id", async (req, res) => {
     try {

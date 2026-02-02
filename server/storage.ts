@@ -88,6 +88,8 @@ export interface IStorage {
   getOrderWithItems(id: number): Promise<OrderWithItems | undefined>;
   getAllOrders(): Promise<Order[]>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  updateOrderPaypalId(orderId: number, paypalOrderId: string): Promise<Order | undefined>;
+  getOrderByPaypalId(paypalOrderId: string): Promise<Order | undefined>;
   
   // Order Items
   createOrderItem(item: InsertOrderItem): Promise<OrderItem>;
@@ -434,6 +436,19 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async updateOrderPaypalId(orderId: number, paypalOrderId: string): Promise<Order | undefined> {
+    const [updated] = await db.update(orders)
+      .set({ paypalOrderId, updatedAt: new Date() })
+      .where(eq(orders.id, orderId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async getOrderByPaypalId(paypalOrderId: string): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.paypalOrderId, paypalOrderId));
+    return order || undefined;
   }
 
   // Order Items
