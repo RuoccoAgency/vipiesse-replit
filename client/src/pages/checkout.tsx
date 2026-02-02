@@ -7,16 +7,11 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/context/cart-context";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Building2, CreditCard, Check, AlertCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-declare global {
-  interface Window {
-    paypal?: any;
-  }
-}
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Nome richiesto"),
@@ -45,10 +40,6 @@ export function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
-  const [paypalLoaded, setPaypalLoaded] = useState(false);
-  const [paypalError, setPaypalError] = useState<string | null>(null);
-  const paypalContainerRef = useRef<HTMLDivElement>(null);
-  const paypalButtonsRendered = useRef(false);
 
   useEffect(() => {
     fetch("/api/payment-config")
@@ -57,151 +48,53 @@ export function Checkout() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (paymentMethod === "paypal" && paymentConfig?.paypalEnabled && paymentConfig?.paypalClientId) {
-      loadPayPalScript();
-    }
-  }, [paymentMethod, paymentConfig]);
 
-  const loadPayPalScript = () => {
-    if (window.paypal && typeof window.paypal.Buttons === 'function') {
-      setPaypalLoaded(true);
-      return;
-    }
+  const handlePayPalPayment = async () => {
+    const values = form.getValues();
+    const validation = await form.trigger();
+    if (!validation) return;
 
-    const existingScript = document.getElementById("paypal-sdk");
-    if (existingScript) {
-      // Wait for existing script to load
-      const checkPayPal = setInterval(() => {
-        if (window.paypal && typeof window.paypal.Buttons === 'function') {
-          clearInterval(checkPayPal);
-          setPaypalLoaded(true);
-        }
-      }, 100);
-      setTimeout(() => clearInterval(checkPayPal), 10000);
-      return;
-    }
+    setIsProcessing(true);
+    try {
+      const orderItems = items.map((item) => ({
+        variantId: item.product.variantId,
+        quantity: item.quantity
+      }));
 
-    const script = document.createElement("script");
-    script.id = "paypal-sdk";
-    script.src = `https://www.paypal.com/sdk/js?client-id=${paymentConfig?.paypalClientId}&currency=EUR&intent=capture&components=buttons`;
-    script.async = true;
-    script.onload = () => {
-      // Wait for PayPal to fully initialize
-      const checkPayPal = setInterval(() => {
-        if (window.paypal && typeof window.paypal.Buttons === 'function') {
-          clearInterval(checkPayPal);
-          setPaypalLoaded(true);
-        }
-      }, 100);
-      setTimeout(() => {
-        clearInterval(checkPayPal);
-        if (!window.paypal || typeof window.paypal.Buttons !== 'function') {
-          setPaypalError("PayPal non è stato caricato correttamente");
-        }
-      }, 5000);
-    };
-    script.onerror = () => setPaypalError("Errore nel caricamento di PayPal");
-    document.body.appendChild(script);
-  };
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: orderItems,
+          customerEmail: values.email,
+          customerName: values.firstName,
+          customerSurname: values.lastName,
+          customerPhone: values.phone || null,
+          shippingAddress: values.address,
+          shippingCity: values.city,
+          shippingCap: values.zip,
+          status: "awaiting_paypal",
+          paymentMethod: "paypal",
+        }),
+      });
 
-  useEffect(() => {
-    if (paypalLoaded && paypalContainerRef.current && !paypalButtonsRendered.current && window.paypal && typeof window.paypal.Buttons === 'function') {
-      paypalButtonsRendered.current = true;
-      
-      try {
-        window.paypal.Buttons({
-        style: {
-          layout: 'vertical',
-          color: 'gold',
-          shape: 'rect',
-          label: 'paypal',
-          height: 45
-        },
-        createOrder: async () => {
-          const values = form.getValues();
-          const validation = await form.trigger();
-          if (!validation) {
-            throw new Error("Compila tutti i campi richiesti");
-          }
-
-          const response = await fetch("/paypal/order", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              items: items.map(item => ({
-                variantId: item.product.variantId,
-                quantity: item.quantity,
-                name: item.product.name,
-                priceCents: Math.round(item.product.price * 100)
-              })),
-              customerEmail: values.email,
-              customerName: values.firstName,
-              customerSurname: values.lastName,
-              customerPhone: values.phone || null,
-              shippingAddress: values.address,
-              shippingCity: values.city,
-              shippingCap: values.zip
-            })
-          });
-
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.error || "Errore nella creazione dell'ordine");
-          }
-
-          sessionStorage.setItem("pendingOrderNumber", data.orderNumber);
-          return data.paypalOrderId;
-        },
-        onApprove: async (data: { orderID: string }) => {
-          setIsProcessing(true);
-          try {
-            const response = await fetch(`/paypal/order/${data.orderID}/capture`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" }
-            });
-
-            const result = await response.json();
-            if (!response.ok) {
-              throw new Error(result.error || "Errore nella conferma del pagamento");
-            }
-
-            clearCart();
-            navigate(`/order/success?order=${result.orderNumber}`);
-          } catch (error: any) {
-            toast({
-              title: "Errore",
-              description: error.message || "Errore nella conferma del pagamento",
-              variant: "destructive"
-            });
-          } finally {
-            setIsProcessing(false);
-          }
-        },
-        onError: (err: any) => {
-          console.error("PayPal Error:", err);
-          toast({
-            title: "Errore PayPal",
-            description: "Si è verificato un errore con PayPal. Riprova.",
-            variant: "destructive"
-          });
-        },
-        onCancel: () => {
-          toast({
-            title: "Pagamento annullato",
-            description: "Hai annullato il pagamento PayPal.",
-          });
-        }
-      }).render(paypalContainerRef.current).catch((err: any) => {
-          console.error("PayPal render error:", err);
-          setPaypalError("Errore nel caricamento dei pulsanti PayPal");
-        });
-      } catch (err: any) {
-        console.error("PayPal Buttons error:", err);
-        setPaypalError("Errore nell'inizializzazione di PayPal");
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Errore durante la creazione dell\'ordine');
       }
+
+      clearCart();
+      navigate(`/order/success?order=${data.orderNumber}&paypal=true`);
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante la creazione dell'ordine",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
     }
-  }, [paypalLoaded, items, clearCart, navigate, toast]);
+  };
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
     resolver: zodResolver(checkoutSchema),
@@ -495,7 +388,6 @@ export function Checkout() {
                 value={paymentMethod || ""} 
                 onValueChange={(value) => {
                   setPaymentMethod(value as PaymentMethod);
-                  paypalButtonsRendered.current = false;
                 }}
                 className="space-y-3"
               >
@@ -508,7 +400,6 @@ export function Checkout() {
                     }`}
                     onClick={() => {
                       setPaymentMethod("paypal");
-                      paypalButtonsRendered.current = false;
                     }}
                   >
                     <RadioGroupItem value="paypal" id="paypal" />
@@ -545,7 +436,7 @@ export function Checkout() {
                 </div>
               </RadioGroup>
 
-              {/* PayPal Buttons Container */}
+              {/* PayPal Payment Button */}
               {paymentMethod === "paypal" && paymentConfig?.paypalEnabled && (
                 <div className="mt-6 pt-4 border-t border-gray-200">
                   {!isFormValid && (
@@ -554,19 +445,28 @@ export function Checkout() {
                       <span className="text-sm text-yellow-700">Compila tutti i campi richiesti per procedere</span>
                     </div>
                   )}
-                  {paypalError ? (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                      <AlertCircle className="w-6 h-6 text-red-500 mx-auto mb-2" />
-                      <p className="text-red-700">{paypalError}</p>
-                    </div>
-                  ) : !paypalLoaded ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="w-6 h-6 animate-spin text-gray-400 mr-2" />
-                      <span className="text-gray-500">Caricamento PayPal...</span>
-                    </div>
-                  ) : (
-                    <div ref={paypalContainerRef} className="min-h-[50px]" />
-                  )}
+                  <Button 
+                    type="button"
+                    onClick={handlePayPalPayment}
+                    className="w-full bg-[#0070ba] text-white hover:bg-[#003087] font-heading uppercase font-bold tracking-widest h-12 text-base disabled:opacity-50"
+                    disabled={!isFormValid || isProcessing}
+                    data-testid="button-confirm-paypal"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Elaborazione...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Paga con PayPal - €{total.toFixed(2)}
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    Riceverai le istruzioni per completare il pagamento via PayPal
+                  </p>
                 </div>
               )}
 
