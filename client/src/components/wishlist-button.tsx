@@ -52,9 +52,14 @@ export function WishlistButton({ productId, className, size = "md", showText = f
       return;
     }
 
+    const previousState = isSaved;
+    const newState = !isSaved;
+    
+    setIsSaved(newState);
     setIsLoading(true);
+    
     try {
-      const method = isSaved ? "DELETE" : "POST";
+      const method = previousState ? "DELETE" : "POST";
       const res = await fetch(`/api/my/saved/${productId}`, { method });
       
       if (res.ok) {
@@ -66,11 +71,19 @@ export function WishlistButton({ productId, className, size = "md", showText = f
             ? "Prodotto aggiunto alla tua wishlist" 
             : "Prodotto rimosso dalla wishlist",
         });
+      } else {
+        setIsSaved(previousState);
+        toast({
+          title: "Errore",
+          description: "Non è stato possibile completare l'operazione",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      setIsSaved(previousState);
       toast({
         title: "Errore",
-        description: "Si è verificato un errore",
+        description: "Si è verificato un errore di rete",
         variant: "destructive",
       });
     } finally {
