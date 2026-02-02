@@ -113,10 +113,11 @@ export function ProductDetail() {
   }, [product, availableColors, selectedColor]);
 
   useEffect(() => {
-    if (galleryImages.length > 0 && !activeImage) {
+    // Always set activeImage to the first gallery image when product loads or changes
+    if (galleryImages.length > 0) {
       setActiveImage(galleryImages[0]);
     }
-  }, [galleryImages, activeImage]);
+  }, [galleryImages]);
 
   useEffect(() => {
     setSelectedSize("");
