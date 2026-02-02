@@ -10,6 +10,7 @@ import {
   sessions,
   users,
   contactMessages,
+  savedItems,
   type Product, 
   type InsertProduct,
   type ProductVariant,
@@ -28,7 +29,8 @@ import {
   type Session,
   type ProductWithVariants,
   type User,
-  type ContactMessage
+  type ContactMessage,
+  type SavedItem
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, inArray, desc, asc, gte, sql } from "drizzle-orm";
@@ -140,6 +142,13 @@ export interface IStorage {
   createContactMessage(name: string, email: string, message: string): Promise<ContactMessage>;
   getAllContactMessages(): Promise<ContactMessage[]>;
   updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
+  
+  // Saved Items (Wishlist)
+  getSavedItemsByUser(userId: number): Promise<SavedItem[]>;
+  getSavedItemsWithProducts(userId: number): Promise<ProductWithVariants[]>;
+  addSavedItem(userId: number, productId: number): Promise<SavedItem>;
+  removeSavedItem(userId: number, productId: number): Promise<void>;
+  isProductSaved(userId: number, productId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -674,6 +683,52 @@ export class DatabaseStorage implements IStorage {
       .where(eq(contactMessages.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  // Saved Items (Wishlist)
+  async getSavedItemsByUser(userId: number): Promise<SavedItem[]> {
+    return await db.select().from(savedItems)
+      .where(eq(savedItems.userId, userId))
+      .orderBy(desc(savedItems.createdAt));
+  }
+
+  async getSavedItemsWithProducts(userId: number): Promise<ProductWithVariants[]> {
+    const items = await this.getSavedItemsByUser(userId);
+    if (items.length === 0) return [];
+    
+    const result: ProductWithVariants[] = [];
+    for (const item of items) {
+      const productWithVariants = await this.getProductWithVariants(item.productId);
+      if (productWithVariants) {
+        result.push(productWithVariants);
+      }
+    }
+    return result;
+  }
+
+  async addSavedItem(userId: number, productId: number): Promise<SavedItem> {
+    const [item] = await db.insert(savedItems)
+      .values({ userId, productId })
+      .onConflictDoNothing()
+      .returning();
+    
+    if (!item) {
+      const [existing] = await db.select().from(savedItems)
+        .where(and(eq(savedItems.userId, userId), eq(savedItems.productId, productId)));
+      return existing;
+    }
+    return item;
+  }
+
+  async removeSavedItem(userId: number, productId: number): Promise<void> {
+    await db.delete(savedItems)
+      .where(and(eq(savedItems.userId, userId), eq(savedItems.productId, productId)));
+  }
+
+  async isProductSaved(userId: number, productId: number): Promise<boolean> {
+    const [item] = await db.select().from(savedItems)
+      .where(and(eq(savedItems.userId, userId), eq(savedItems.productId, productId)));
+    return !!item;
   }
 }
 
