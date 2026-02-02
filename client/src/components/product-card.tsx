@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import { WishlistButton } from "./wishlist-button";
 
 interface ProductVariant {
   id: number;
@@ -84,6 +85,10 @@ export function ProductCard({ product }: ProductCardProps) {
             Esaurito
           </span>
         )}
+
+        <div className="absolute top-2 right-2 z-10">
+          <WishlistButton productId={product.id} size="sm" />
+        </div>
 
         <Link href={`/product/${product.id}`}>
           <div className="h-full w-full p-4 flex items-center justify-center cursor-pointer">

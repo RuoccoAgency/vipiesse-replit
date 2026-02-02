@@ -2,7 +2,8 @@ import { useRoute, Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Heart } from "lucide-react";
+import { WishlistButton } from "@/components/wishlist-button";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import NotFound from "./not-found";
@@ -264,10 +265,11 @@ export function ProductDetail() {
                 {product.name}
               </h1>
 
-              <div className="flex items-baseline gap-3 pb-6 border-b border-gray-200">
+              <div className="flex items-center justify-between pb-6 border-b border-gray-200">
                 <span className="text-2xl font-bold text-gray-900">
                   €{displayPrice.toFixed(2)}
                 </span>
+                <WishlistButton productId={product.id} showText size="md" />
               </div>
 
               {selectedVariant && (
