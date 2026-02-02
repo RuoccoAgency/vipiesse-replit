@@ -113,7 +113,8 @@ export const productCollections = pgTable(
 // ================================
 export const orders = pgTable("orders", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  status: text("status").notNull().default("pending"), // pending, paid, shipped, completed, cancelled
+  status: text("status").notNull().default("pending"), // pending, pending_bank_transfer, paid, shipped, completed, cancelled
+  paymentMethod: text("payment_method"), // paypal, card, bank_transfer
   customerEmail: text("customer_email"),
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),

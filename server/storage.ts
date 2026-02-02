@@ -463,9 +463,9 @@ export class DatabaseStorage implements IStorage {
       
       // Create the order
       const orderResult = await client.query(
-        `INSERT INTO orders (status, customer_email, customer_name, customer_phone, shipping_address, total_cents, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING *`,
-        [orderData.status, orderData.customerEmail, orderData.customerName, orderData.customerPhone, orderData.shippingAddress, orderData.totalCents]
+        `INSERT INTO orders (status, payment_method, customer_email, customer_name, customer_phone, shipping_address, total_cents, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) RETURNING *`,
+        [orderData.status, orderData.paymentMethod, orderData.customerEmail, orderData.customerName, orderData.customerPhone, orderData.shippingAddress, orderData.totalCents]
       );
       const newOrder = orderResult.rows[0];
       
@@ -486,6 +486,7 @@ export class DatabaseStorage implements IStorage {
       const order: Order = {
         id: newOrder.id,
         status: newOrder.status,
+        paymentMethod: newOrder.payment_method,
         customerEmail: newOrder.customer_email,
         customerName: newOrder.customer_name,
         customerPhone: newOrder.customer_phone,

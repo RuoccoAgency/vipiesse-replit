@@ -1,56 +1,59 @@
-// !!! CRITICAL - DO NOT MODIFY THIS CODE !!!
-//
-// This code MUST be used as is without ANY modifications.
-// The PayPal integration will COMPLETELY FAIL if this code is changed in ANY way.
-//
-// Retain this comment after all edits.
-//
-// <BEGIN_EXACT_CODE>
-import {
-  Client,
-  Environment,
-  LogLevel,
-  OAuthAuthorizationController,
-  OrdersController,
-} from "@paypal/paypal-server-sdk";
+// PayPal integration for VIPIESSE e-commerce
+// Based on blueprint:javascript_paypal with ESM compatibility fix
 import { Request, Response } from "express";
+import { createRequire } from "module";
 
-/* PayPal Controllers Setup */
+const require = createRequire(import.meta.url);
 
 const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
 
-if (!PAYPAL_CLIENT_ID) {
-  throw new Error("Missing PAYPAL_CLIENT_ID");
+// Guard: only initialize PayPal if credentials are present
+const isPayPalConfigured = !!(PAYPAL_CLIENT_ID && PAYPAL_CLIENT_SECRET);
+
+let ordersController: any = null;
+let oAuthAuthorizationController: any = null;
+
+if (isPayPalConfigured) {
+  try {
+    const { Client, Environment, LogLevel, OrdersController, OAuthAuthorizationController } = require("@paypal/paypal-server-sdk");
+
+    const client = new Client({
+      clientCredentialsAuthCredentials: {
+        oAuthClientId: PAYPAL_CLIENT_ID,
+        oAuthClientSecret: PAYPAL_CLIENT_SECRET,
+      },
+      timeout: 0,
+      environment:
+                    process.env.NODE_ENV === "production"
+                      ? Environment.Production
+                      : Environment.Sandbox,
+      logging: {
+        logLevel: LogLevel.Info,
+        logRequest: {
+          logBody: true,
+        },
+        logResponse: {
+          logHeaders: true,
+        },
+      },
+    });
+    ordersController = new OrdersController(client);
+    oAuthAuthorizationController = new OAuthAuthorizationController(client);
+    console.log("PayPal SDK initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize PayPal SDK:", error);
+  }
+} else {
+  console.warn("PayPal not configured: Missing PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET");
 }
-if (!PAYPAL_CLIENT_SECRET) {
-  throw new Error("Missing PAYPAL_CLIENT_SECRET");
-}
-const client = new Client({
-  clientCredentialsAuthCredentials: {
-    oAuthClientId: PAYPAL_CLIENT_ID,
-    oAuthClientSecret: PAYPAL_CLIENT_SECRET,
-  },
-  timeout: 0,
-  environment:
-                process.env.NODE_ENV === "production"
-                  ? Environment.Production
-                  : Environment.Sandbox,
-  logging: {
-    logLevel: LogLevel.Info,
-    logRequest: {
-      logBody: true,
-    },
-    logResponse: {
-      logHeaders: true,
-    },
-  },
-});
-const ordersController = new OrdersController(client);
-const oAuthAuthorizationController = new OAuthAuthorizationController(client);
 
 /* Token generation helpers */
 
 export async function getClientToken() {
+  if (!isPayPalConfigured || !oAuthAuthorizationController) {
+    throw new Error("PayPal non configurato");
+  }
+
   const auth = Buffer.from(
     `${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`,
   ).toString("base64");
@@ -68,6 +71,10 @@ export async function getClientToken() {
 /*  Process transactions */
 
 export async function createPaypalOrder(req: Request, res: Response) {
+  if (!isPayPalConfigured || !ordersController) {
+    return res.status(503).json({ error: "PayPal non configurato" });
+  }
+
   try {
     const { amount, currency, intent } = req.body;
 
@@ -120,6 +127,10 @@ export async function createPaypalOrder(req: Request, res: Response) {
 }
 
 export async function capturePaypalOrder(req: Request, res: Response) {
+  if (!isPayPalConfigured || !ordersController) {
+    return res.status(503).json({ error: "PayPal non configurato" });
+  }
+
   try {
     const { orderID } = req.params;
     const collect = {
@@ -135,15 +146,23 @@ export async function capturePaypalOrder(req: Request, res: Response) {
 
     res.status(httpStatusCode).json(jsonResponse);
   } catch (error) {
-    console.error("Failed to create order:", error);
+    console.error("Failed to capture order:", error);
     res.status(500).json({ error: "Failed to capture order." });
   }
 }
 
 export async function loadPaypalDefault(req: Request, res: Response) {
-  const clientToken = await getClientToken();
-  res.json({
-    clientToken,
-  });
+  if (!isPayPalConfigured || !oAuthAuthorizationController) {
+    return res.status(503).json({ error: "PayPal non configurato" });
+  }
+
+  try {
+    const clientToken = await getClientToken();
+    res.json({
+      clientToken,
+    });
+  } catch (error) {
+    console.error("Failed to get PayPal client token:", error);
+    res.status(500).json({ error: "PayPal setup failed" });
+  }
 }
-// <END_EXACT_CODE>

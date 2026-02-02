@@ -710,11 +710,18 @@ export async function registerRoutes(
   // Create order with stock validation and decrement (transactional)
   app.post("/api/orders", async (req, res) => {
     try {
-      const { items, customerEmail, customerName, customerPhone, shippingAddress } = req.body;
+      const { items, customerEmail, customerName, customerPhone, shippingAddress, status, paymentMethod } = req.body;
       
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "Cart is empty" });
       }
+      
+      // Validate status and paymentMethod to prevent client-side manipulation
+      const allowedStatuses = ['pending', 'pending_bank_transfer'];
+      const allowedPaymentMethods = ['paypal', 'card', 'bank_transfer'];
+      
+      const validatedStatus = status && allowedStatuses.includes(status) ? status : 'pending';
+      const validatedPaymentMethod = paymentMethod && allowedPaymentMethods.includes(paymentMethod) ? paymentMethod : null;
       
       // Validate all items have required fields
       for (const item of items) {
@@ -766,7 +773,8 @@ export async function registerRoutes(
       // Create order with items in a single transaction (stock decrement included)
       const result = await storage.createOrderWithItems(
         {
-          status: 'paid', // Set to paid since we're simulating payment
+          status: validatedStatus,
+          paymentMethod: validatedPaymentMethod,
           customerEmail: customerEmail || null,
           customerName: customerName || null,
           customerPhone: customerPhone || null,
