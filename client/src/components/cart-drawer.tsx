@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, X, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/context/cart-context";
@@ -32,6 +32,7 @@ export function CartDrawer({ triggerClassName }: { triggerClassName?: string }) 
       <SheetContent className="w-full sm:w-[400px] flex flex-col bg-white text-black p-0 border-l border-gray-200">
         <SheetHeader className="px-6 py-4 border-b border-gray-100">
           <SheetTitle className="font-heading text-xl">Il tuo Carrello ({itemsCount})</SheetTitle>
+          <SheetDescription className="sr-only">Visualizza e modifica gli articoli nel tuo carrello</SheetDescription>
         </SheetHeader>
         
         <ScrollArea className="flex-1 px-6">
