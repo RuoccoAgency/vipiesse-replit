@@ -102,11 +102,21 @@ export async function registerRoutes(
     await capturePaypalOrder(req, res);
   });
 
-  // Bank transfer info endpoint
+  // Payment config endpoint (PayPal.me URL + bank info)
+  app.get("/api/payment-config", (req, res) => {
+    res.json({
+      paypalMeUrl: process.env.PAYPAL_ME_URL || "",
+      bankIban: process.env.BANK_IBAN || "",
+      bankAccountName: process.env.BANK_ACCOUNT_NAME || "",
+      bankName: process.env.BANK_NAME || "",
+    });
+  });
+
+  // Legacy bank info endpoint for backwards compatibility
   app.get("/api/bank-info", (req, res) => {
     res.json({
       iban: process.env.BANK_IBAN || "",
-      accountHolder: process.env.BANK_ACCOUNT_HOLDER || "",
+      accountHolder: process.env.BANK_ACCOUNT_NAME || "",
       bankName: process.env.BANK_NAME || "",
     });
   });
@@ -718,7 +728,7 @@ export async function registerRoutes(
       
       // Validate status and paymentMethod to prevent client-side manipulation
       const allowedStatuses = ['pending', 'pending_bank_transfer'];
-      const allowedPaymentMethods = ['paypal', 'card', 'bank_transfer'];
+      const allowedPaymentMethods = ['paypal', 'card', 'bank_transfer', 'paypal_me'];
       
       const validatedStatus = status && allowedStatuses.includes(status) ? status : 'pending';
       const validatedPaymentMethod = paymentMethod && allowedPaymentMethods.includes(paymentMethod) ? paymentMethod : null;
