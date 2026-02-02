@@ -888,12 +888,14 @@ export async function registerRoutes(
           <button class="logout" onclick="logout()">Logout</button>
         </div>
         <div class="nav">
-          <a href="/admin/products" class="active">Products</a>
+          <a href="/admin/products">Products</a>
           <a href="/admin/collections">Collections</a>
+          <a href="/admin/orders">Orders</a>
+          <a href="/admin/contacts">Contacts</a>
         </div>
         <div class="container">
           <h2>Welcome, ${req.adminEmail}</h2>
-          <p style="margin-top: 1rem;">Use the navigation above to manage products and collections.</p>
+          <p style="margin-top: 1rem;">Use the navigation above to manage products, collections, orders and contact messages.</p>
         </div>
         <script>
           async function logout() {
@@ -931,6 +933,27 @@ export async function registerRoutes(
     const collections = await storage.getAllCollections();
     
     res.send(getAdminCollectionsPage(collections));
+  });
+
+  // Admin Orders page
+  app.get("/admin/orders", isAdminHTML, async (req, res) => {
+    const orders = await storage.getAllOrders();
+    res.send(getAdminOrdersPage(orders));
+  });
+
+  // Admin Order Detail page
+  app.get("/admin/orders/:id", isAdminHTML, async (req, res) => {
+    const order = await storage.getOrderWithItems(parseInt(req.params.id));
+    if (!order) {
+      return res.redirect('/admin/orders');
+    }
+    res.send(getAdminOrderDetailPage(order));
+  });
+
+  // Admin Contacts page
+  app.get("/admin/contacts", isAdminHTML, async (req, res) => {
+    const contacts = await storage.getAllContactMessages();
+    res.send(getAdminContactsPage(contacts));
   });
 
   // ================================
@@ -1210,6 +1233,8 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
       <div class="nav">
         <a href="/admin/products" class="active">Products</a>
         <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
       </div>
       <div class="container">
         <div class="controls">
@@ -1442,6 +1467,8 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
       <div class="nav">
         <a href="/admin/products" class="active">Products</a>
         <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
       </div>
       <div class="container">
         <a href="/admin/products" class="back-link">← Back to Products</a>
@@ -1912,6 +1939,8 @@ function getAdminCollectionsPage(collections: any[]): string {
       <div class="nav">
         <a href="/admin/products">Products</a>
         <a href="/admin/collections" class="active">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
       </div>
       <div class="container">
         <div class="controls">
@@ -2030,6 +2059,434 @@ function getAdminCollectionsPage(collections: any[]): string {
           
           location.reload();
         });
+      </script>
+    </body>
+    </html>
+  `;
+}
+
+// Admin Orders Page
+function getAdminOrdersPage(orders: any[]): string {
+  const statusLabels: Record<string, { label: string; color: string }> = {
+    pending_payment: { label: "In attesa pagamento", color: "#ffc107" },
+    awaiting_bank: { label: "Attesa bonifico", color: "#17a2b8" },
+    paid: { label: "Pagato", color: "#28a745" },
+    shipped: { label: "Spedito", color: "#6f42c1" },
+    completed: { label: "Completato", color: "#6c757d" },
+    cancelled: { label: "Annullato", color: "#dc3545" },
+  };
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Orders - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .logout { background: transparent; border: 1px solid white; color: white; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
+        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
+        .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
+        .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f8f8; font-weight: 600; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: white; }
+        .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #333; }
+        .btn-small { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+        select { padding: 0.25rem 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders" class="active">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
+      </div>
+      <div class="container">
+        <h2 style="margin-bottom: 1rem;">Orders (${orders.length})</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orders.length === 0 ? '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No orders yet</td></tr>' : orders.map(o => {
+              const status = statusLabels[o.status] || { label: o.status, color: "#666" };
+              const date = new Date(o.createdAt).toLocaleDateString('it-IT');
+              return `
+                <tr>
+                  <td><a href="/admin/orders/${o.id}"><strong>${o.orderNumber}</strong></a></td>
+                  <td>${date}</td>
+                  <td>${o.customerName} ${o.customerSurname}<br><small>${o.customerEmail}</small></td>
+                  <td>€${(o.totalCents / 100).toFixed(2)}</td>
+                  <td>${o.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico'}</td>
+                  <td>
+                    <select onchange="updateStatus(${o.id}, this.value)" style="background-color: ${status.color}; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px;">
+                      <option value="pending_payment" ${o.status === 'pending_payment' ? 'selected' : ''}>In attesa pagamento</option>
+                      <option value="awaiting_bank" ${o.status === 'awaiting_bank' ? 'selected' : ''}>Attesa bonifico</option>
+                      <option value="paid" ${o.status === 'paid' ? 'selected' : ''}>Pagato</option>
+                      <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Spedito</option>
+                      <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>Completato</option>
+                      <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Annullato</option>
+                    </select>
+                  </td>
+                  <td>
+                    <a href="/admin/orders/${o.id}" class="btn btn-small">View</a>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <script>
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
+        
+        async function updateStatus(id, status) {
+          await fetch('/api/admin/orders/' + id + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+          });
+          location.reload();
+        }
+      </script>
+    </body>
+    </html>
+  `;
+}
+
+// Admin Order Detail Page
+function getAdminOrderDetailPage(order: any): string {
+  const statusLabels: Record<string, { label: string; color: string }> = {
+    pending_payment: { label: "In attesa pagamento", color: "#ffc107" },
+    awaiting_bank: { label: "Attesa bonifico", color: "#17a2b8" },
+    paid: { label: "Pagato", color: "#28a745" },
+    shipped: { label: "Spedito", color: "#6f42c1" },
+    completed: { label: "Completato", color: "#6c757d" },
+    cancelled: { label: "Annullato", color: "#dc3545" },
+  };
+  
+  const status = statusLabels[order.status] || { label: order.status, color: "#666" };
+  const date = new Date(order.createdAt).toLocaleDateString('it-IT', { 
+    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+  });
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Order ${order.orderNumber} - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .logout { background: transparent; border: 1px solid white; color: white; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
+        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
+        .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
+        .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        .back-link { color: #666; text-decoration: none; display: inline-block; margin-bottom: 1rem; }
+        .back-link:hover { color: #000; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .order-number { font-size: 1.5rem; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; color: white; margin-left: 1rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card h3 { margin-bottom: 1rem; font-size: 1.1rem; color: #333; }
+        .info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #666; }
+        .info-value { font-weight: 500; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .items-table th, .items-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        .items-table th { font-weight: 600; color: #666; font-size: 0.85rem; }
+        .item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #333; }
+        select { padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders" class="active">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
+      </div>
+      <div class="container">
+        <a href="/admin/orders" class="back-link">← Back to Orders</a>
+        
+        <div class="order-header">
+          <div>
+            <span class="order-number">${order.orderNumber}</span>
+            <span class="status-badge" style="background-color: ${status.color}">${status.label}</span>
+          </div>
+          <div>
+            <select id="statusSelect" onchange="updateStatus(${order.id}, this.value)">
+              <option value="pending_payment" ${order.status === 'pending_payment' ? 'selected' : ''}>In attesa pagamento</option>
+              <option value="awaiting_bank" ${order.status === 'awaiting_bank' ? 'selected' : ''}>Attesa bonifico</option>
+              <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>Pagato</option>
+              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Spedito</option>
+              <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completato</option>
+              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Annullato</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="grid">
+          <div class="card">
+            <h3>Customer Details</h3>
+            <div class="info-row">
+              <span class="info-label">Name</span>
+              <span class="info-value">${order.customerName} ${order.customerSurname}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">${order.customerEmail}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone</span>
+              <span class="info-value">${order.customerPhone || '-'}</span>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h3>Shipping Address</h3>
+            <div class="info-row">
+              <span class="info-label">Address</span>
+              <span class="info-value">${order.shippingAddress}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">City</span>
+              <span class="info-value">${order.shippingCity}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Province</span>
+              <span class="info-value">${order.shippingProvince || '-'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">CAP</span>
+              <span class="info-value">${order.shippingCap || '-'}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top: 2rem;">
+          <h3>Order Details</h3>
+          <div class="info-row">
+            <span class="info-label">Order Date</span>
+            <span class="info-value">${date}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Payment Method</span>
+            <span class="info-value">${order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'}</span>
+          </div>
+          ${order.paypalOrderId ? `
+          <div class="info-row">
+            <span class="info-label">PayPal Order ID</span>
+            <span class="info-value">${order.paypalOrderId}</span>
+          </div>
+          ` : ''}
+          <div class="info-row">
+            <span class="info-label">Subtotal</span>
+            <span class="info-value">€${(order.subtotalCents / 100).toFixed(2)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Shipping</span>
+            <span class="info-value">${order.shippingCents === 0 ? 'Free' : '€' + (order.shippingCents / 100).toFixed(2)}</span>
+          </div>
+          <div class="info-row" style="font-weight: bold; font-size: 1.1rem;">
+            <span class="info-label">Total</span>
+            <span class="info-value">€${(order.totalCents / 100).toFixed(2)}</span>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top: 2rem;">
+          <h3>Order Items</h3>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(order.items || []).map((item: any) => `
+                <tr>
+                  <td>${item.imageUrl ? `<img src="${item.imageUrl}" class="item-img" />` : '-'}</td>
+                  <td>${item.productName}</td>
+                  <td>${item.variantColor || '-'}</td>
+                  <td>${item.variantSize || '-'}</td>
+                  <td>${item.quantity}</td>
+                  <td>€${(item.priceCents / 100).toFixed(2)}</td>
+                  <td>€${((item.priceCents * item.quantity) / 100).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        ${order.notes ? `
+        <div class="card" style="margin-top: 2rem;">
+          <h3>Customer Notes</h3>
+          <p>${order.notes}</p>
+        </div>
+        ` : ''}
+      </div>
+      <script>
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
+        
+        async function updateStatus(id, status) {
+          await fetch('/api/admin/orders/' + id + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+          });
+          location.reload();
+        }
+      </script>
+    </body>
+    </html>
+  `;
+}
+
+// Admin Contacts Page
+function getAdminContactsPage(contacts: any[]): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Contact Messages - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .logout { background: transparent; border: 1px solid white; color: white; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
+        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
+        .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
+        .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        .contact-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .contact-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .contact-info { display: flex; gap: 1rem; align-items: center; }
+        .contact-name { font-weight: 600; font-size: 1.1rem; }
+        .contact-email { color: #666; }
+        .contact-date { color: #999; font-size: 0.85rem; }
+        .contact-subject { font-weight: 500; margin-bottom: 0.5rem; color: #333; }
+        .contact-message { color: #666; line-height: 1.5; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .status-new { background: #ffc107; color: #000; }
+        .status-read { background: #6c757d; color: white; }
+        .status-replied { background: #28a745; color: white; }
+        .btn { padding: 0.25rem 0.5rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-decoration: none; display: inline-block; margin-left: 0.5rem; }
+        .btn:hover { background: #333; }
+        .empty { text-align: center; padding: 4rem; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts" class="active">Contacts</a>
+      </div>
+      <div class="container">
+        <h2 style="margin-bottom: 1.5rem;">Contact Messages (${contacts.length})</h2>
+        
+        ${contacts.length === 0 ? '<div class="empty">No contact messages yet</div>' : contacts.map(c => {
+          const date = new Date(c.createdAt).toLocaleDateString('it-IT', { 
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+          });
+          const statusClass = c.status === 'new' ? 'status-new' : c.status === 'replied' ? 'status-replied' : 'status-read';
+          return `
+            <div class="contact-card">
+              <div class="contact-header">
+                <div class="contact-info">
+                  <span class="contact-name">${c.name}</span>
+                  <span class="contact-email">${c.email}</span>
+                  ${c.phone ? `<span class="contact-email">${c.phone}</span>` : ''}
+                </div>
+                <div>
+                  <span class="contact-date">${date}</span>
+                  <span class="status-badge ${statusClass}">${c.status}</span>
+                  ${c.status === 'new' ? `<button class="btn" onclick="markRead(${c.id})">Mark Read</button>` : ''}
+                  ${c.status !== 'replied' ? `<button class="btn" onclick="markReplied(${c.id})">Mark Replied</button>` : ''}
+                </div>
+              </div>
+              ${c.subject ? `<div class="contact-subject">${c.subject}</div>` : ''}
+              <div class="contact-message">${c.message}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <script>
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
+        
+        async function markRead(id) {
+          await fetch('/api/admin/contacts/' + id + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'read' })
+          });
+          location.reload();
+        }
+        
+        async function markReplied(id) {
+          await fetch('/api/admin/contacts/' + id + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'replied' })
+          });
+          location.reload();
+        }
       </script>
     </body>
     </html>
