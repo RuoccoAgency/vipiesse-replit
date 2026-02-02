@@ -190,6 +190,29 @@ export const contactMessages = pgTable("contact_messages", {
 });
 
 // ================================
+// SAVED ITEMS (Wishlist)
+// ================================
+export const savedItems = pgTable(
+  "saved_items",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueUserProduct: uniqueIndex("unique_user_product").on(
+      table.userId,
+      table.productId
+    ),
+  })
+);
+
+// ================================
 // INSERT SCHEMAS
 // ================================
 export const insertProductSchema = createInsertSchema(products)
@@ -259,6 +282,11 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages)
     message: z.string().min(10, "Il messaggio deve avere almeno 10 caratteri"),
   });
 
+export const insertSavedItemSchema = createInsertSchema(savedItems).omit({
+  id: true,
+  createdAt: true,
+});
+
 // ================================
 // TYPES
 // ================================
@@ -293,6 +321,9 @@ export type User = typeof users.$inferSelect;
 
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export type ContactMessage = typeof contactMessages.$inferSelect;
+
+export type InsertSavedItem = z.infer<typeof insertSavedItemSchema>;
+export type SavedItem = typeof savedItems.$inferSelect;
 
 // ================================
 // COMPOSITE TYPES FOR API RESPONSES
