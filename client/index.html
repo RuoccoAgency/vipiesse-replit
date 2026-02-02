@@ -20,6 +20,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
+    <script>
+      window.addEventListener('error', function(event) {
+        if (event.filename && (event.filename.includes('paypal') || event.filename.includes('paypalobjects'))) {
+          event.preventDefault();
+          return true;
+        }
+      });
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && event.reason.toString && event.reason.toString().toLowerCase().includes('paypal')) {
+          event.preventDefault();
+        }
+      });
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
