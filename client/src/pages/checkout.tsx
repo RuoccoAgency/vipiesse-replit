@@ -47,6 +47,19 @@ export function Checkout() {
       .then(res => res.json())
       .then(data => setPaymentConfig(data))
       .catch(() => {});
+    
+    // Check for pending PayPal order (user returning from PayPal)
+    const pendingOrder = sessionStorage.getItem('pendingPaypalOrder');
+    if (pendingOrder) {
+      try {
+        const { orderId, total } = JSON.parse(pendingOrder);
+        setConfirmedOrderId(orderId);
+        setStep("paypal_pending");
+        sessionStorage.removeItem('pendingPaypalOrder');
+      } catch (e) {
+        sessionStorage.removeItem('pendingPaypalOrder');
+      }
+    }
   }, []);
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
@@ -113,8 +126,14 @@ export function Checkout() {
       const data = await createOrder(values, "pending");
       setConfirmedOrderId(data.orderId);
       
-      const paypalUrl = `${paymentConfig.paypalMeUrl}/${total.toFixed(2)}EUR`;
-      window.open(paypalUrl, '_blank');
+      const paypalUrl = `${paymentConfig.paypalMeUrl}/${total.toFixed(2)}`;
+      
+      sessionStorage.setItem('pendingPaypalOrder', JSON.stringify({
+        orderId: data.orderId,
+        total: total.toFixed(2)
+      }));
+      
+      window.location.href = paypalUrl;
       
       setStep("paypal_pending");
       clearCart();
@@ -191,7 +210,7 @@ export function Checkout() {
           
           <div className="flex gap-4 justify-center flex-wrap">
             <Button 
-              onClick={() => window.open(`${paymentConfig?.paypalMeUrl}/${total.toFixed(2)}EUR`, '_blank')}
+              onClick={() => window.open(`${paymentConfig?.paypalMeUrl}/${total.toFixed(2)}`, '_blank')}
               className="bg-[#003087] hover:bg-[#001f5c] text-white"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
