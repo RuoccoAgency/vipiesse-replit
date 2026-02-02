@@ -296,6 +296,124 @@ export async function registerRoutes(
     }
   });
 
+  // Get user's order with items
+  app.get("/api/my/orders/:orderNumber", isUser, async (req, res) => {
+    try {
+      const { orderNumber } = req.params;
+      const order = await storage.getOrderByNumber(orderNumber);
+      
+      if (!order) {
+        return res.status(404).json({ error: "Ordine non trovato" });
+      }
+      
+      // Verify user owns this order
+      if (req.userId && order.userId !== req.userId) {
+        return res.status(403).json({ error: "Non autorizzato" });
+      }
+      if (req.userEmail && order.customerEmail !== req.userEmail) {
+        return res.status(403).json({ error: "Non autorizzato" });
+      }
+      
+      const items = await storage.getOrderItems(order.id);
+      res.json({ ...order, items });
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel recupero dell'ordine" });
+    }
+  });
+
+  // ================================
+  // SAVED ITEMS (WISHLIST) API
+  // ================================
+  
+  // Get user's saved items
+  app.get("/api/my/saved", isUser, async (req, res) => {
+    try {
+      if (!req.userId) {
+        return res.json([]);
+      }
+      const savedProducts = await storage.getSavedItemsWithProducts(req.userId);
+      res.json(savedProducts);
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel recupero dei preferiti" });
+    }
+  });
+  
+  // Check if a product is saved
+  app.get("/api/my/saved/:productId", isUser, async (req, res) => {
+    try {
+      if (!req.userId) {
+        return res.json({ saved: false });
+      }
+      const productId = parseInt(req.params.productId);
+      const isSaved = await storage.isProductSaved(req.userId, productId);
+      res.json({ saved: isSaved });
+    } catch (error) {
+      res.status(500).json({ error: "Errore" });
+    }
+  });
+  
+  // Add product to saved items
+  app.post("/api/my/saved/:productId", isUser, async (req, res) => {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ error: "Devi essere loggato" });
+      }
+      const productId = parseInt(req.params.productId);
+      
+      // Verify product exists
+      const product = await storage.getProductById(productId);
+      if (!product) {
+        return res.status(404).json({ error: "Prodotto non trovato" });
+      }
+      
+      await storage.addSavedItem(req.userId, productId);
+      res.json({ success: true, saved: true });
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel salvataggio" });
+    }
+  });
+  
+  // Remove product from saved items
+  app.delete("/api/my/saved/:productId", isUser, async (req, res) => {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ error: "Devi essere loggato" });
+      }
+      const productId = parseInt(req.params.productId);
+      await storage.removeSavedItem(req.userId, productId);
+      res.json({ success: true, saved: false });
+    } catch (error) {
+      res.status(500).json({ error: "Errore nella rimozione" });
+    }
+  });
+
+  // ================================
+  // USER DASHBOARD API
+  // ================================
+  
+  // Get dashboard summary data
+  app.get("/api/my/dashboard", isUser, async (req, res) => {
+    try {
+      if (!req.userId) {
+        return res.json({ orders: [], savedItems: [], orderCount: 0, savedCount: 0 });
+      }
+      
+      const [orders, savedProducts] = await Promise.all([
+        storage.getOrdersByUserId(req.userId),
+        storage.getSavedItemsWithProducts(req.userId)
+      ]);
+      
+      res.json({
+        orders: orders.slice(0, 5), // Last 5 orders
+        savedItems: savedProducts.slice(0, 4), // First 4 saved items
+        orderCount: orders.length,
+        savedCount: savedProducts.length
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel caricamento della dashboard" });
+    }
+  });
+
   // ================================
   // CONTACT FORM API
   // ================================
