@@ -7,6 +7,7 @@ import { Checkout } from "./pages/checkout";
 import { OrderSuccess } from "./pages/order-success";
 import { OrderBank } from "./pages/order-bank";
 import { Login } from "./pages/auth";
+import { MyOrders } from "./pages/my-orders";
 import { ContactPage, SizeGuidePage, TermsPage, PaymentsPage, ShippingPage } from "./pages/help-pages";
 import NotFound from "./pages/not-found";
 import { ProductDetail } from "./pages/product-detail";
@@ -28,6 +29,8 @@ function Router() {
 
       <Route path="/business" component={Business} />
       <Route path="/login" component={Login} />
+      <Route path="/account" component={Login} />
+      <Route path="/account/orders" component={MyOrders} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/order/success" component={OrderSuccess} />
       <Route path="/order/bank" component={OrderBank} />
