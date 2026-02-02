@@ -31,15 +31,15 @@ export function ContactPage() {
             <div className="space-y-4 text-gray-600">
               <div className="flex items-start gap-4">
                 <MapPin className="h-6 w-6 text-gray-900 mt-1 shrink-0" />
-                <p>Via Nazionale delle Puglie<br />80026 Casoria (NA)<br />Italia</p>
+                <p>Via Giglio, 15<br />80026 Casoria (NA)<br />Italia</p>
               </div>
               <div className="flex items-center gap-4">
                 <Phone className="h-6 w-6 text-gray-900 shrink-0" />
-                <p>+39 081 123 4567</p>
+                <p>+39 375 643 1589</p>
               </div>
               <div className="flex items-center gap-4">
                 <Mail className="h-6 w-6 text-gray-900 shrink-0" />
-                <p>info@vipiesse.it</p>
+                <p>vipiessesales@gmail.com</p>
               </div>
             </div>
           </div>
@@ -47,8 +47,8 @@ export function ContactPage() {
           <div>
             <h3 className="text-xl font-heading font-bold text-gray-900 mb-4">Orari Uffici</h3>
             <p className="text-gray-600">
-              Lunedì - Venerdì: 09:00 - 18:00<br />
-              Sabato: 09:00 - 13:00<br />
+              Lunedì - Venerdì: 09:00 - 13:30/14:30 - 17:30<br />
+              Sabato: Chiuso<br />
               Domenica: Chiuso
             </p>
           </div>

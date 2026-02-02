@@ -393,6 +393,15 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/admin/products/:productId/max-image-order", isAdmin, async (req, res) => {
+    try {
+      const maxOrder = await storage.getMaxImageSortOrder(parseInt(req.params.productId));
+      res.json({ maxOrder });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get max order" });
+    }
+  });
+
   app.post("/api/admin/products/:productId/images", isAdmin, async (req, res) => {
     try {
       const productId = parseInt(req.params.productId);
@@ -1383,13 +1392,18 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
             const result = await uploadRes.json();
             progressFill.style.width = '60%';
             
-            // Save each uploaded image to the database
+            // Get current max sortOrder to assign new orders
+            const maxOrderRes = await fetch('/api/admin/products/' + productId + '/max-image-order');
+            const maxOrderData = await maxOrderRes.json();
+            let nextOrder = (maxOrderData.maxOrder ?? -1) + 1;
+            
+            // Save each uploaded image to the database with sortOrder
             let saved = 0;
             for (const file of result.files) {
               const saveRes = await fetch('/api/admin/products/' + productId + '/images', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl: file.url })
+                body: JSON.stringify({ imageUrl: file.url, sortOrder: nextOrder++ })
               });
               
               if (saveRes.ok) {

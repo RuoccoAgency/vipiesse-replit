@@ -51,6 +51,7 @@ export interface IStorage {
   
   // Product Images
   getImagesByProduct(productId: number): Promise<ProductImage[]>;
+  getMaxImageSortOrder(productId: number): Promise<number>;
   createProductImage(image: InsertProductImage): Promise<ProductImage>;
   updateProductImage(id: number, image: Partial<InsertProductImage>): Promise<ProductImage | undefined>;
   deleteProductImage(id: number): Promise<void>;
@@ -246,6 +247,13 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(productImages)
       .where(eq(productImages.productId, productId))
       .orderBy(asc(productImages.sortOrder));
+  }
+
+  async getMaxImageSortOrder(productId: number): Promise<number> {
+    const result = await db.select({ maxOrder: sql<number>`COALESCE(MAX(sort_order), -1)` })
+      .from(productImages)
+      .where(eq(productImages.productId, productId));
+    return result[0]?.maxOrder ?? -1;
   }
 
   async createProductImage(image: InsertProductImage): Promise<ProductImage> {
