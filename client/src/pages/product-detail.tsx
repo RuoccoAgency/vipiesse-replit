@@ -1,4 +1,4 @@
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
@@ -330,9 +330,9 @@ export function ProductDetail() {
                       {selectedSize || "Seleziona"}
                     </span>
                   </span>
-                  <button className="text-xs underline text-gray-500 hover:text-gray-900">
+                  <Link href="/help/taglie" className="text-xs underline text-gray-500 hover:text-gray-900">
                     Guida Taglie
-                  </button>
+                  </Link>
                 </div>
 
                 {availableSizes.length > 0 ? (
