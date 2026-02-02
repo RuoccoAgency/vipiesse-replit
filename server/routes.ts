@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -81,6 +82,35 @@ export async function registerRoutes(
   // Register object storage routes for image uploads
   registerObjectStorageRoutes(app);
   
+  // ================================
+  // PayPal Integration Routes
+  // ================================
+  app.get("/paypal/setup", async (req, res) => {
+    try {
+      await loadPaypalDefault(req, res);
+    } catch (error) {
+      console.error("PayPal setup error:", error);
+      res.status(500).json({ error: "PayPal non configurato" });
+    }
+  });
+
+  app.post("/paypal/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  // Bank transfer info endpoint
+  app.get("/api/bank-info", (req, res) => {
+    res.json({
+      iban: process.env.BANK_IBAN || "",
+      accountHolder: process.env.BANK_ACCOUNT_HOLDER || "",
+      bankName: process.env.BANK_NAME || "",
+    });
+  });
+
   // ================================
   // FILE UPLOAD API (multer) - Admin only
   // ================================
