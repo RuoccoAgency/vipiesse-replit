@@ -8,6 +8,8 @@ import {
   orders,
   orderItems,
   sessions,
+  users,
+  contactMessages,
   type Product, 
   type InsertProduct,
   type ProductVariant,
@@ -24,7 +26,9 @@ import {
   type InsertOrderItem,
   type OrderWithItems,
   type Session,
-  type ProductWithVariants
+  type ProductWithVariants,
+  type User,
+  type ContactMessage
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, inArray, desc, asc, gte, sql } from "drizzle-orm";
@@ -94,15 +98,46 @@ export interface IStorage {
   
   // Transactional order creation
   createOrderWithItems(
-    order: InsertOrder,
-    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number }[]
+    orderData: {
+      orderNumber: string;
+      userId?: number | null;
+      status: string;
+      paymentMethod: string | null;
+      customerEmail: string;
+      customerName: string;
+      customerSurname?: string | null;
+      customerPhone?: string | null;
+      shippingAddress: string;
+      shippingCity?: string | null;
+      shippingCap?: string | null;
+      subtotalCents: number;
+      shippingCents: number;
+      totalCents: number;
+    },
+    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
   ): Promise<{ order: Order; items: OrderItem[] } | { error: string }>;
   
   // Sessions
-  createSession(email: string, expiresAt: Date): Promise<Session>;
+  createSession(email: string, expiresAt: Date, userId?: number, isAdmin?: boolean): Promise<Session>;
   getSession(id: string): Promise<Session | undefined>;
   deleteSession(id: string): Promise<void>;
   deleteExpiredSessions(): Promise<void>;
+  
+  // Users
+  createUser(email: string, passwordHash: string, name: string, surname: string, phone?: string): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
+  
+  // User Orders
+  getOrdersByUserId(userId: number): Promise<Order[]>;
+  getOrdersByEmail(email: string): Promise<Order[]>;
+  getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
+  updateOrder(id: number, data: Partial<Order>): Promise<Order | undefined>;
+  
+  // Contact Messages
+  createContactMessage(name: string, email: string, message: string): Promise<ContactMessage>;
+  getAllContactMessages(): Promise<ContactMessage[]>;
+  updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -426,8 +461,23 @@ export class DatabaseStorage implements IStorage {
 
   // Transactional order creation - ensures atomicity with row-level locking
   async createOrderWithItems(
-    orderData: InsertOrder,
-    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number }[]
+    orderData: {
+      orderNumber: string;
+      userId?: number | null;
+      status: string;
+      paymentMethod: string | null;
+      customerEmail: string;
+      customerName: string;
+      customerSurname?: string | null;
+      customerPhone?: string | null;
+      shippingAddress: string;
+      shippingCity?: string | null;
+      shippingCap?: string | null;
+      subtotalCents: number;
+      shippingCents: number;
+      totalCents: number;
+    },
+    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
   ): Promise<{ order: Order; items: OrderItem[] } | { error: string }> {
     const client = await pool.connect();
     
@@ -461,21 +511,36 @@ export class DatabaseStorage implements IStorage {
         );
       }
       
-      // Create the order
+      // Create the order with all new fields
       const orderResult = await client.query(
-        `INSERT INTO orders (status, payment_method, customer_email, customer_name, customer_phone, shipping_address, total_cents, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) RETURNING *`,
-        [orderData.status, orderData.paymentMethod, orderData.customerEmail, orderData.customerName, orderData.customerPhone, orderData.shippingAddress, orderData.totalCents]
+        `INSERT INTO orders (order_number, user_id, status, payment_method, customer_email, customer_name, customer_surname, customer_phone, shipping_address, shipping_city, shipping_cap, subtotal_cents, shipping_cents, total_cents, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW()) RETURNING *`,
+        [
+          orderData.orderNumber,
+          orderData.userId || null,
+          orderData.status,
+          orderData.paymentMethod,
+          orderData.customerEmail,
+          orderData.customerName,
+          orderData.customerSurname || null,
+          orderData.customerPhone || null,
+          orderData.shippingAddress,
+          orderData.shippingCity || null,
+          orderData.shippingCap || null,
+          orderData.subtotalCents,
+          orderData.shippingCents,
+          orderData.totalCents
+        ]
       );
       const newOrder = orderResult.rows[0];
       
-      // Create order items
+      // Create order items with image_url
       const createdItems: OrderItem[] = [];
       for (const item of items) {
         const itemResult = await client.query(
-          `INSERT INTO order_items (order_id, variant_id, product_name, variant_sku, variant_color, variant_size, quantity, price_cents)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-          [newOrder.id, item.variantId, item.productName, item.variantSku, item.variantColor, item.variantSize, item.quantity, item.priceCents]
+          `INSERT INTO order_items (order_id, variant_id, product_name, variant_sku, variant_color, variant_size, quantity, price_cents, image_url)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+          [newOrder.id, item.variantId, item.productName, item.variantSku, item.variantColor, item.variantSize, item.quantity, item.priceCents, item.imageUrl || null]
         );
         createdItems.push(itemResult.rows[0]);
       }
@@ -485,12 +550,22 @@ export class DatabaseStorage implements IStorage {
       // Map the raw SQL result to our Order type
       const order: Order = {
         id: newOrder.id,
+        orderNumber: newOrder.order_number,
+        userId: newOrder.user_id,
         status: newOrder.status,
         paymentMethod: newOrder.payment_method,
+        paypalOrderId: newOrder.paypal_order_id,
         customerEmail: newOrder.customer_email,
         customerName: newOrder.customer_name,
+        customerSurname: newOrder.customer_surname,
         customerPhone: newOrder.customer_phone,
         shippingAddress: newOrder.shipping_address,
+        shippingCity: newOrder.shipping_city,
+        shippingCap: newOrder.shipping_cap,
+        shippingCountry: newOrder.shipping_country,
+        notes: newOrder.notes,
+        subtotalCents: newOrder.subtotal_cents,
+        shippingCents: newOrder.shipping_cents,
         totalCents: newOrder.total_cents,
         createdAt: newOrder.created_at,
         updatedAt: newOrder.updated_at
@@ -506,9 +581,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Sessions
-  async createSession(email: string, expiresAt: Date): Promise<Session> {
+  async createSession(email: string, expiresAt: Date, userId?: number, isAdmin: boolean = false): Promise<Session> {
     const [session] = await db.insert(sessions)
-      .values({ email, expiresAt })
+      .values({ email, expiresAt, userId: userId || null, isAdmin })
       .returning();
     return session;
   }
@@ -524,6 +599,66 @@ export class DatabaseStorage implements IStorage {
 
   async deleteExpiredSessions(): Promise<void> {
     await db.delete(sessions).where(eq(sessions.expiresAt, new Date()));
+  }
+
+  // Users
+  async createUser(email: string, passwordHash: string, name: string, surname: string, phone?: string): Promise<User> {
+    const [user] = await db.insert(users)
+      .values({ email, passwordHash, name, surname, phone: phone || null })
+      .returning();
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  // User Orders
+  async getOrdersByUserId(userId: number): Promise<Order[]> {
+    return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrdersByEmail(email: string): Promise<Order[]> {
+    return await db.select().from(orders).where(eq(orders.customerEmail, email)).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrderByNumber(orderNumber: string): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+    return order || undefined;
+  }
+
+  async updateOrder(id: number, data: Partial<Order>): Promise<Order | undefined> {
+    const [updated] = await db.update(orders)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  // Contact Messages
+  async createContactMessage(name: string, email: string, message: string): Promise<ContactMessage> {
+    const [msg] = await db.insert(contactMessages)
+      .values({ name, email, message })
+      .returning();
+    return msg;
+  }
+
+  async getAllContactMessages(): Promise<ContactMessage[]> {
+    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+  }
+
+  async updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined> {
+    const [updated] = await db.update(contactMessages)
+      .set({ status })
+      .where(eq(contactMessages.id, id))
+      .returning();
+    return updated || undefined;
   }
 }
 

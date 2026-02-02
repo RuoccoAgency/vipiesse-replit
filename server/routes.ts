@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import cookieParser from "cookie-parser";
-import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema } from "@shared/schema";
+import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import multer from "multer";
@@ -10,6 +10,7 @@ import path from "path";
 import fs from "fs";
 import express from "express";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
@@ -47,8 +48,41 @@ declare global {
     interface Request {
       sessionId?: string;
       adminEmail?: string;
+      userId?: number;
+      userEmail?: string;
     }
   }
+}
+
+// Generate unique order number
+function generateOrderNumber(): string {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `VIP-${year}${month}${day}-${random}`;
+}
+
+// User authentication middleware
+async function isUser(req: Request, res: Response, next: NextFunction) {
+  const sessionId = req.cookies.user_session;
+  
+  if (!sessionId) {
+    return res.status(401).json({ error: "Non autenticato" });
+  }
+
+  const session = await storage.getSession(sessionId);
+  
+  if (!session || session.expiresAt < new Date()) {
+    res.clearCookie("user_session");
+    return res.status(401).json({ error: "Sessione scaduta" });
+  }
+
+  req.sessionId = sessionId;
+  req.userEmail = session.email;
+  req.userId = session.userId || undefined;
+  next();
 }
 
 async function isAdmin(req: Request, res: Response, next: NextFunction) {
@@ -119,6 +153,187 @@ export async function registerRoutes(
       accountHolder: process.env.BANK_ACCOUNT_NAME || "",
       bankName: process.env.BANK_NAME || "",
     });
+  });
+
+  // ================================
+  // USER AUTHENTICATION API
+  // ================================
+  
+  // Register new user
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { email, password, name, surname, phone } = req.body;
+      
+      if (!email || !password || !name || !surname) {
+        return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
+      }
+      
+      if (password.length < 6) {
+        return res.status(400).json({ error: "La password deve avere almeno 6 caratteri" });
+      }
+      
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: "Email già registrata" });
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await storage.createUser(email, passwordHash, name, surname, phone);
+      
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const session = await storage.createSession(email, expiresAt, user.id, false);
+      
+      res.cookie("user_session", session.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+      
+      res.json({ 
+        success: true, 
+        user: { id: user.id, email: user.email, name: user.name, surname: user.surname } 
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ error: "Errore durante la registrazione" });
+    }
+  });
+  
+  // Login
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email e password sono obbligatori" });
+      }
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ error: "Credenziali non valide" });
+      }
+      
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ error: "Credenziali non valide" });
+      }
+      
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const session = await storage.createSession(email, expiresAt, user.id, false);
+      
+      res.cookie("user_session", session.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+      
+      res.json({ 
+        success: true, 
+        user: { id: user.id, email: user.email, name: user.name, surname: user.surname } 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Errore durante il login" });
+    }
+  });
+  
+  // Logout
+  app.post("/api/auth/logout", async (req, res) => {
+    const sessionId = req.cookies.user_session;
+    if (sessionId) {
+      await storage.deleteSession(sessionId);
+    }
+    res.clearCookie("user_session");
+    res.json({ success: true });
+  });
+  
+  // Get current user
+  app.get("/api/auth/me", async (req, res) => {
+    const sessionId = req.cookies.user_session;
+    if (!sessionId) {
+      return res.json({ user: null });
+    }
+    
+    const session = await storage.getSession(sessionId);
+    if (!session || session.expiresAt < new Date()) {
+      res.clearCookie("user_session");
+      return res.json({ user: null });
+    }
+    
+    if (session.userId) {
+      const user = await storage.getUserById(session.userId);
+      if (user) {
+        return res.json({ 
+          user: { id: user.id, email: user.email, name: user.name, surname: user.surname } 
+        });
+      }
+    }
+    
+    res.json({ user: null });
+  });
+  
+  // Get user's orders
+  app.get("/api/my/orders", isUser, async (req, res) => {
+    try {
+      let orders;
+      if (req.userId) {
+        orders = await storage.getOrdersByUserId(req.userId);
+      } else if (req.userEmail) {
+        orders = await storage.getOrdersByEmail(req.userEmail);
+      } else {
+        return res.json([]);
+      }
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel recupero degli ordini" });
+    }
+  });
+
+  // ================================
+  // CONTACT FORM API
+  // ================================
+  
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const result = insertContactMessageSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: result.error.errors[0].message });
+      }
+      
+      const { name, email, message } = result.data;
+      const contactMessage = await storage.createContactMessage(name, email, message);
+      
+      res.json({ success: true, id: contactMessage.id });
+    } catch (error) {
+      console.error("Contact form error:", error);
+      res.status(500).json({ error: "Errore nell'invio del messaggio" });
+    }
+  });
+  
+  // Admin: Get all contact messages
+  app.get("/api/admin/contacts", isAdmin, async (req, res) => {
+    try {
+      const messages = await storage.getAllContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ error: "Errore nel recupero dei messaggi" });
+    }
+  });
+  
+  // Admin: Update contact message status
+  app.patch("/api/admin/contacts/:id/status", isAdmin, async (req, res) => {
+    try {
+      const { status } = req.body;
+      const updated = await storage.updateContactMessageStatus(parseInt(req.params.id), status);
+      if (!updated) {
+        return res.status(404).json({ error: "Messaggio non trovato" });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Errore nell'aggiornamento" });
+    }
   });
 
   // ================================
@@ -720,17 +935,36 @@ export async function registerRoutes(
   // Create order with stock validation and decrement (transactional)
   app.post("/api/orders", async (req, res) => {
     try {
-      const { items, customerEmail, customerName, customerPhone, shippingAddress, status, paymentMethod } = req.body;
+      const { 
+        items, 
+        customerEmail, 
+        customerName, 
+        customerSurname,
+        customerPhone, 
+        shippingAddress, 
+        shippingCity,
+        shippingCap,
+        status, 
+        paymentMethod 
+      } = req.body;
       
       if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ error: "Cart is empty" });
+        return res.status(400).json({ error: "Il carrello è vuoto" });
+      }
+      
+      if (!customerEmail || !customerName) {
+        return res.status(400).json({ error: "Email e nome sono obbligatori" });
+      }
+      
+      if (!shippingAddress) {
+        return res.status(400).json({ error: "Indirizzo di spedizione obbligatorio" });
       }
       
       // Validate status and paymentMethod to prevent client-side manipulation
-      const allowedStatuses = ['pending', 'pending_bank_transfer'];
-      const allowedPaymentMethods = ['paypal', 'card', 'bank_transfer', 'paypal_me'];
+      const allowedStatuses = ['pending_payment', 'awaiting_bank'];
+      const allowedPaymentMethods = ['paypal', 'bank_transfer'];
       
-      const validatedStatus = status && allowedStatuses.includes(status) ? status : 'pending';
+      const validatedStatus = status && allowedStatuses.includes(status) ? status : 'pending_payment';
       const validatedPaymentMethod = paymentMethod && allowedPaymentMethods.includes(paymentMethod) ? paymentMethod : null;
       
       // Validate all items have required fields
@@ -744,30 +978,34 @@ export async function registerRoutes(
       }
       
       // Pre-validate stock and gather item details
-      const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number }[] = [];
-      let totalCents = 0;
+      const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
+      let subtotalCents = 0;
       
       for (const item of items) {
         const variant = await storage.getVariantById(item.variantId);
         if (!variant) {
-          return res.status(400).json({ error: `Variant ${item.variantId} not found` });
+          return res.status(400).json({ error: `Prodotto non trovato` });
         }
         if (!variant.active) {
-          return res.status(400).json({ error: `Variant ${variant.sku} is not available` });
+          return res.status(400).json({ error: `Prodotto ${variant.sku} non disponibile` });
         }
         if (variant.stockQty < item.quantity) {
           return res.status(400).json({ 
-            error: `Insufficient stock for ${variant.sku}. Available: ${variant.stockQty}, Requested: ${item.quantity}` 
+            error: `Stock insufficiente per ${variant.sku}. Disponibili: ${variant.stockQty}` 
           });
         }
         
         const product = await storage.getProductById(variant.productId);
         if (!product || !product.active) {
-          return res.status(400).json({ error: `Product for variant ${variant.sku} not available` });
+          return res.status(400).json({ error: `Prodotto non disponibile` });
         }
         
+        // Get product image
+        const images = await storage.getImagesByProduct(product.id);
+        const imageUrl = images.length > 0 ? images[0].imageUrl : undefined;
+        
         const priceCents = variant.priceCents || product.basePriceCents || 0;
-        totalCents += priceCents * item.quantity;
+        subtotalCents += priceCents * item.quantity;
         
         orderItems.push({
           variantId: item.variantId,
@@ -776,19 +1014,48 @@ export async function registerRoutes(
           variantColor: variant.color,
           variantSize: variant.size,
           quantity: item.quantity,
-          priceCents
+          priceCents,
+          imageUrl
         });
+      }
+      
+      // Calculate shipping (free over 50€)
+      const shippingCents = subtotalCents >= 5000 ? 0 : 590;
+      const totalCents = subtotalCents + shippingCents;
+      
+      if (totalCents <= 0) {
+        return res.status(400).json({ error: "Il totale dell'ordine non può essere zero" });
+      }
+      
+      // Generate unique order number
+      const orderNumber = generateOrderNumber();
+      
+      // Get user ID from session if logged in
+      const sessionId = req.cookies.user_session;
+      let userId: number | null = null;
+      if (sessionId) {
+        const session = await storage.getSession(sessionId);
+        if (session && session.userId && session.expiresAt > new Date()) {
+          userId = session.userId;
+        }
       }
       
       // Create order with items in a single transaction (stock decrement included)
       const result = await storage.createOrderWithItems(
         {
+          orderNumber,
+          userId,
           status: validatedStatus,
           paymentMethod: validatedPaymentMethod,
-          customerEmail: customerEmail || null,
-          customerName: customerName || null,
+          customerEmail,
+          customerName,
+          customerSurname: customerSurname || null,
           customerPhone: customerPhone || null,
-          shippingAddress: shippingAddress || null,
+          shippingAddress,
+          shippingCity: shippingCity || null,
+          shippingCap: shippingCap || null,
+          subtotalCents,
+          shippingCents,
           totalCents
         },
         orderItems
@@ -802,12 +1069,14 @@ export async function registerRoutes(
       res.status(201).json({ 
         success: true, 
         orderId: result.order.id,
+        orderNumber: result.order.orderNumber,
+        totalCents: result.order.totalCents,
         order: result.order,
-        message: 'Order placed successfully' 
+        message: 'Ordine creato con successo' 
       });
     } catch (error) {
       console.error('Order creation error:', error);
-      res.status(500).json({ error: "Failed to create order" });
+      res.status(500).json({ error: "Errore durante la creazione dell'ordine" });
     }
   });
   
