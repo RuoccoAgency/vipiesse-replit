@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema } from "@shared/schema";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 declare global {
   namespace Express {
@@ -37,6 +38,9 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   app.use(cookieParser());
+  
+  // Register object storage routes for image uploads
+  registerObjectStorageRoutes(app);
 
   // ================================
   // PUBLIC API - Products
@@ -992,8 +996,22 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95%; max-height: 90vh; overflow-y: auto; }
         .error-msg { color: #dc3545; font-size: 0.85rem; margin-bottom: 0.5rem; display: none; }
         .error-msg.show { display: block; }
-        .image-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-        .image-item { display: flex; align-items: center; gap: 0.5rem; background: #f0f0f0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+        .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0; }
+        .image-card { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 2px solid #e0e0e0; }
+        .image-card img { width: 100%; height: 100%; object-fit: cover; }
+        .image-delete-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: white; border: none; cursor: pointer; font-size: 16px; line-height: 1; }
+        .image-delete-btn:hover { background: #dc2626; }
+        .drop-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; margin-top: 1rem; background: #fafafa; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+        .drop-zone-content { color: #666; }
+        .drop-zone-content svg { color: #9ca3af; margin-bottom: 0.5rem; }
+        .drop-zone.dragover svg { color: #2563eb; }
+        .browse-link { color: #2563eb; text-decoration: underline; cursor: pointer; }
+        .drop-hint { font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem; }
+        .upload-progress { margin-top: 1rem; }
+        .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2563eb; width: 0%; transition: width 0.3s; }
+        .progress-text { display: block; font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
         .back-link { color: #666; text-decoration: none; margin-bottom: 1rem; display: inline-block; }
         .back-link:hover { color: #000; }
       </style>
@@ -1059,17 +1077,31 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         <!-- Product Images Section -->
         <div class="section">
           <h3>Product Images</h3>
-          <div id="imagesList" class="image-list">
+          <div id="imagesList" class="image-grid">
             ${product.images?.map((img: any) => `
-              <div class="image-item" data-id="${img.id}">
-                <span>${img.imageUrl.substring(0, 40)}...</span>
-                <button class="btn-small btn-danger" onclick="deleteImage(${img.id})">×</button>
+              <div class="image-card" data-id="${img.id}">
+                <img src="${img.imageUrl}" alt="Product image" onerror="this.src='https://via.placeholder.com/150?text=Error'">
+                <button class="image-delete-btn" onclick="deleteImage(${img.id})">×</button>
               </div>
-            `).join('') || '<p style="color: #666;">No images yet</p>'}
+            `).join('') || '<p style="color: #666; grid-column: 1/-1;">No images yet. Upload images below.</p>'}
           </div>
-          <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            <input type="text" id="newImageUrl" placeholder="Image URL" style="flex: 1;">
-            <button class="btn" onclick="addImage()">Add Image</button>
+          
+          <!-- Drag & Drop Upload Area -->
+          <div id="dropZone" class="drop-zone">
+            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+            <div class="drop-zone-content">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <p>Trascina le immagini qui o <span class="browse-link">clicca per selezionare</span></p>
+              <p class="drop-hint">Formati supportati: JPG, PNG, WebP (max 10MB)</p>
+            </div>
+          </div>
+          <div id="uploadProgress" class="upload-progress" style="display: none;">
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <span class="progress-text">Caricamento...</span>
           </div>
         </div>
         
@@ -1197,23 +1229,96 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           alert('Product saved!');
         });
         
-        // Images
-        async function addImage() {
-          const url = document.getElementById('newImageUrl').value;
-          if (!url) return;
+        // Images - Drag & Drop Upload
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        
+        // Click to browse
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+        });
+        
+        dropZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        function handleDrop(e) {
+          const files = e.dataTransfer.files;
+          handleFiles(files);
+        }
+        
+        async function handleFiles(files) {
+          const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+          if (imageFiles.length === 0) return;
           
-          await fetch('/api/admin/products/' + productId + '/images', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageUrl: url })
-          });
+          uploadProgress.style.display = 'block';
+          let uploaded = 0;
           
-          location.reload();
+          for (const file of imageFiles) {
+            try {
+              progressText.textContent = 'Caricamento ' + (uploaded + 1) + ' di ' + imageFiles.length + '...';
+              progressFill.style.width = ((uploaded / imageFiles.length) * 100) + '%';
+              
+              // Step 1: Get presigned URL
+              const urlRes = await fetch('/api/uploads/request-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: file.name,
+                  size: file.size,
+                  contentType: file.type
+                })
+              });
+              const { uploadURL, objectPath } = await urlRes.json();
+              
+              // Step 2: Upload directly to storage
+              await fetch(uploadURL, {
+                method: 'PUT',
+                body: file,
+                headers: { 'Content-Type': file.type }
+              });
+              
+              // Step 3: Save to database
+              await fetch('/api/admin/products/' + productId + '/images', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageUrl: objectPath })
+              });
+              
+              uploaded++;
+              progressFill.style.width = ((uploaded / imageFiles.length) * 100) + '%';
+            } catch (err) {
+              console.error('Upload failed:', err);
+              alert('Errore durante il caricamento di ' + file.name);
+            }
+          }
+          
+          progressText.textContent = 'Completato!';
+          setTimeout(() => location.reload(), 500);
         }
         
         async function deleteImage(id) {
+          if (!confirm('Eliminare questa immagine?')) return;
           await fetch('/api/admin/product-images/' + id, { method: 'DELETE' });
-          document.querySelector('.image-item[data-id="' + id + '"]').remove();
+          document.querySelector('.image-card[data-id="' + id + '"]').remove();
         }
         
         // Variants
