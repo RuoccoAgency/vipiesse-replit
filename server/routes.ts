@@ -82,9 +82,9 @@ export async function registerRoutes(
   registerObjectStorageRoutes(app);
   
   // ================================
-  // FILE UPLOAD API (multer)
+  // FILE UPLOAD API (multer) - Admin only
   // ================================
-  app.post("/api/upload", upload.array("images", 20), (req, res) => {
+  app.post("/api/upload", isAdmin, upload.array("images", 20), (req, res) => {
     try {
       const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {
