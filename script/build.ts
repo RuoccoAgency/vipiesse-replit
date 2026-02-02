@@ -6,7 +6,7 @@ import { rm, readFile } from "fs/promises";
 // which helps cold start times
 const allowlist = [
   "@google/generative-ai",
-  "@paypal/paypal-server-sdk",
+  "@paypal/checkout-server-sdk",
   "axios",
   "bcryptjs",
   "connect-pg-simple",
