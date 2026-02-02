@@ -109,7 +109,8 @@ export function Checkout() {
     if (paypalLoaded && paypalContainerRef.current && !paypalButtonsRendered.current && window.paypal && typeof window.paypal.Buttons === 'function') {
       paypalButtonsRendered.current = true;
       
-      window.paypal.Buttons({
+      try {
+        window.paypal.Buttons({
         style: {
           layout: 'vertical',
           color: 'gold',
@@ -191,7 +192,14 @@ export function Checkout() {
             description: "Hai annullato il pagamento PayPal.",
           });
         }
-      }).render(paypalContainerRef.current);
+      }).render(paypalContainerRef.current).catch((err: any) => {
+          console.error("PayPal render error:", err);
+          setPaypalError("Errore nel caricamento dei pulsanti PayPal");
+        });
+      } catch (err: any) {
+        console.error("PayPal Buttons error:", err);
+        setPaypalError("Errore nell'inizializzazione di PayPal");
+      }
     }
   }, [paypalLoaded, items, clearCart, navigate, toast]);
 
