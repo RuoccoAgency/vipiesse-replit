@@ -64,28 +64,49 @@ export function Checkout() {
   }, [paymentMethod, paymentConfig]);
 
   const loadPayPalScript = () => {
-    if (window.paypal) {
+    if (window.paypal && typeof window.paypal.Buttons === 'function') {
       setPaypalLoaded(true);
       return;
     }
 
     const existingScript = document.getElementById("paypal-sdk");
     if (existingScript) {
-      existingScript.onload = () => setPaypalLoaded(true);
+      // Wait for existing script to load
+      const checkPayPal = setInterval(() => {
+        if (window.paypal && typeof window.paypal.Buttons === 'function') {
+          clearInterval(checkPayPal);
+          setPaypalLoaded(true);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(checkPayPal), 10000);
       return;
     }
 
     const script = document.createElement("script");
     script.id = "paypal-sdk";
-    script.src = `https://www.paypal.com/sdk/js?client-id=${paymentConfig?.paypalClientId}&currency=EUR&intent=capture`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${paymentConfig?.paypalClientId}&currency=EUR&intent=capture&components=buttons`;
     script.async = true;
-    script.onload = () => setPaypalLoaded(true);
+    script.onload = () => {
+      // Wait for PayPal to fully initialize
+      const checkPayPal = setInterval(() => {
+        if (window.paypal && typeof window.paypal.Buttons === 'function') {
+          clearInterval(checkPayPal);
+          setPaypalLoaded(true);
+        }
+      }, 100);
+      setTimeout(() => {
+        clearInterval(checkPayPal);
+        if (!window.paypal || typeof window.paypal.Buttons !== 'function') {
+          setPaypalError("PayPal non è stato caricato correttamente");
+        }
+      }, 5000);
+    };
     script.onerror = () => setPaypalError("Errore nel caricamento di PayPal");
     document.body.appendChild(script);
   };
 
   useEffect(() => {
-    if (paypalLoaded && paypalContainerRef.current && !paypalButtonsRendered.current && window.paypal) {
+    if (paypalLoaded && paypalContainerRef.current && !paypalButtonsRendered.current && window.paypal && typeof window.paypal.Buttons === 'function') {
       paypalButtonsRendered.current = true;
       
       window.paypal.Buttons({
