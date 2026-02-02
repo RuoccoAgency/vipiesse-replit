@@ -1,10 +1,8 @@
 // PayPal integration for VIPIESSE e-commerce
-// Based on blueprint:javascript_paypal with ESM compatibility fix
+// Based on blueprint:javascript_paypal
 import { Request, Response } from "express";
-import { createRequire } from "module";
 import { storage } from "./storage";
-
-const require = createRequire(import.meta.url);
+import * as PayPalSDK from "@paypal/paypal-server-sdk";
 
 const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
 
@@ -16,7 +14,7 @@ let oAuthAuthorizationController: any = null;
 
 if (isPayPalConfigured) {
   try {
-    const { Client, Environment, LogLevel, OrdersController, OAuthAuthorizationController } = require("@paypal/paypal-server-sdk");
+    const { Client, Environment, LogLevel, OrdersController, OAuthAuthorizationController } = PayPalSDK;
 
     const client = new Client({
       clientCredentialsAuthCredentials: {

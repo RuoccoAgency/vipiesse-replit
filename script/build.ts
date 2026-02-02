@@ -6,7 +6,9 @@ import { rm, readFile } from "fs/promises";
 // which helps cold start times
 const allowlist = [
   "@google/generative-ai",
+  "@paypal/paypal-server-sdk",
   "axios",
+  "bcryptjs",
   "connect-pg-simple",
   "cors",
   "date-fns",
@@ -54,6 +56,12 @@ async function buildAll() {
     outfile: "dist/index.cjs",
     define: {
       "process.env.NODE_ENV": '"production"',
+    },
+    banner: {
+      js: `
+const __importMetaUrl = require('url').pathToFileURL(__filename).href;
+const __importMetaDirname = require('path').dirname(__filename);
+      `.trim(),
     },
     minify: true,
     external: externals,
