@@ -4,6 +4,42 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
+import crypto from "crypto";
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), "public", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for local file storage
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueId = crypto.randomUUID();
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    cb(null, `${uniqueId}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: multerStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo file non supportato. Usa JPG, PNG, WebP o GIF.'));
+    }
+  }
+});
 
 declare global {
   namespace Express {
@@ -39,8 +75,45 @@ export async function registerRoutes(
 ): Promise<Server> {
   app.use(cookieParser());
   
+  // Serve uploaded images statically
+  app.use('/uploads', express.static(uploadsDir));
+  
   // Register object storage routes for image uploads
   registerObjectStorageRoutes(app);
+  
+  // ================================
+  // FILE UPLOAD API (multer)
+  // ================================
+  app.post("/api/upload", upload.array("images", 20), (req, res) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "Nessun file caricato" });
+      }
+      
+      const uploadedFiles = files.map(file => ({
+        filename: file.filename,
+        url: `/uploads/${file.filename}`,
+        originalName: file.originalname,
+        size: file.size
+      }));
+      
+      res.json({ success: true, files: uploadedFiles });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Errore durante il caricamento" });
+    }
+  });
+  
+  // Error handler for multer
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: "File troppo grande. Massimo 10MB." });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    next(err);
+  });
 
   // ================================
   // PUBLIC API - Products
@@ -1267,7 +1340,10 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         
         async function handleFiles(files) {
           const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-          if (imageFiles.length === 0) return;
+          if (imageFiles.length === 0) {
+            alert('Seleziona almeno un file immagine');
+            return;
+          }
           
           // Validate file sizes (max 10MB)
           const maxSize = 10 * 1024 * 1024;
@@ -1282,70 +1358,67 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           if (validFiles.length === 0) return;
           
           uploadProgress.style.display = 'block';
-          let uploaded = 0;
-          let failed = 0;
+          progressText.textContent = 'Caricamento in corso...';
+          progressFill.style.width = '10%';
           
-          for (const file of validFiles) {
-            try {
-              progressText.textContent = 'Caricamento ' + (uploaded + 1) + ' di ' + validFiles.length + '...';
-              progressFill.style.width = ((uploaded / validFiles.length) * 100) + '%';
-              
-              // Step 1: Get presigned URL
-              const urlRes = await fetch('/api/uploads/request-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: file.name,
-                  size: file.size,
-                  contentType: file.type
-                })
-              });
-              
-              if (!urlRes.ok) {
-                throw new Error('Errore nella richiesta URL di upload');
-              }
-              
-              const { uploadURL, objectPath } = await urlRes.json();
-              
-              // Step 2: Upload directly to storage
-              const uploadRes = await fetch(uploadURL, {
-                method: 'PUT',
-                body: file,
-                headers: { 'Content-Type': file.type }
-              });
-              
-              if (!uploadRes.ok) {
-                throw new Error('Errore nel caricamento del file');
-              }
-              
-              // Step 3: Save to database with full URL path
-              const imageUrl = '/objects/' + objectPath;
-              await fetch('/api/admin/products/' + productId + '/images', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl: imageUrl })
-              });
-              
-              uploaded++;
-              progressFill.style.width = ((uploaded / validFiles.length) * 100) + '%';
-            } catch (err) {
-              console.error('Upload failed:', err);
-              failed++;
-              alert('Errore durante il caricamento di ' + file.name + ': ' + err.message);
+          try {
+            // Upload all files at once using FormData
+            const formData = new FormData();
+            validFiles.forEach(file => {
+              formData.append('images', file);
+            });
+            
+            progressFill.style.width = '30%';
+            
+            const uploadRes = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (!uploadRes.ok) {
+              const errData = await uploadRes.json();
+              throw new Error(errData.error || 'Errore durante il caricamento');
             }
-          }
-          
-          if (failed > 0) {
-            progressText.textContent = 'Caricati ' + uploaded + ' di ' + validFiles.length + ' (errori: ' + failed + ')';
-            progressFill.style.background = '#f59e0b';
-          } else {
-            progressText.textContent = 'Completato!';
-          }
-          
-          if (uploaded > 0) {
-            setTimeout(() => location.reload(), 1000);
-          } else {
-            // Reset progress UI on total failure
+            
+            const result = await uploadRes.json();
+            progressFill.style.width = '60%';
+            
+            // Save each uploaded image to the database
+            let saved = 0;
+            for (const file of result.files) {
+              const saveRes = await fetch('/api/admin/products/' + productId + '/images', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageUrl: file.url })
+              });
+              
+              if (saveRes.ok) {
+                saved++;
+                // Add preview immediately
+                const imagesList = document.getElementById('imagesList');
+                const noImagesMsg = imagesList.querySelector('p');
+                if (noImagesMsg) noImagesMsg.remove();
+                
+                const imgCard = document.createElement('div');
+                imgCard.className = 'image-card';
+                imgCard.innerHTML = '<img src="' + file.url + '" alt="Product image"><button class="image-delete-btn" onclick="this.parentElement.remove()">×</button>';
+                imagesList.appendChild(imgCard);
+              }
+            }
+            
+            progressFill.style.width = '100%';
+            progressText.textContent = 'Caricate ' + saved + ' immagini!';
+            
+            setTimeout(() => {
+              uploadProgress.style.display = 'none';
+              progressFill.style.width = '0%';
+            }, 2000);
+            
+          } catch (err) {
+            console.error('Upload failed:', err);
+            progressText.textContent = 'Errore: ' + err.message;
+            progressFill.style.background = '#ef4444';
+            
             setTimeout(() => {
               uploadProgress.style.display = 'none';
               progressFill.style.width = '0%';
