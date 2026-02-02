@@ -1269,13 +1269,26 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
           if (imageFiles.length === 0) return;
           
+          // Validate file sizes (max 10MB)
+          const maxSize = 10 * 1024 * 1024;
+          const validFiles = imageFiles.filter(f => {
+            if (f.size > maxSize) {
+              alert(f.name + ' supera il limite di 10MB');
+              return false;
+            }
+            return true;
+          });
+          
+          if (validFiles.length === 0) return;
+          
           uploadProgress.style.display = 'block';
           let uploaded = 0;
+          let failed = 0;
           
-          for (const file of imageFiles) {
+          for (const file of validFiles) {
             try {
-              progressText.textContent = 'Caricamento ' + (uploaded + 1) + ' di ' + imageFiles.length + '...';
-              progressFill.style.width = ((uploaded / imageFiles.length) * 100) + '%';
+              progressText.textContent = 'Caricamento ' + (uploaded + 1) + ' di ' + validFiles.length + '...';
+              progressFill.style.width = ((uploaded / validFiles.length) * 100) + '%';
               
               // Step 1: Get presigned URL
               const urlRes = await fetch('/api/uploads/request-url', {
@@ -1287,32 +1300,58 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                   contentType: file.type
                 })
               });
+              
+              if (!urlRes.ok) {
+                throw new Error('Errore nella richiesta URL di upload');
+              }
+              
               const { uploadURL, objectPath } = await urlRes.json();
               
               // Step 2: Upload directly to storage
-              await fetch(uploadURL, {
+              const uploadRes = await fetch(uploadURL, {
                 method: 'PUT',
                 body: file,
                 headers: { 'Content-Type': file.type }
               });
               
-              // Step 3: Save to database
+              if (!uploadRes.ok) {
+                throw new Error('Errore nel caricamento del file');
+              }
+              
+              // Step 3: Save to database with full URL path
+              const imageUrl = '/objects/' + objectPath;
               await fetch('/api/admin/products/' + productId + '/images', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl: objectPath })
+                body: JSON.stringify({ imageUrl: imageUrl })
               });
               
               uploaded++;
-              progressFill.style.width = ((uploaded / imageFiles.length) * 100) + '%';
+              progressFill.style.width = ((uploaded / validFiles.length) * 100) + '%';
             } catch (err) {
               console.error('Upload failed:', err);
-              alert('Errore durante il caricamento di ' + file.name);
+              failed++;
+              alert('Errore durante il caricamento di ' + file.name + ': ' + err.message);
             }
           }
           
-          progressText.textContent = 'Completato!';
-          setTimeout(() => location.reload(), 500);
+          if (failed > 0) {
+            progressText.textContent = 'Caricati ' + uploaded + ' di ' + validFiles.length + ' (errori: ' + failed + ')';
+            progressFill.style.background = '#f59e0b';
+          } else {
+            progressText.textContent = 'Completato!';
+          }
+          
+          if (uploaded > 0) {
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            // Reset progress UI on total failure
+            setTimeout(() => {
+              uploadProgress.style.display = 'none';
+              progressFill.style.width = '0%';
+              progressFill.style.background = '#2563eb';
+            }, 3000);
+          }
         }
         
         async function deleteImage(id) {
