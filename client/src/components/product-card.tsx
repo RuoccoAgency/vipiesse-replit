@@ -32,6 +32,9 @@ interface ProductCardProps {
   product: ProductWithVariants;
 }
 
+// Neutral gray placeholder for products without images
+const NO_IMAGE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f3f4f6' width='400' height='400'/%3E%3Ctext x='200' y='200' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-size='14' fill='%239ca3af'%3ENessuna immagine%3C/text%3E%3C/svg%3E";
+
 export function ProductCard({ product }: ProductCardProps) {
   const mainImage = useMemo(() => {
     if (product.images && product.images.length > 0) {
@@ -39,7 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
         (a, b) => a.sortOrder - b.sortOrder
       )[0].imageUrl;
     }
-    return "/placeholder.jpg";
+    return NO_IMAGE_PLACEHOLDER;
   }, [product.images]);
 
   const displayPrice = useMemo(() => {
@@ -91,7 +94,7 @@ export function ProductCard({ product }: ProductCardProps) {
               onError={(e) => {
                 const target = e.currentTarget;
                 target.onerror = null;
-                target.src = "/placeholder.jpg";
+                target.src = NO_IMAGE_PLACEHOLDER;
               }}
             />
           </div>

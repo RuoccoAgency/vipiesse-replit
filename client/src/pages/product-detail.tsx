@@ -86,7 +86,9 @@ export function ProductDetail() {
   }, [product?.variants, selectedColor, selectedSize]);
 
   const galleryImages = useMemo(() => {
-    if (!product?.images || product.images.length === 0) return ["/placeholder.jpg"];
+    // Neutral gray placeholder for products without images
+    const NO_IMAGE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f3f4f6' width='400' height='400'/%3E%3Ctext x='200' y='200' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-size='14' fill='%239ca3af'%3ENessuna immagine%3C/text%3E%3C/svg%3E";
+    if (!product?.images || product.images.length === 0) return [NO_IMAGE_PLACEHOLDER];
     return product.images
       .slice()
       .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -175,7 +177,7 @@ export function ProductDetail() {
           name: product.name,
           brand: product.brand || "",
           price: displayPrice,
-          image: galleryImages[0] || "/placeholder.jpg",
+          image: galleryImages[0] || "",
           color: selectedColor,
           size: selectedSize,
           sku: selectedVariant.sku,
@@ -211,7 +213,7 @@ export function ProductDetail() {
                 onError={(e) => {
                   const target = e.currentTarget;
                   target.onerror = null;
-                  target.src = "/placeholder.jpg";
+                  target.style.display = 'none';
                 }}
               />
             </div>
@@ -237,7 +239,7 @@ export function ProductDetail() {
                       onError={(e) => {
                         const target = e.currentTarget;
                         target.onerror = null;
-                        target.src = "/placeholder.jpg";
+                        target.style.display = 'none';
                       }}
                     />
                   </button>

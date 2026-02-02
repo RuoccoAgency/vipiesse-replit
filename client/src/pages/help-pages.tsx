@@ -326,7 +326,7 @@ export function ShippingPage() {
             <AccordionItem value="item-2" className="border-gray-200">
               <AccordionTrigger className="text-gray-900 hover:text-gray-600">Il reso è gratuito?</AccordionTrigger>
               <AccordionContent className="text-gray-600">
-                Il primo reso per cambio taglia è gratuito in Italia. Per i rimborsi completi, le spese di spedizione del reso sono a carico del cliente, a meno che il prodotto non sia difettoso.
+                Il reso per il cambio taglia è a carico del cliente. Invitiamo pertanto i nostri clienti a consultare attentamente la guida alle taglie prima di effettuare l’acquisto. Le spese di spedizione per il reso sono a carico del cliente, salvo il caso in cui il prodotto risulti difettoso.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3" className="border-gray-200">
