@@ -225,7 +225,7 @@ export function TermsPage() {
 
         <h3 className="font-heading text-gray-900 mt-8">4. Modalità di Pagamento</h3>
         <p>
-          Il pagamento può essere effettuato tramite Carta di Credito, PayPal, Bonifico Bancario o altri metodi specificati nella sezione "Come Pagare".
+          Il pagamento può essere effettuato tramite Carta di Credito, Bonifico Bancario o altri metodi specificati nella sezione "Come Pagare".
         </p>
       </div>
     </HelpLayout>
@@ -248,14 +248,6 @@ export function PaymentsPage() {
                <div className="bg-gray-100 px-3 py-1 rounded text-xs text-gray-700 font-medium">Mastercard</div>
                <div className="bg-gray-100 px-3 py-1 rounded text-xs text-gray-700 font-medium">Amex</div>
             </div>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-6 p-6 rounded-2xl border border-gray-200 bg-white">
-          <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold shrink-0">P</div>
-          <div>
-            <h3 className="text-xl font-heading font-bold text-gray-900 mb-2">PayPal</h3>
-            <p className="text-gray-600">Paga in modo rapido e sicuro utilizzando il tuo account PayPal. È possibile pagare anche in 3 rate senza interessi.</p>
           </div>
         </div>
 

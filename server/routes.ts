@@ -4,7 +4,6 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -116,42 +115,7 @@ export async function registerRoutes(
   // Register object storage routes for image uploads
   registerObjectStorageRoutes(app);
   
-  // ================================
-  // PayPal Integration Routes
-  // ================================
-  app.get("/paypal/setup", async (req, res) => {
-    try {
-      await loadPaypalDefault(req, res);
-    } catch (error) {
-      console.error("PayPal setup error:", error);
-      res.status(500).json({ error: "PayPal non configurato" });
-    }
-  });
-
-  app.post("/paypal/order", async (req, res) => {
-    await createPaypalOrder(req, res);
-  });
-
-  app.post("/paypal/order/:orderID/capture", async (req, res) => {
-    await capturePaypalOrder(req, res);
-  });
-
-  // Payment config endpoint (PayPal.me URL + bank info)
-  app.get("/api/payment-config", (req, res) => {
-    const paypalClientId = process.env.PAYPAL_CLIENT_ID || "";
-    const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET || "";
-    
-    res.json({
-      paypalEnabled: Boolean(paypalClientId && paypalClientSecret),
-      paypalClientId: paypalClientId,
-      paypalMeUrl: process.env.PAYPAL_ME_URL || "",
-      bankIban: process.env.BANK_IBAN || "",
-      bankAccountName: process.env.BANK_ACCOUNT_NAME || "",
-      bankName: process.env.BANK_NAME || "",
-    });
-  });
-
-  // Legacy bank info endpoint for backwards compatibility
+  // Bank info endpoint for checkout
   app.get("/api/bank-info", (req, res) => {
     res.json({
       iban: process.env.BANK_IBAN || "",
@@ -1108,10 +1072,10 @@ export async function registerRoutes(
       
       // Validate status and paymentMethod to prevent client-side manipulation
       const allowedStatuses = ['pending_payment', 'awaiting_bank'];
-      const allowedPaymentMethods = ['paypal', 'bank_transfer'];
+      const allowedPaymentMethods = ['bank_transfer'];
       
       const validatedStatus = status && allowedStatuses.includes(status) ? status : 'pending_payment';
-      const validatedPaymentMethod = paymentMethod && allowedPaymentMethods.includes(paymentMethod) ? paymentMethod : null;
+      const validatedPaymentMethod = paymentMethod && allowedPaymentMethods.includes(paymentMethod) ? paymentMethod : 'bank_transfer';
       
       // Validate all items have required fields
       for (const item of items) {

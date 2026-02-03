@@ -7,11 +7,8 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/context/cart-context";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
-import { Loader2, Building2, CreditCard, Check, AlertCircle } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-
+import { useState } from "react";
+import { Loader2, Building2, Check, AlertCircle } from "lucide-react";
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Nome richiesto"),
@@ -23,78 +20,11 @@ const checkoutSchema = z.object({
   phone: z.string().optional(),
 });
 
-type PaymentMethod = "paypal" | "bank_transfer" | null;
-
-interface PaymentConfig {
-  paypalEnabled: boolean;
-  paypalClientId: string;
-  bankIban: string;
-  bankAccountName: string;
-  bankName: string;
-}
-
 export function Checkout() {
   const { items, total, subtotal, shippingCost, clearCart } = useCart();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
-  const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
-
-  useEffect(() => {
-    fetch("/api/payment-config")
-      .then(res => res.json())
-      .then(data => setPaymentConfig(data))
-      .catch(() => {});
-  }, []);
-
-
-  const handlePayPalPayment = async () => {
-    const values = form.getValues();
-    const validation = await form.trigger();
-    if (!validation) return;
-
-    setIsProcessing(true);
-    try {
-      const orderItems = items.map((item) => ({
-        variantId: item.product.variantId,
-        quantity: item.quantity
-      }));
-
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: orderItems,
-          customerEmail: values.email,
-          customerName: values.firstName,
-          customerSurname: values.lastName,
-          customerPhone: values.phone || null,
-          shippingAddress: values.address,
-          shippingCity: values.city,
-          shippingCap: values.zip,
-          status: "awaiting_paypal",
-          paymentMethod: "paypal",
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Errore durante la creazione dell\'ordine');
-      }
-
-      clearCart();
-      navigate(`/order/success?order=${data.orderNumber}&paypal=true`);
-    } catch (error: any) {
-      toast({
-        title: "Errore",
-        description: error.message || "Errore durante la creazione dell'ordine",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
     resolver: zodResolver(checkoutSchema),
@@ -112,7 +42,7 @@ export function Checkout() {
 
   const isFormValid = form.formState.isValid;
 
-  const handleBankTransfer = async () => {
+  const handleConfirmOrder = async () => {
     const values = form.getValues();
     const validation = await form.trigger();
     if (!validation) return;
@@ -180,7 +110,6 @@ export function Checkout() {
         </h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* LEFT COLUMN - Shipping Form */}
           <div>
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h2 className="text-lg font-heading font-bold mb-4 text-gray-900 flex items-center gap-2">
@@ -329,9 +258,7 @@ export function Checkout() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN - Payment + Order Summary */}
           <div className="space-y-6">
-            {/* Order Summary */}
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="font-heading font-bold mb-4 text-gray-900 flex items-center gap-2">
                 <span className="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm">2</span>
@@ -377,136 +304,59 @@ export function Checkout() {
               </div>
             </div>
 
-            {/* Payment Methods */}
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="font-heading font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm">3</span>
                 Metodo di Pagamento
               </h3>
               
-              <RadioGroup 
-                value={paymentMethod || ""} 
-                onValueChange={(value) => {
-                  setPaymentMethod(value as PaymentMethod);
-                }}
-                className="space-y-3"
-              >
-                {paymentConfig?.paypalEnabled && (
-                  <div 
-                    className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
-                      paymentMethod === "paypal" 
-                        ? "border-blue-500 bg-blue-50" 
-                        : "border-gray-200 hover:border-gray-300 bg-white"
-                    }`}
-                    onClick={() => {
-                      setPaymentMethod("paypal");
-                    }}
-                  >
-                    <RadioGroupItem value="paypal" id="paypal" />
-                    <Label htmlFor="paypal" className="flex items-center gap-3 cursor-pointer flex-1">
-                      <div className="w-10 h-10 bg-[#003087] rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <span className="font-medium block">PayPal o Carta</span>
-                        <span className="text-xs text-gray-500">Paga in sicurezza con PayPal</span>
-                      </div>
-                    </Label>
+              <div className="flex items-center space-x-3 p-4 border rounded-lg border-green-500 bg-green-50">
+                <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <span className="font-medium block">Bonifico Bancario</span>
+                  <span className="text-xs text-gray-500">Riceverai i dati bancari dopo la conferma</span>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                {!isFormValid && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-yellow-600" />
+                    <span className="text-sm text-yellow-700">Compila tutti i campi richiesti per procedere</span>
                   </div>
                 )}
-                
-                <div 
-                  className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
-                    paymentMethod === "bank_transfer" 
-                      ? "border-green-500 bg-green-50" 
-                      : "border-gray-200 hover:border-gray-300 bg-white"
-                  }`}
-                  onClick={() => setPaymentMethod("bank_transfer")}
+                <Button 
+                  type="button"
+                  onClick={handleConfirmOrder}
+                  className="w-full bg-gray-900 text-white hover:bg-gray-800 font-heading uppercase font-bold tracking-widest h-12 text-base disabled:opacity-50"
+                  disabled={!isFormValid || isProcessing}
+                  data-testid="button-confirm-order"
                 >
-                  <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                  <Label htmlFor="bank_transfer" className="flex items-center gap-3 cursor-pointer flex-1">
-                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                      <Building2 className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <span className="font-medium block">Bonifico Bancario</span>
-                      <span className="text-xs text-gray-500">Riceverai i dati dopo la conferma</span>
-                    </div>
-                  </Label>
-                </div>
-              </RadioGroup>
-
-              {/* PayPal Payment Button */}
-              {paymentMethod === "paypal" && paymentConfig?.paypalEnabled && (
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  {!isFormValid && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-yellow-600" />
-                      <span className="text-sm text-yellow-700">Compila tutti i campi richiesti per procedere</span>
-                    </div>
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Elaborazione...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Conferma Ordine - €{total.toFixed(2)}
+                    </>
                   )}
-                  <Button 
-                    type="button"
-                    onClick={handlePayPalPayment}
-                    className="w-full bg-[#0070ba] text-white hover:bg-[#003087] font-heading uppercase font-bold tracking-widest h-12 text-base disabled:opacity-50"
-                    disabled={!isFormValid || isProcessing}
-                    data-testid="button-confirm-paypal"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Elaborazione...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Paga con PayPal - €{total.toFixed(2)}
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-center text-gray-500 mt-2">
-                    Riceverai le istruzioni per completare il pagamento via PayPal
-                  </p>
-                </div>
-              )}
-
-              {/* Bank Transfer Button */}
-              {paymentMethod === "bank_transfer" && (
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <Button 
-                    type="button"
-                    onClick={handleBankTransfer}
-                    className="w-full bg-gray-900 text-white hover:bg-gray-800 font-heading uppercase font-bold tracking-widest h-12 text-base disabled:opacity-50"
-                    disabled={!isFormValid || isProcessing}
-                    data-testid="button-confirm-bank"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Elaborazione...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="w-4 h-4 mr-2" />
-                        Conferma Ordine - €{total.toFixed(2)}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
-
-              {!paymentMethod && (
-                <p className="text-sm text-center text-gray-500 mt-4">
-                  Seleziona un metodo di pagamento per continuare
+                </Button>
+                <p className="text-xs text-center text-gray-500 mt-3">
+                  L'ordine sarà confermato dopo la ricezione del bonifico bancario
                 </p>
-              )}
+              </div>
             </div>
 
             {isProcessing && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                 <div className="bg-white p-8 rounded-lg shadow-xl text-center">
                   <Loader2 className="w-12 h-12 animate-spin text-gray-900 mx-auto mb-4" />
-                  <p className="text-lg font-medium">Elaborazione pagamento...</p>
+                  <p className="text-lg font-medium">Creazione ordine...</p>
                   <p className="text-gray-500 text-sm">Non chiudere questa pagina</p>
                 </div>
               </div>
