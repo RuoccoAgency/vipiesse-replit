@@ -265,8 +265,8 @@ export function PaymentsPage() {
             <h3 className="text-xl font-heading font-bold text-gray-900 mb-2">Bonifico Bancario</h3>
             <p className="text-gray-600 mb-2">È possibile pagare tramite bonifico bancario anticipato. L'ordine verrà evaso una volta ricevuto l'accredito.</p>
             <div className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 font-mono">
-              IBAN: IT00 X000 0000 0000 0000 0000 000<br/>
-              Intestato a: VIPIESSE S.r.l.
+              IBAN: IT27 F088 5540 0800 0000 0100 040<br/>
+              Intestato a: VIPIESSE S.R.L.
             </div>
           </div>
         </div>

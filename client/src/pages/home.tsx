@@ -77,10 +77,7 @@ export function Home() {
 
           {/* Paragraph */}
           <p className="text-neutral-400 leading-relaxed font-light text-base md:text-lg max-w-2xl mx-auto">
-            VIPIESSE nasce a Napoli dalla passione per la calzatura e per il lavoro fatto bene. 
-            Da oltre trent’anni selezioniamo e distribuiamo calzature all’ingrosso, unendo stile, comfort e prezzi competitivi. 
-            Ogni stagione curiamo collezioni pensate per rivenditori e negozianti, con disponibilità costante, 
-            assortimento aggiornato e attenzione ai dettagli.
+            VIPIESSE nasce a Napoli dalla passione per la calzatura e per il lavoro fatto a regola d’arte. Da oltre trent’anni selezioniamo e distribuiamo calzature all’ingrosso, coniugando stile, comfort e prezzi competitivi. Ogni stagione realizziamo collezioni dedicate a rivenditori e negozianti, garantendo continuità di disponibilità, assortimenti sempre aggiornati e massima attenzione ai dettagli.
           </p>
 
           {/* CTA */}

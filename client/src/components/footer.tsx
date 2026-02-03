@@ -58,7 +58,7 @@ export function Footer() {
           <div className="flex space-x-4 mt-4 md:mt-0">
             <span>Privacy Policy</span>
             <span>Cookie Policy</span>
-            <span>P.IVA 12345678901</span>
+            <span>P.IVA 01459591218</span>
           </div>
         </div>
       </div>
