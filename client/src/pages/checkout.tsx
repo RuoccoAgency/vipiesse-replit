@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/context/cart-context";
+import { useAuth } from "@/context/auth-context";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { Loader2, Building2, CreditCard, AlertCircle } from "lucide-react";
+import { Loader2, Building2, CreditCard, AlertCircle, User, LogIn } from "lucide-react";
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Nome richiesto"),
@@ -24,6 +25,7 @@ type PaymentMethod = 'card' | 'bank';
 
 export function Checkout() {
   const { items, total, subtotal, shippingCost, clearCart } = useCart();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -147,6 +149,47 @@ export function Checkout() {
       handleBankTransfer();
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white pt-24 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-white pt-24">
+        <div className="container mx-auto px-4 py-12 max-w-md">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <User className="w-8 h-8 text-gray-600" />
+            </div>
+            <h1 className="text-2xl font-heading font-bold mb-4 text-gray-900">
+              Accedi per Continuare
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Per completare l'acquisto e tracciare i tuoi ordini, devi prima accedere o creare un account.
+            </p>
+            <div className="space-y-3">
+              <Link href="/login">
+                <Button className="w-full bg-gray-900 text-white hover:bg-gray-800">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Accedi o Registrati
+                </Button>
+              </Link>
+              <Link href="/shop">
+                <Button variant="outline" className="w-full">
+                  Continua lo Shopping
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

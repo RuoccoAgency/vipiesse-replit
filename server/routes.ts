@@ -128,8 +128,8 @@ export async function registerRoutes(
   // STRIPE CHECKOUT API
   // ================================
   
-  // Create Stripe Checkout Session for one-time payment
-  app.post("/api/stripe/create-checkout-session", async (req, res) => {
+  // Create Stripe Checkout Session for one-time payment (requires authentication)
+  app.post("/api/stripe/create-checkout-session", isUser, async (req, res) => {
     try {
       const { getStripeClient } = await import("./stripeClient");
       const stripe = await getStripeClient();
@@ -191,7 +191,7 @@ export async function registerRoutes(
         payment_method_types: ['card'],
         line_items: lineItems,
         mode: 'payment',
-        success_url: `${baseUrl}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${baseUrl}/order/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/checkout`,
         customer_email: customerEmail,
         metadata: {
@@ -1253,8 +1253,8 @@ export async function registerRoutes(
   // PUBLIC API - Orders (Checkout)
   // ================================
   
-  // Create order with stock validation and decrement (transactional)
-  app.post("/api/orders", async (req, res) => {
+  // Create order with stock validation and decrement (transactional) - requires authentication
+  app.post("/api/orders", isUser, async (req, res) => {
     try {
       const { 
         items, 
