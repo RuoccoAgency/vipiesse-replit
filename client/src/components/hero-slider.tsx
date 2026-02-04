@@ -30,7 +30,7 @@ const SLIDES: HeroSlide[] = [
   {
     id: 2,
     title: "PREPARATI PER LA STAGIONE",
-    subtitle: "La nuova collezione Summer 25 è arrivata",
+    subtitle: "La nuova collezione Summer 26 è arrivata",
     ctaLabel: "Acquista ora",
     ctaHref: "/shop?filter=season",
     imageUrl: summerHero,
