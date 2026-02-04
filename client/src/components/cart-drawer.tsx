@@ -47,7 +47,7 @@ export function CartDrawer({ triggerClassName }: { triggerClassName?: string }) 
           ) : (
             <div className="py-6 space-y-6">
               {items.map((item) => (
-                <div key={`${item.product.id}-${item.size}`} className="flex gap-4">
+                <div key={`${item.product.id}-${item.product.variantId}-${item.size}`} className="flex gap-4">
                   <div className="h-24 w-20 flex-shrink-0 overflow-hidden rounded-sm bg-gray-100">
                     <img 
                       src={item.product.image} 
@@ -59,14 +59,17 @@ export function CartDrawer({ triggerClassName }: { triggerClassName?: string }) 
                     <div>
                       <div className="flex justify-between text-base font-medium">
                         <h3 className="line-clamp-2 pr-4 text-sm uppercase tracking-wide">{item.product.name}</h3>
-                        <p className="ml-4">€{item.product.price.toFixed(2)}</p>
+                        <p className="ml-4">€{(item.product.price * item.quantity).toFixed(2)}</p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">Taglia: {item.size}</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {item.product.color && <span>{item.product.color} / </span>}
+                        Taglia: {item.size}
+                      </p>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center border border-gray-200 rounded-sm">
                         <button 
-                          onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1, item.product.variantId)}
                           className="p-1 hover:bg-gray-100 disabled:opacity-50"
                           disabled={item.quantity <= 1}
                         >
@@ -74,14 +77,14 @@ export function CartDrawer({ triggerClassName }: { triggerClassName?: string }) 
                         </button>
                         <span className="w-8 text-center">{item.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1, item.product.variantId)}
                           className="p-1 hover:bg-gray-100"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
                       <button 
-                        onClick={() => removeFromCart(item.product.id, item.size)}
+                        onClick={() => removeFromCart(item.product.id, item.size, item.product.variantId)}
                         className="font-medium text-red-500 hover:text-red-600 flex items-center text-xs uppercase"
                       >
                         Rimuovi
