@@ -92,6 +92,7 @@ export interface IStorage {
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   updateOrderPaypalId(orderId: number, paypalOrderId: string): Promise<Order | undefined>;
   getOrderByPaypalId(paypalOrderId: string): Promise<Order | undefined>;
+  getOrderByStripeSessionId(stripeSessionId: string): Promise<Order | undefined>;
   
   // Order Items
   createOrderItem(item: InsertOrderItem): Promise<OrderItem>;
@@ -107,6 +108,7 @@ export interface IStorage {
       userId?: number | null;
       status: string;
       paymentMethod: string | null;
+      stripeSessionId?: string | null;
       customerEmail: string;
       customerName: string;
       customerSurname?: string | null;
@@ -460,6 +462,11 @@ export class DatabaseStorage implements IStorage {
     return order || undefined;
   }
 
+  async getOrderByStripeSessionId(stripeSessionId: string): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.stripeSessionId, stripeSessionId));
+    return order || undefined;
+  }
+
   // Order Items
   async createOrderItem(item: InsertOrderItem): Promise<OrderItem> {
     const [newItem] = await db.insert(orderItems).values(item as any).returning();
@@ -490,6 +497,7 @@ export class DatabaseStorage implements IStorage {
       userId?: number | null;
       status: string;
       paymentMethod: string | null;
+      stripeSessionId?: string | null;
       customerEmail: string;
       customerName: string;
       customerSurname?: string | null;
@@ -537,13 +545,14 @@ export class DatabaseStorage implements IStorage {
       
       // Create the order with all new fields
       const orderResult = await client.query(
-        `INSERT INTO orders (order_number, user_id, status, payment_method, customer_email, customer_name, customer_surname, customer_phone, shipping_address, shipping_city, shipping_cap, subtotal_cents, shipping_cents, total_cents, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW()) RETURNING *`,
+        `INSERT INTO orders (order_number, user_id, status, payment_method, stripe_session_id, customer_email, customer_name, customer_surname, customer_phone, shipping_address, shipping_city, shipping_cap, subtotal_cents, shipping_cents, total_cents, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW()) RETURNING *`,
         [
           orderData.orderNumber,
           orderData.userId || null,
           orderData.status,
           orderData.paymentMethod,
+          orderData.stripeSessionId || null,
           orderData.customerEmail,
           orderData.customerName,
           orderData.customerSurname || null,
@@ -579,6 +588,7 @@ export class DatabaseStorage implements IStorage {
         status: newOrder.status,
         paymentMethod: newOrder.payment_method,
         paypalOrderId: newOrder.paypal_order_id,
+        stripeSessionId: newOrder.stripe_session_id,
         customerEmail: newOrder.customer_email,
         customerName: newOrder.customer_name,
         customerSurname: newOrder.customer_surname,

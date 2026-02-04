@@ -125,6 +125,217 @@ export async function registerRoutes(
   });
 
   // ================================
+  // STRIPE CHECKOUT API
+  // ================================
+  
+  // Create Stripe Checkout Session for one-time payment
+  app.post("/api/stripe/create-checkout-session", async (req, res) => {
+    try {
+      const { getStripeClient } = await import("./stripeClient");
+      const stripe = await getStripeClient();
+      
+      const { items, customerEmail, customerName, customerSurname, customerPhone, shippingAddress, shippingCity, shippingCap } = req.body;
+      
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: "Carrello vuoto" });
+      }
+      
+      if (!customerEmail || !shippingAddress) {
+        return res.status(400).json({ error: "Dati di spedizione mancanti" });
+      }
+
+      // Calculate total server-side for security
+      let subtotalCents = 0;
+      const lineItems: any[] = [];
+      
+      for (const item of items) {
+        if (!item.variantId || !item.quantity || !item.name || item.priceCents === undefined) {
+          return res.status(400).json({ error: "Dati prodotto non validi" });
+        }
+        
+        const itemTotal = item.priceCents * item.quantity;
+        subtotalCents += itemTotal;
+        
+        lineItems.push({
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: item.name,
+              description: item.description || undefined,
+            },
+            unit_amount: item.priceCents,
+          },
+          quantity: item.quantity,
+        });
+      }
+      
+      // Calculate shipping (free over €50)
+      const shippingCents = subtotalCents >= 5000 ? 0 : 590;
+      
+      if (shippingCents > 0) {
+        lineItems.push({
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Spedizione',
+            },
+            unit_amount: shippingCents,
+          },
+          quantity: 1,
+        });
+      }
+
+      const baseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host')}`;
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        mode: 'payment',
+        success_url: `${baseUrl}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/checkout`,
+        customer_email: customerEmail,
+        metadata: {
+          customerName,
+          customerSurname,
+          customerPhone: customerPhone || '',
+          shippingAddress,
+          shippingCity,
+          shippingCap,
+          items: JSON.stringify(items.map((i: any) => ({ variantId: i.variantId, quantity: i.quantity }))),
+        },
+      });
+
+      res.json({ url: session.url, sessionId: session.id });
+    } catch (error: any) {
+      console.error("Stripe checkout error:", error);
+      res.status(500).json({ error: error.message || "Errore durante la creazione del pagamento" });
+    }
+  });
+
+  // Get Stripe session details
+  app.get("/api/stripe/session/:id", async (req, res) => {
+    try {
+      const { getStripeClient } = await import("./stripeClient");
+      const stripe = await getStripeClient();
+      
+      const session = await stripe.checkout.sessions.retrieve(req.params.id);
+      
+      res.json({
+        payment_status: session.payment_status,
+        amount_total: session.amount_total,
+        customer_email: session.customer_email,
+        metadata: session.metadata,
+      });
+    } catch (error: any) {
+      console.error("Stripe session retrieval error:", error);
+      res.status(500).json({ error: error.message || "Errore nel recupero della sessione" });
+    }
+  });
+
+  // Confirm order after successful Stripe payment
+  app.post("/api/stripe/confirm-order", async (req, res) => {
+    try {
+      const { getStripeClient } = await import("./stripeClient");
+      const stripe = await getStripeClient();
+      
+      const { sessionId } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: "Session ID mancante" });
+      }
+      
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      
+      if (session.payment_status !== 'paid') {
+        return res.status(400).json({ error: "Pagamento non completato" });
+      }
+      
+      // Check if order already exists for this session
+      const existingOrder = await storage.getOrderByStripeSessionId(sessionId);
+      if (existingOrder) {
+        return res.json({ 
+          success: true, 
+          orderNumber: existingOrder.orderNumber,
+          message: "Ordine già confermato"
+        });
+      }
+      
+      const metadata = session.metadata || {};
+      const cartItems = JSON.parse(metadata.items || '[]');
+      
+      if (cartItems.length === 0) {
+        return res.status(400).json({ error: "Nessun articolo nell'ordine" });
+      }
+
+      // Fetch variant details for each item
+      const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
+      let subtotalCents = 0;
+      
+      for (const item of cartItems) {
+        const variant = await storage.getVariantById(item.variantId);
+        if (!variant) {
+          return res.status(400).json({ error: `Variante non trovata: ${item.variantId}` });
+        }
+        
+        const product = await storage.getProduct(variant.productId);
+        const images = await storage.getProductImages(variant.productId);
+        const variantImages = await storage.getVariantImages(variant.id);
+        
+        const priceCents = variant.priceCents || product?.basePriceCents || 0;
+        const itemTotal = priceCents * item.quantity;
+        subtotalCents += itemTotal;
+        
+        orderItems.push({
+          variantId: variant.id,
+          productName: product?.name || 'Prodotto',
+          variantSku: variant.sku,
+          variantColor: variant.color || '',
+          variantSize: variant.size,
+          quantity: item.quantity,
+          priceCents,
+          imageUrl: variantImages[0]?.imageUrl || images[0]?.imageUrl || undefined
+        });
+      }
+
+      // Calculate shipping
+      const shippingCents = subtotalCents >= 5000 ? 0 : 590;
+      const totalCents = subtotalCents + shippingCents;
+
+      // Create order with stock decrement (transactional)
+      const orderNumber = generateOrderNumber();
+      const result = await storage.createOrderWithItems({
+        orderNumber,
+        status: 'paid',
+        paymentMethod: 'stripe',
+        stripeSessionId: sessionId,
+        customerEmail: session.customer_email || '',
+        customerName: metadata.customerName || '',
+        customerSurname: metadata.customerSurname || null,
+        customerPhone: metadata.customerPhone || null,
+        shippingAddress: metadata.shippingAddress || '',
+        shippingCity: metadata.shippingCity || null,
+        shippingCap: metadata.shippingCap || null,
+        subtotalCents,
+        shippingCents,
+        totalCents,
+      }, orderItems);
+      
+      if ('error' in result) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      res.json({ 
+        success: true, 
+        orderNumber: result.order.orderNumber,
+        totalCents: session.amount_total
+      });
+    } catch (error: any) {
+      console.error("Order confirmation error:", error);
+      res.status(500).json({ error: error.message || "Errore nella conferma dell'ordine" });
+    }
+  });
+
+  // ================================
   // USER AUTHENTICATION API
   // ================================
   

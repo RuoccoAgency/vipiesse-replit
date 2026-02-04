@@ -129,8 +129,9 @@ export const orders = pgTable("orders", {
   orderNumber: text("order_number").notNull().unique(),
   userId: integer("user_id").references(() => users.id),
   status: text("status").notNull().default("pending_payment"), // pending_payment, paid, awaiting_bank, shipped, completed, cancelled
-  paymentMethod: text("payment_method"), // paypal, bank_transfer
+  paymentMethod: text("payment_method"), // stripe, bank_transfer
   paypalOrderId: text("paypal_order_id"),
+  stripeSessionId: text("stripe_session_id"),
   customerEmail: text("customer_email").notNull(),
   customerName: text("customer_name").notNull(),
   customerSurname: text("customer_surname"),
