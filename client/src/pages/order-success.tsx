@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearch } from "wouter";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Package, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle, Package, ArrowRight, Loader2, XCircle } from "lucide-react";
+import { useCart } from "@/context/cart-context";
 
 interface OrderDetails {
   orderNumber: string;
@@ -24,29 +25,108 @@ export function OrderSuccess() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   const orderNumber = params.get("order");
+  const sessionId = params.get("session_id");
+  
+  const { clearCart } = useCart();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (orderNumber) {
-      fetch(`/api/orders/by-number/${orderNumber}`)
-        .then(res => res.json())
-        .then(data => {
+    const processOrder = async () => {
+      try {
+        if (sessionId) {
+          const sessionResponse = await fetch(`/api/stripe/session/${sessionId}`);
+          const sessionData = await sessionResponse.json();
+
+          if (!sessionResponse.ok) {
+            throw new Error(sessionData.error || 'Errore nel recupero della sessione');
+          }
+
+          if (sessionData.payment_status !== 'paid') {
+            throw new Error('Il pagamento non è stato completato');
+          }
+
+          const confirmResponse = await fetch('/api/stripe/confirm-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          });
+
+          const confirmData = await confirmResponse.json();
+
+          if (!confirmResponse.ok) {
+            throw new Error(confirmData.error || 'Errore nella conferma dell\'ordine');
+          }
+
+          clearCart();
+          setConfirmedOrderNumber(confirmData.orderNumber);
+          
+          const orderResponse = await fetch(`/api/orders/by-number/${confirmData.orderNumber}`);
+          const orderData = await orderResponse.json();
+          if (orderData.order) {
+            setOrderDetails(orderData.order);
+          }
+        } else if (orderNumber) {
+          const response = await fetch(`/api/orders/by-number/${orderNumber}`);
+          const data = await response.json();
           if (data.order) {
             setOrderDetails(data.order);
+            setConfirmedOrderNumber(orderNumber);
           }
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [orderNumber]);
+        }
+      } catch (err: any) {
+        console.error('Order processing error:', err);
+        setError(err.message || 'Si è verificato un errore');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    processOrder();
+  }, [orderNumber, sessionId, clearCart]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white pt-24 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <h2 className="text-xl font-heading font-bold text-gray-900 mb-2">
+            {sessionId ? 'Conferma pagamento in corso...' : 'Caricamento...'}
+          </h2>
+          <p className="text-gray-600">Non chiudere questa pagina</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white pt-24">
+        <div className="container mx-auto px-4 py-12 max-w-lg">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <XCircle className="w-10 h-10 text-red-600" />
+            </div>
+            <h1 className="text-2xl font-heading font-bold text-gray-900 mb-4">
+              Errore
+            </h1>
+            <p className="text-gray-600 mb-8">{error}</p>
+            <div className="space-y-3">
+              <Link href="/checkout">
+                <Button className="w-full bg-gray-900 text-white hover:bg-gray-800">
+                  Riprova
+                </Button>
+              </Link>
+              <Link href="/shop">
+                <Button variant="outline" className="w-full">
+                  Torna allo Shop
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -60,16 +140,16 @@ export function OrderSuccess() {
           </div>
           
           <h1 className="text-3xl font-heading font-bold text-gray-900 mb-4">
-            Ordine Confermato!
+            {sessionId ? 'Pagamento Completato!' : 'Ordine Confermato!'}
           </h1>
           
           <p className="text-gray-600 text-lg mb-2">
             Grazie per il tuo acquisto!
           </p>
           
-          {orderNumber && (
+          {confirmedOrderNumber && (
             <p className="text-gray-900 font-medium text-xl">
-              Ordine: <span className="font-mono">{orderNumber}</span>
+              Ordine: <span className="font-mono">{confirmedOrderNumber}</span>
             </p>
           )}
         </div>

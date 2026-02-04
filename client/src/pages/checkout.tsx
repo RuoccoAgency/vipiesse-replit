@@ -8,7 +8,7 @@ import { useCart } from "@/context/cart-context";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { Loader2, Building2, Check, AlertCircle } from "lucide-react";
+import { Loader2, Building2, CreditCard, AlertCircle } from "lucide-react";
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Nome richiesto"),
@@ -20,11 +20,14 @@ const checkoutSchema = z.object({
   phone: z.string().optional(),
 });
 
+type PaymentMethod = 'card' | 'bank';
+
 export function Checkout() {
   const { items, total, subtotal, shippingCost, clearCart } = useCart();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
     resolver: zodResolver(checkoutSchema),
@@ -42,7 +45,55 @@ export function Checkout() {
 
   const isFormValid = form.formState.isValid;
 
-  const handleConfirmOrder = async () => {
+  const handleStripeCheckout = async () => {
+    const values = form.getValues();
+    const validation = await form.trigger();
+    if (!validation) return;
+
+    setIsProcessing(true);
+    try {
+      const stripeItems = items.map((item) => ({
+        variantId: item.product.variantId,
+        quantity: item.quantity,
+        name: item.product.name + (item.product.color ? ` - ${item.product.color}` : '') + ` (Tg. ${item.size})`,
+        description: `SKU: ${item.product.sku || 'N/A'}`,
+        priceCents: Math.round(item.product.price * 100),
+      }));
+
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: stripeItems,
+          customerEmail: values.email,
+          customerName: values.firstName,
+          customerSurname: values.lastName,
+          customerPhone: values.phone || '',
+          shippingAddress: values.address,
+          shippingCity: values.city,
+          shippingCap: values.zip,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Errore durante la creazione del pagamento');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: error.message || "Si è verificato un errore",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBankTransfer = async () => {
     const values = form.getValues();
     const validation = await form.trigger();
     if (!validation) return;
@@ -86,6 +137,14 @@ export function Checkout() {
       });
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (paymentMethod === 'card') {
+      handleStripeCheckout();
+    } else {
+      handleBankTransfer();
     }
   };
 
@@ -310,14 +369,48 @@ export function Checkout() {
                 Metodo di Pagamento
               </h3>
               
-              <div className="flex items-center space-x-3 p-4 border rounded-lg border-green-500 bg-green-50">
-                <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <span className="font-medium block">Bonifico Bancario</span>
-                  <span className="text-xs text-gray-500">Riceverai i dati bancari dopo la conferma</span>
-                </div>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('card')}
+                  className={`w-full flex items-center space-x-3 p-4 border rounded-lg transition-all ${
+                    paymentMethod === 'card' 
+                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  data-testid="payment-method-card"
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    paymentMethod === 'card' ? 'bg-blue-600' : 'bg-gray-400'
+                  }`}>
+                    <CreditCard className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <span className="font-medium block">Carta di Credito / Debito</span>
+                    <span className="text-xs text-gray-500">Pagamento sicuro con Stripe</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('bank')}
+                  className={`w-full flex items-center space-x-3 p-4 border rounded-lg transition-all ${
+                    paymentMethod === 'bank' 
+                      ? 'border-green-500 bg-green-50 ring-2 ring-green-200' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  data-testid="payment-method-bank"
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    paymentMethod === 'bank' ? 'bg-green-600' : 'bg-gray-400'
+                  }`}>
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <span className="font-medium block">Bonifico Bancario</span>
+                    <span className="text-xs text-gray-500">Riceverai i dati bancari dopo la conferma</span>
+                  </div>
+                </button>
               </div>
 
               <div className="mt-6 pt-4 border-t border-gray-200">
@@ -329,8 +422,12 @@ export function Checkout() {
                 )}
                 <Button 
                   type="button"
-                  onClick={handleConfirmOrder}
-                  className="w-full bg-gray-900 text-white hover:bg-gray-800 font-heading uppercase font-bold tracking-widest h-12 text-base disabled:opacity-50"
+                  onClick={handleSubmit}
+                  className={`w-full font-heading uppercase font-bold tracking-widest h-12 text-base disabled:opacity-50 ${
+                    paymentMethod === 'card' 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
                   disabled={!isFormValid || isProcessing}
                   data-testid="button-confirm-order"
                 >
@@ -339,15 +436,23 @@ export function Checkout() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Elaborazione...
                     </>
+                  ) : paymentMethod === 'card' ? (
+                    <>
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Paga con Carta - €{total.toFixed(2)}
+                    </>
                   ) : (
                     <>
-                      <Check className="w-4 h-4 mr-2" />
+                      <Building2 className="w-4 h-4 mr-2" />
                       Conferma Ordine - €{total.toFixed(2)}
                     </>
                   )}
                 </Button>
                 <p className="text-xs text-center text-gray-500 mt-3">
-                  L'ordine sarà confermato dopo la ricezione del bonifico bancario
+                  {paymentMethod === 'card' 
+                    ? 'Verrai reindirizzato alla pagina di pagamento sicuro Stripe'
+                    : "L'ordine sarà confermato dopo la ricezione del bonifico bancario"
+                  }
                 </p>
               </div>
             </div>
@@ -356,7 +461,9 @@ export function Checkout() {
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                 <div className="bg-white p-8 rounded-lg shadow-xl text-center">
                   <Loader2 className="w-12 h-12 animate-spin text-gray-900 mx-auto mb-4" />
-                  <p className="text-lg font-medium">Creazione ordine...</p>
+                  <p className="text-lg font-medium">
+                    {paymentMethod === 'card' ? 'Reindirizzamento a Stripe...' : 'Creazione ordine...'}
+                  </p>
                   <p className="text-gray-500 text-sm">Non chiudere questa pagina</p>
                 </div>
               </div>

@@ -277,9 +277,9 @@ export async function registerRoutes(
           return res.status(400).json({ error: `Variante non trovata: ${item.variantId}` });
         }
         
-        const product = await storage.getProduct(variant.productId);
-        const images = await storage.getProductImages(variant.productId);
-        const variantImages = await storage.getVariantImages(variant.id);
+        const product = await storage.getProductById(variant.productId);
+        const images = await storage.getImagesByProduct(variant.productId);
+        const variantImages = await storage.getImagesByVariant(variant.id);
         
         const priceCents = variant.priceCents || product?.basePriceCents || 0;
         const itemTotal = priceCents * item.quantity;
