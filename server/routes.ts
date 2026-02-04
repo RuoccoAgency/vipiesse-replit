@@ -770,6 +770,77 @@ export async function registerRoutes(
   });
 
   // ================================
+  // PRODUCT REVIEWS
+  // ================================
+  const reviewRateLimits = new Map<string, { count: number; resetAt: number }>();
+
+  app.get("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      if (isNaN(productId)) {
+        return res.status(400).json({ error: "ID prodotto non valido" });
+      }
+
+      const [reviews, summary] = await Promise.all([
+        storage.getApprovedReviewsByProduct(productId),
+        storage.getReviewSummary(productId)
+      ]);
+
+      res.json({ reviews, ...summary });
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ error: "Errore nel recupero delle recensioni" });
+    }
+  });
+
+  app.post("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      if (isNaN(productId)) {
+        return res.status(400).json({ error: "ID prodotto non valido" });
+      }
+
+      // Rate limiting by IP (max 3 submissions per hour)
+      const ip = req.ip || req.socket.remoteAddress || "unknown";
+      const now = Date.now();
+      const hourMs = 60 * 60 * 1000;
+      
+      const rateData = reviewRateLimits.get(ip);
+      if (rateData) {
+        if (now < rateData.resetAt) {
+          if (rateData.count >= 3) {
+            return res.status(429).json({ error: "Troppi invii. Riprova più tardi." });
+          }
+          rateData.count++;
+        } else {
+          reviewRateLimits.set(ip, { count: 1, resetAt: now + hourMs });
+        }
+      } else {
+        reviewRateLimits.set(ip, { count: 1, resetAt: now + hourMs });
+      }
+
+      // Validate input
+      const { insertProductReviewSchema } = await import("@shared/schema");
+      const result = insertProductReviewSchema.safeParse({ ...req.body, productId });
+      if (!result.success) {
+        return res.status(400).json({ error: result.error.errors[0].message });
+      }
+
+      // Check product exists
+      const product = await storage.getProductById(productId);
+      if (!product) {
+        return res.status(404).json({ error: "Prodotto non trovato" });
+      }
+
+      const review = await storage.createProductReview(result.data);
+      res.status(201).json(review);
+    } catch (error) {
+      console.error("Error creating review:", error);
+      res.status(500).json({ error: "Errore nell'invio della recensione" });
+    }
+  });
+
+  // ================================
   // ADMIN AUTH
   // ================================
   app.post("/api/admin/login", async (req, res) => {

@@ -233,6 +233,24 @@ export const savedItems = pgTable(
 );
 
 // ================================
+// PRODUCT REVIEWS
+// ================================
+export const productReviews = pgTable("product_reviews", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  rating: integer("rating").notNull(),
+  name: text("name"),
+  title: text("title"),
+  comment: text("comment").notNull(),
+  status: text("status").notNull().default("approved"),
+  userId: integer("user_id").references(() => users.id),
+  orderId: integer("order_id").references(() => orders.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ================================
 // INSERT SCHEMAS
 // ================================
 export const insertProductSchema = createInsertSchema(products)
@@ -315,6 +333,16 @@ export const insertBusinessRequestSchema = createInsertSchema(businessRequests)
     email: z.string().email("Email non valida"),
   });
 
+export const insertProductReviewSchema = createInsertSchema(productReviews)
+  .omit({ id: true, createdAt: true, status: true, userId: true, orderId: true })
+  .extend({
+    productId: z.number().int().positive(),
+    rating: z.number().int().min(1, "Valutazione minima 1 stella").max(5, "Valutazione massima 5 stelle"),
+    name: z.string().optional(),
+    title: z.string().optional(),
+    comment: z.string().min(10, "Il commento deve avere almeno 10 caratteri").max(1000, "Il commento non può superare 1000 caratteri"),
+  });
+
 // ================================
 // TYPES
 // ================================
@@ -355,6 +383,9 @@ export type SavedItem = typeof savedItems.$inferSelect;
 
 export type InsertBusinessRequest = z.infer<typeof insertBusinessRequestSchema>;
 export type BusinessRequest = typeof businessRequests.$inferSelect;
+
+export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;
+export type ProductReview = typeof productReviews.$inferSelect;
 
 // ================================
 // COMPOSITE TYPES FOR API RESPONSES

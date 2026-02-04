@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
 import { Minus, Plus, Heart } from "lucide-react";
 import { WishlistButton } from "@/components/wishlist-button";
+import { ProductReviews } from "@/components/product-reviews";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import NotFound from "./not-found";
@@ -440,6 +441,9 @@ export function ProductDetail() {
                 </AccordionItem>
               </Accordion>
             </div>
+
+            {/* Product Reviews */}
+            <ProductReviews productId={product.id} />
           </div>
 
         </div>

@@ -12,6 +12,7 @@ import {
   contactMessages,
   savedItems,
   businessRequests,
+  productReviews,
   type Product, 
   type InsertProduct,
   type ProductVariant,
@@ -31,6 +32,8 @@ import {
   type ProductWithVariants,
   type BusinessRequest,
   type InsertBusinessRequest,
+  type ProductReview,
+  type InsertProductReview,
   type User,
   type ContactMessage,
   type SavedItem
@@ -159,6 +162,11 @@ export interface IStorage {
   createBusinessRequest(data: InsertBusinessRequest): Promise<BusinessRequest>;
   getAllBusinessRequests(): Promise<BusinessRequest[]>;
   updateBusinessRequestStatus(id: number, status: string): Promise<BusinessRequest | undefined>;
+
+  // Product Reviews
+  createProductReview(data: InsertProductReview): Promise<ProductReview>;
+  getApprovedReviewsByProduct(productId: number): Promise<ProductReview[]>;
+  getReviewSummary(productId: number): Promise<{ averageRating: number; totalReviews: number; ratingBreakdown: Record<number, number> }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -767,6 +775,43 @@ export class DatabaseStorage implements IStorage {
       .where(eq(businessRequests.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  // Product Reviews
+  async createProductReview(data: InsertProductReview): Promise<ProductReview> {
+    const [review] = await db.insert(productReviews)
+      .values(data)
+      .returning();
+    return review;
+  }
+
+  async getApprovedReviewsByProduct(productId: number): Promise<ProductReview[]> {
+    return await db.select().from(productReviews)
+      .where(and(eq(productReviews.productId, productId), eq(productReviews.status, "approved")))
+      .orderBy(desc(productReviews.createdAt));
+  }
+
+  async getReviewSummary(productId: number): Promise<{ averageRating: number; totalReviews: number; ratingBreakdown: Record<number, number> }> {
+    const reviews = await this.getApprovedReviewsByProduct(productId);
+    const totalReviews = reviews.length;
+    
+    if (totalReviews === 0) {
+      return { averageRating: 0, totalReviews: 0, ratingBreakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } };
+    }
+    
+    const ratingBreakdown: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let sum = 0;
+    
+    for (const review of reviews) {
+      sum += review.rating;
+      ratingBreakdown[review.rating] = (ratingBreakdown[review.rating] || 0) + 1;
+    }
+    
+    return {
+      averageRating: Math.round((sum / totalReviews) * 10) / 10,
+      totalReviews,
+      ratingBreakdown
+    };
   }
 }
 
