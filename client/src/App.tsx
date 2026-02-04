@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import { Layout } from "./components/layout";
 import { Home } from "./pages/home";
 import { Shop } from "./pages/shop";
+import { Outlet } from "./pages/outlet";
 import { Business } from "./pages/business";
 import { Checkout } from "./pages/checkout";
 import { OrderSuccess } from "./pages/order-success";
@@ -27,6 +28,19 @@ function Router() {
       </Route>
       <Route path="/shop/:collection">
          {(params) => <Shop collection={params.collection} />}
+      </Route>
+
+      <Route path="/outlet">
+         {() => <Outlet />}
+      </Route>
+      <Route path="/outlet/donna">
+         {() => <Outlet category="donna" />}
+      </Route>
+      <Route path="/outlet/uomo">
+         {() => <Outlet category="uomo" />}
+      </Route>
+      <Route path="/outlet/bambino">
+         {() => <Outlet category="bambino" />}
       </Route>
 
       <Route path="/business" component={Business} />
