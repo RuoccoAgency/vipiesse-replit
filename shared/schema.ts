@@ -191,6 +191,25 @@ export const contactMessages = pgTable("contact_messages", {
 });
 
 // ================================
+// BUSINESS REQUESTS (B2B Registration)
+// ================================
+export const businessRequests = pgTable("business_requests", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  companyName: text("company_name").notNull(),
+  vatNumber: text("vat_number").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  address: text("address"),
+  city: text("city"),
+  cap: text("cap"),
+  contactPerson: text("contact_person"),
+  businessType: text("business_type"),
+  message: text("message"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ================================
 // SAVED ITEMS (Wishlist)
 // ================================
 export const savedItems = pgTable(
@@ -288,6 +307,14 @@ export const insertSavedItemSchema = createInsertSchema(savedItems).omit({
   createdAt: true,
 });
 
+export const insertBusinessRequestSchema = createInsertSchema(businessRequests)
+  .omit({ id: true, createdAt: true, status: true })
+  .extend({
+    companyName: z.string().min(2, "Ragione sociale richiesta"),
+    vatNumber: z.string().min(11, "Partita IVA non valida"),
+    email: z.string().email("Email non valida"),
+  });
+
 // ================================
 // TYPES
 // ================================
@@ -325,6 +352,9 @@ export type ContactMessage = typeof contactMessages.$inferSelect;
 
 export type InsertSavedItem = z.infer<typeof insertSavedItemSchema>;
 export type SavedItem = typeof savedItems.$inferSelect;
+
+export type InsertBusinessRequest = z.infer<typeof insertBusinessRequestSchema>;
+export type BusinessRequest = typeof businessRequests.$inferSelect;
 
 // ================================
 // COMPOSITE TYPES FOR API RESPONSES

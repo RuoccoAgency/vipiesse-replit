@@ -609,6 +609,49 @@ export async function registerRoutes(
       res.status(500).json({ error: "Errore nell'invio del messaggio" });
     }
   });
+
+  // Business registration request
+  app.post("/api/business-request", async (req, res) => {
+    try {
+      const { insertBusinessRequestSchema } = await import("@shared/schema");
+      const result = insertBusinessRequestSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: result.error.errors[0].message });
+      }
+      
+      const request = await storage.createBusinessRequest(result.data);
+      res.json({ success: true, id: request.id });
+    } catch (error) {
+      console.error("Business request error:", error);
+      res.status(500).json({ error: "Errore nell'invio della richiesta" });
+    }
+  });
+
+  // Admin: Get all business requests
+  app.get("/api/admin/business-requests", isAdmin, async (req, res) => {
+    try {
+      const requests = await storage.getAllBusinessRequests();
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching business requests:", error);
+      res.status(500).json({ error: "Errore nel recupero delle richieste" });
+    }
+  });
+
+  // Admin: Update business request status
+  app.patch("/api/admin/business-requests/:id/status", isAdmin, async (req, res) => {
+    try {
+      const { status } = req.body;
+      const updated = await storage.updateBusinessRequestStatus(parseInt(req.params.id), status);
+      if (!updated) {
+        return res.status(404).json({ error: "Richiesta non trovata" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating business request:", error);
+      res.status(500).json({ error: "Errore nell'aggiornamento della richiesta" });
+    }
+  });
   
   // Admin: Get all contact messages
   app.get("/api/admin/contacts", isAdmin, async (req, res) => {

@@ -11,6 +11,7 @@ import {
   users,
   contactMessages,
   savedItems,
+  businessRequests,
   type Product, 
   type InsertProduct,
   type ProductVariant,
@@ -28,6 +29,8 @@ import {
   type OrderWithItems,
   type Session,
   type ProductWithVariants,
+  type BusinessRequest,
+  type InsertBusinessRequest,
   type User,
   type ContactMessage,
   type SavedItem
@@ -151,6 +154,11 @@ export interface IStorage {
   addSavedItem(userId: number, productId: number): Promise<SavedItem>;
   removeSavedItem(userId: number, productId: number): Promise<void>;
   isProductSaved(userId: number, productId: number): Promise<boolean>;
+
+  // Business Requests
+  createBusinessRequest(data: InsertBusinessRequest): Promise<BusinessRequest>;
+  getAllBusinessRequests(): Promise<BusinessRequest[]>;
+  updateBusinessRequestStatus(id: number, status: string): Promise<BusinessRequest | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -739,6 +747,26 @@ export class DatabaseStorage implements IStorage {
     const [item] = await db.select().from(savedItems)
       .where(and(eq(savedItems.userId, userId), eq(savedItems.productId, productId)));
     return !!item;
+  }
+
+  // Business Requests
+  async createBusinessRequest(data: InsertBusinessRequest): Promise<BusinessRequest> {
+    const [request] = await db.insert(businessRequests)
+      .values(data)
+      .returning();
+    return request;
+  }
+
+  async getAllBusinessRequests(): Promise<BusinessRequest[]> {
+    return await db.select().from(businessRequests).orderBy(desc(businessRequests.createdAt));
+  }
+
+  async updateBusinessRequestStatus(id: number, status: string): Promise<BusinessRequest | undefined> {
+    const [updated] = await db.update(businessRequests)
+      .set({ status })
+      .where(eq(businessRequests.id, id))
+      .returning();
+    return updated || undefined;
   }
 }
 
