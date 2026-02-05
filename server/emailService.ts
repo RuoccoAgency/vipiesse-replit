@@ -1,3 +1,6 @@
+// Email service using Replit Resend integration
+import { Resend } from 'resend';
+
 interface OrderEmailData {
   orderNumber: string;
   customerName: string;
@@ -20,6 +23,46 @@ interface OrderEmailData {
 }
 
 const BRT_TRACKING_BASE_URL = 'https://vas.brt.it/vas/sped_det.hsm?tession=';
+
+let connectionSettings: any;
+
+async function getResendCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY 
+    ? 'repl ' + process.env.REPL_IDENTITY 
+    : process.env.WEB_REPL_RENEWAL 
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    : null;
+
+  if (!xReplitToken || !hostname) {
+    console.warn('[Email] Replit connector not available');
+    return null;
+  }
+
+  try {
+    connectionSettings = await fetch(
+      'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
+      {
+        headers: {
+          'Accept': 'application/json',
+          'X_REPLIT_TOKEN': xReplitToken
+        }
+      }
+    ).then(res => res.json()).then(data => data.items?.[0]);
+
+    if (!connectionSettings || (!connectionSettings.settings.api_key)) {
+      console.warn('[Email] Resend not connected');
+      return null;
+    }
+    return {
+      apiKey: connectionSettings.settings.api_key, 
+      fromEmail: connectionSettings.settings.from_email
+    };
+  } catch (error) {
+    console.error('[Email] Failed to get Resend credentials:', error);
+    return null;
+  }
+}
 
 function formatPrice(cents: number): string {
   return `€${(cents / 100).toFixed(2)}`;
@@ -47,38 +90,32 @@ function getOrderItemsHtml(items: OrderEmailData['items']): string {
 }
 
 async function sendWithResend(to: string, subject: string, html: string): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || 'VIPIESSE <noreply@vipiesse.it>';
+  const credentials = await getResendCredentials();
   
-  if (!apiKey) {
-    console.warn('[Email] RESEND_API_KEY not configured, email not sent');
+  if (!credentials) {
+    console.warn('[Email] Resend not configured, email not sent');
     console.log('[Email] Would send to:', to);
     console.log('[Email] Subject:', subject);
     return false;
   }
   
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: [to],
-        subject,
-        html,
-      }),
+    const resend = new Resend(credentials.apiKey);
+    const fromEmail = credentials.fromEmail || 'VIPIESSE <noreply@vipiesse.it>';
+    
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [to],
+      subject,
+      html,
     });
     
-    if (!response.ok) {
-      const error = await response.text();
+    if (error) {
       console.error('[Email] Resend API error:', error);
       return false;
     }
     
-    console.log('[Email] Sent successfully to:', to);
+    console.log('[Email] Sent successfully to:', to, 'ID:', data?.id);
     return true;
   } catch (error) {
     console.error('[Email] Failed to send:', error);
