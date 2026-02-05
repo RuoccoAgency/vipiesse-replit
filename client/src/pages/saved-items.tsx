@@ -152,7 +152,7 @@ export function SavedItems() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {savedItems.map((product) => (
               <div 
                 key={product.id} 
@@ -160,7 +160,7 @@ export function SavedItems() {
                 data-testid={`saved-item-${product.id}`}
               >
                 <Link href={`/product/${product.id}`}>
-                  <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden mb-3">
+                  <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4">
                     <img 
                       src={getProductImage(product)} 
                       alt={product.name}
@@ -172,36 +172,35 @@ export function SavedItems() {
                 <button
                   onClick={() => handleRemove(product.id)}
                   disabled={removingId === product.id}
-                  className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-red-50 transition-colors"
+                  className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-50 transition-colors"
                   data-testid={`remove-saved-${product.id}`}
                 >
                   {removingId === product.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
                   ) : (
-                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <Trash2 className="w-5 h-5 text-red-500" />
                   )}
                 </button>
                 
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Link href={`/product/${product.id}`}>
-                    <h3 className="font-medium text-gray-900 line-clamp-1 hover:underline">
+                    <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 hover:underline">
                       {product.name}
                     </h3>
                   </Link>
                   {product.brand && (
                     <p className="text-sm text-gray-500">{product.brand}</p>
                   )}
-                  <p className="font-bold text-gray-900">
+                  <p className="font-bold text-xl text-gray-900">
                     €{getProductPrice(product).toFixed(2)}
                   </p>
                   <Button
-                    size="sm"
                     variant="outline"
-                    className="w-full mt-2 text-sm"
+                    className="w-full mt-3"
                     onClick={() => handleAddToCart(product)}
                     data-testid={`add-to-cart-${product.id}`}
                   >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    <ShoppingCart className="w-5 h-5 mr-2" />
                     Aggiungi al carrello
                   </Button>
                 </div>

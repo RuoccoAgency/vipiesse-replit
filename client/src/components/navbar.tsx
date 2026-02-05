@@ -106,8 +106,8 @@ export function Navbar() {
                {/* 5) ALTRE SEZIONI */}
                <div className="px-8 pb-8 pt-4 mt-auto border-t border-gray-100">
                   <div className="flex flex-col space-y-2 text-xs text-gray-400 uppercase tracking-widest font-medium">
-                    <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">La Nostra Storia</Link>
-                    <Link href="/" onClick={closeMenu} className="hover:text-black transition-colors">Marchi</Link>
+                    <a href="/#nostra-storia" onClick={closeMenu} className="hover:text-black transition-colors">La Nostra Storia</a>
+                    <a href="/#marchi" onClick={closeMenu} className="hover:text-black transition-colors">Marchi</a>
                   </div>
                </div>
              </div>

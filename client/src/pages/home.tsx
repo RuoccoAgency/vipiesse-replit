@@ -56,7 +56,7 @@ export function Home() {
       </section>
 
       {/* SECTION C: Our Story */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
+      <section id="nostra-storia" className="container mx-auto px-4 py-16 md:py-24">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ export function Home() {
       </section>
 
       {/* SECTION D: Brands Strip */}
-      <section className="bg-black py-24 md:py-32 overflow-hidden border-t border-neutral-800">
+      <section id="marchi" className="bg-black py-24 md:py-32 overflow-hidden border-t border-neutral-800">
         <div className="container mx-auto px-4">
           <p className="text-center text-neutral-500 text-[10px] font-bold uppercase tracking-[0.4em] mb-16">
             Distributori Ufficiali
