@@ -232,7 +232,7 @@ export async function registerRoutes(
     }
   });
 
-  // Confirm order after successful Stripe payment
+  // Confirm order after successful Stripe payment (legacy - checks webhook-created order)
   app.post("/api/stripe/confirm-order", async (req, res) => {
     try {
       const { getStripeClient } = await import("./stripeClient");
@@ -250,89 +250,173 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Pagamento non completato" });
       }
       
-      // Check if order already exists for this session
+      // Check if order was already created by webhook
       const existingOrder = await storage.getOrderByStripeSessionId(sessionId);
       if (existingOrder) {
         return res.json({ 
           success: true, 
           orderNumber: existingOrder.orderNumber,
-          message: "Ordine già confermato"
-        });
-      }
-      
-      const metadata = session.metadata || {};
-      const cartItems = JSON.parse(metadata.items || '[]');
-      
-      if (cartItems.length === 0) {
-        return res.status(400).json({ error: "Nessun articolo nell'ordine" });
-      }
-
-      // Fetch variant details for each item
-      const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
-      let subtotalCents = 0;
-      
-      for (const item of cartItems) {
-        const variant = await storage.getVariantById(item.variantId);
-        if (!variant) {
-          return res.status(400).json({ error: `Variante non trovata: ${item.variantId}` });
-        }
-        
-        const product = await storage.getProductById(variant.productId);
-        const images = await storage.getImagesByProduct(variant.productId);
-        const variantImages = await storage.getImagesByVariant(variant.id);
-        
-        const priceCents = variant.priceCents || product?.basePriceCents || 0;
-        const itemTotal = priceCents * item.quantity;
-        subtotalCents += itemTotal;
-        
-        orderItems.push({
-          variantId: variant.id,
-          productName: product?.name || 'Prodotto',
-          variantSku: variant.sku,
-          variantColor: variant.color || '',
-          variantSize: variant.size,
-          quantity: item.quantity,
-          priceCents,
-          imageUrl: variantImages[0]?.imageUrl || images[0]?.imageUrl || undefined
+          message: "Ordine confermato"
         });
       }
 
-      // Calculate shipping
-      const shippingCents = subtotalCents >= 5000 ? 0 : 590;
-      const totalCents = subtotalCents + shippingCents;
-
-      // Create order with stock decrement (transactional)
-      const orderNumber = generateOrderNumber();
-      const result = await storage.createOrderWithItems({
-        orderNumber,
-        status: 'paid',
-        paymentMethod: 'stripe',
-        stripeSessionId: sessionId,
-        customerEmail: session.customer_email || '',
-        customerName: metadata.customerName || '',
-        customerSurname: metadata.customerSurname || null,
-        customerPhone: metadata.customerPhone || null,
-        shippingAddress: metadata.shippingAddress || '',
-        shippingCity: metadata.shippingCity || null,
-        shippingCap: metadata.shippingCap || null,
-        subtotalCents,
-        shippingCents,
-        totalCents,
-      }, orderItems);
-      
-      if ('error' in result) {
-        return res.status(400).json({ error: result.error });
+      // If webhook hasn't processed yet, wait briefly and check again
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const orderAfterWait = await storage.getOrderByStripeSessionId(sessionId);
+      if (orderAfterWait) {
+        return res.json({ 
+          success: true, 
+          orderNumber: orderAfterWait.orderNumber,
+          message: "Ordine confermato"
+        });
       }
-
-      res.json({ 
-        success: true, 
-        orderNumber: result.order.orderNumber,
-        totalCents: session.amount_total
+      
+      // Order not found - webhook may not have processed yet
+      return res.status(202).json({ 
+        success: false, 
+        message: "Ordine in elaborazione. Riceverai una conferma via email."
       });
     } catch (error: any) {
       console.error("Order confirmation error:", error);
       res.status(500).json({ error: error.message || "Errore nella conferma dell'ordine" });
     }
+  });
+
+  // Stripe Webhook endpoint - creates order only after payment confirmation
+  app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    
+    if (!webhookSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET not configured");
+      return res.status(500).json({ error: "Webhook not configured" });
+    }
+
+    const sig = req.headers['stripe-signature'] as string;
+    
+    if (!sig) {
+      console.error("No Stripe signature in request");
+      return res.status(400).json({ error: "No signature" });
+    }
+
+    let event;
+    
+    try {
+      const { getStripeClient } = await import("./stripeClient");
+      const stripe = await getStripeClient();
+      
+      // Use rawBody for signature verification
+      const rawBody = (req as any).rawBody || req.body;
+      event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+      
+      console.log(`[Stripe Webhook] Received event: ${event.type}`);
+    } catch (err: any) {
+      console.error(`[Stripe Webhook] Signature verification failed:`, err.message);
+      return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
+    }
+
+    // Handle checkout.session.completed event
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as any;
+      
+      console.log(`[Stripe Webhook] Processing checkout.session.completed for session: ${session.id}`);
+      
+      try {
+        // Check if order already exists
+        const existingOrder = await storage.getOrderByStripeSessionId(session.id);
+        if (existingOrder) {
+          console.log(`[Stripe Webhook] Order already exists: ${existingOrder.orderNumber}`);
+          return res.json({ received: true, orderNumber: existingOrder.orderNumber });
+        }
+
+        // Only process if payment is complete
+        if (session.payment_status !== 'paid') {
+          console.log(`[Stripe Webhook] Payment not completed yet, status: ${session.payment_status}`);
+          return res.json({ received: true, message: "Payment pending" });
+        }
+
+        const metadata = session.metadata || {};
+        const cartItems = JSON.parse(metadata.items || '[]');
+        
+        if (cartItems.length === 0) {
+          console.error(`[Stripe Webhook] No items in session metadata`);
+          return res.status(400).json({ error: "No items in order" });
+        }
+
+        // Fetch variant details for each item
+        const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
+        let subtotalCents = 0;
+        
+        for (const item of cartItems) {
+          const variant = await storage.getVariantById(item.variantId);
+          if (!variant) {
+            console.error(`[Stripe Webhook] Variant not found: ${item.variantId}`);
+            continue;
+          }
+          
+          const product = await storage.getProductById(variant.productId);
+          const images = await storage.getImagesByProduct(variant.productId);
+          const variantImages = await storage.getImagesByVariant(variant.id);
+          
+          const priceCents = variant.priceCents || product?.basePriceCents || 0;
+          const itemTotal = priceCents * item.quantity;
+          subtotalCents += itemTotal;
+          
+          orderItems.push({
+            variantId: variant.id,
+            productName: product?.name || 'Prodotto',
+            variantSku: variant.sku,
+            variantColor: variant.color || '',
+            variantSize: variant.size,
+            quantity: item.quantity,
+            priceCents,
+            imageUrl: variantImages[0]?.imageUrl || images[0]?.imageUrl || undefined
+          });
+        }
+
+        if (orderItems.length === 0) {
+          console.error(`[Stripe Webhook] No valid items found`);
+          return res.status(400).json({ error: "No valid items" });
+        }
+
+        // Calculate shipping
+        const shippingCents = subtotalCents >= 5000 ? 0 : 590;
+        const totalCents = subtotalCents + shippingCents;
+
+        // Create order with stock decrement
+        const orderNumber = generateOrderNumber();
+        const result = await storage.createOrderWithItems({
+          orderNumber,
+          status: 'paid',
+          paymentMethod: 'stripe',
+          stripeSessionId: session.id,
+          customerEmail: session.customer_email || '',
+          customerName: metadata.customerName || '',
+          customerSurname: metadata.customerSurname || null,
+          customerPhone: metadata.customerPhone || null,
+          shippingAddress: metadata.shippingAddress || '',
+          shippingCity: metadata.shippingCity || null,
+          shippingCap: metadata.shippingCap || null,
+          subtotalCents,
+          shippingCents,
+          totalCents,
+        }, orderItems);
+        
+        if ('error' in result) {
+          console.error(`[Stripe Webhook] Order creation failed:`, result.error);
+          return res.status(400).json({ error: result.error });
+        }
+
+        console.log(`[Stripe Webhook] Order created successfully: ${result.order.orderNumber}`);
+        return res.json({ received: true, orderNumber: result.order.orderNumber });
+      } catch (error: any) {
+        console.error(`[Stripe Webhook] Error processing checkout session:`, error);
+        return res.status(500).json({ error: error.message });
+      }
+    }
+
+    // Handle other events
+    console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
+    res.json({ received: true });
   });
 
   // ================================
