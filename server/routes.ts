@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification } from "./emailService";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, createDummyOrderData, type OrderEmailData } from "./emailService";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -1792,6 +1792,53 @@ export async function registerRoutes(
   });
 
   // Zod schema for shipping
+  // Admin token validation middleware (for API endpoints without session)
+  const isAdminToken = (req: Request, res: Response, next: NextFunction) => {
+    const adminToken = process.env.ADMIN_TOKEN;
+    if (!adminToken) {
+      return res.status(503).json({ error: "ADMIN_TOKEN not configured on server" });
+    }
+    const providedToken = req.headers['x-admin-token'];
+    if (providedToken !== adminToken) {
+      return res.status(401).json({ error: "Invalid or missing x-admin-token header" });
+    }
+    next();
+  };
+
+  // Test email endpoint - for verifying email configuration without placing an order
+  app.post("/api/admin/test-email", isAdminToken, async (req, res) => {
+    try {
+      console.log('[Email Test] Starting test email send...');
+      
+      // Use provided order data or create dummy data
+      const orderData = req.body?.orderData || createDummyOrderData();
+      
+      // Send test emails
+      const customerResult = await sendOrderConfirmationEmail(orderData);
+      const adminResult = await sendAdminOrderNotification(orderData);
+      
+      const results = {
+        customer: customerResult,
+        admin: adminResult,
+      };
+      
+      console.log('[Email Test] Results:', results);
+      
+      res.json({ 
+        ok: customerResult || adminResult,
+        results,
+        orderData: {
+          orderNumber: orderData.orderNumber,
+          customerEmail: orderData.customerEmail,
+          itemCount: orderData.items.length,
+        }
+      });
+    } catch (error: any) {
+      console.error('[Email Test] Error:', error);
+      res.status(500).json({ ok: false, error: error.message });
+    }
+  });
+
   const shipOrderSchema = z.object({
     carrier: z.string().max(100).optional(),
     trackingNumber: z.string().max(100).optional(),
@@ -1799,7 +1846,7 @@ export async function registerRoutes(
     estimatedDeliveryDate: z.string().optional().nullable(),
   });
 
-  // Ship order (convenience endpoint)
+  // Ship order (session-authenticated, for admin panel)
   app.post("/api/admin/orders/:id/ship", isAdmin, async (req, res) => {
     try {
       const orderId = parseInt(req.params.id);

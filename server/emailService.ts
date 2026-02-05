@@ -1,7 +1,12 @@
 // Email service using Replit Resend integration
 import { Resend } from 'resend';
 
-interface OrderEmailData {
+// Constants
+const DEFAULT_FROM = 'VIPIESSE <noreply@vipiesse.com>';
+const BRT_TRACKING_BASE_URL = 'https://vas.brt.it/vas/sped_det.hsm?tession=';
+const CREDENTIALS_CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+export interface OrderEmailData {
   orderNumber: string;
   customerName: string;
   customerEmail: string;
@@ -22,11 +27,17 @@ interface OrderEmailData {
   }>;
 }
 
-const BRT_TRACKING_BASE_URL = 'https://vas.brt.it/vas/sped_det.hsm?tession=';
+// Cached credentials
+let cachedCredentials: { apiKey: string; fromEmail: string | null } | null = null;
+let credentialsCachedAt: number = 0;
 
-let connectionSettings: any;
+async function getResendCredentials(): Promise<{ apiKey: string; fromEmail: string | null } | null> {
+  // Check cache first
+  const now = Date.now();
+  if (cachedCredentials && (now - credentialsCachedAt) < CREDENTIALS_CACHE_TTL_MS) {
+    return cachedCredentials;
+  }
 
-async function getResendCredentials() {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -35,12 +46,12 @@ async function getResendCredentials() {
     : null;
 
   if (!xReplitToken || !hostname) {
-    console.warn('[Email] Replit connector not available');
+    console.warn('[Email] Replit connector not available (missing hostname or token)');
     return null;
   }
 
   try {
-    connectionSettings = await fetch(
+    const response = await fetch(
       'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
       {
         headers: {
@@ -48,20 +59,35 @@ async function getResendCredentials() {
           'X_REPLIT_TOKEN': xReplitToken
         }
       }
-    ).then(res => res.json()).then(data => data.items?.[0]);
+    );
+    
+    const data = await response.json();
+    const connectionSettings = data.items?.[0];
 
-    if (!connectionSettings || (!connectionSettings.settings.api_key)) {
-      console.warn('[Email] Resend not connected');
+    if (!connectionSettings?.settings?.api_key) {
+      console.warn('[Email] Resend not connected or api_key missing');
       return null;
     }
-    return {
-      apiKey: connectionSettings.settings.api_key, 
-      fromEmail: connectionSettings.settings.from_email
+
+    // Cache the credentials
+    cachedCredentials = {
+      apiKey: connectionSettings.settings.api_key,
+      fromEmail: connectionSettings.settings.from_email || null
     };
+    credentialsCachedAt = now;
+
+    console.log('[Email] Resend credentials loaded and cached');
+    return cachedCredentials;
   } catch (error) {
     console.error('[Email] Failed to get Resend credentials:', error);
     return null;
   }
+}
+
+function getReplyTo(): string {
+  return process.env.REPLY_TO_EMAIL 
+    || process.env.ADMIN_EMAIL 
+    || 'vipiesses@gmail.com';
 }
 
 function formatPrice(cents: number): string {
@@ -94,31 +120,51 @@ async function sendWithResend(to: string, subject: string, html: string): Promis
   
   if (!credentials) {
     console.warn('[Email] Resend not configured, email not sent');
-    console.log('[Email] Would send to:', to);
-    console.log('[Email] Subject:', subject);
+    console.log('[Email] Would send to:', to, '| Subject:', subject);
     return false;
   }
   
+  const fromEmail = credentials.fromEmail || DEFAULT_FROM;
+  const replyTo = getReplyTo();
+
+  console.log('[Email] Attempting to send:', { to, subject, from: fromEmail, replyTo });
+  
   try {
     const resend = new Resend(credentials.apiKey);
-    const fromEmail = credentials.fromEmail || 'VIPIESSE <noreply@vipiesse.it>';
     
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: [to],
       subject,
       html,
+      replyTo: replyTo,
     });
     
     if (error) {
-      console.error('[Email] Resend API error:', error);
+      console.error('[Email] Resend API error:', { 
+        to, 
+        subject, 
+        from: fromEmail,
+        error: error.message || error 
+      });
       return false;
     }
     
-    console.log('[Email] Sent successfully to:', to, 'ID:', data?.id);
+    console.log('[Email] Sent successfully:', { 
+      to, 
+      subject, 
+      from: fromEmail, 
+      replyTo,
+      messageId: data?.id 
+    });
     return true;
-  } catch (error) {
-    console.error('[Email] Failed to send:', error);
+  } catch (error: any) {
+    console.error('[Email] Failed to send:', { 
+      to, 
+      subject, 
+      from: fromEmail,
+      error: error.message || error 
+    });
     return false;
   }
 }
@@ -173,7 +219,7 @@ export async function sendOrderConfirmationEmail(order: OrderEmailData): Promise
         </div>
         
         <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
-          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.it</p>
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
           <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
         </div>
       </div>
@@ -223,6 +269,10 @@ export async function sendAdminOrderNotification(order: OrderEmailData): Promise
       <ul>
         ${order.items.map(item => `<li>${item.productName} - ${item.variantColor} - Taglia ${item.variantSize} (x${item.quantity})</li>`).join('')}
       </ul>
+      
+      <p style="margin-top: 24px;">
+        <a href="/admin/orders" style="background: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Gestisci Ordini</a>
+      </p>
     </body>
     </html>
   `;
@@ -279,7 +329,7 @@ export async function sendShippingNotification(order: OrderEmailData): Promise<b
         </div>
         
         <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
-          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.it</p>
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
           <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
         </div>
       </div>
@@ -288,4 +338,36 @@ export async function sendShippingNotification(order: OrderEmailData): Promise<b
   `;
 
   return sendWithResend(order.customerEmail, `Il tuo ordine è in viaggio! - ${order.orderNumber}`, emailHtml);
+}
+
+// Test helper - creates dummy order data for testing
+export function createDummyOrderData(): OrderEmailData {
+  return {
+    orderNumber: 'VIP-TEST-' + Date.now(),
+    customerName: 'Test Cliente',
+    customerEmail: process.env.ADMIN_EMAIL || 'test@example.com',
+    totalCents: 5990,
+    shippingAddress: 'Via Test 123',
+    shippingCity: 'Napoli',
+    shippingCap: '80100',
+    estimatedDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    carrier: 'BRT',
+    trackingNumber: 'TEST123456789',
+    items: [
+      {
+        productName: 'Ciabatta Test',
+        variantColor: 'Nero',
+        variantSize: '42',
+        quantity: 1,
+        priceCents: 2990,
+      },
+      {
+        productName: 'Sandalo Test',
+        variantColor: 'Marrone',
+        variantSize: '40',
+        quantity: 1,
+        priceCents: 3000,
+      },
+    ],
+  };
 }

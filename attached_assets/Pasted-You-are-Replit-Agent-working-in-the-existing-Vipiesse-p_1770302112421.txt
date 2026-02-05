@@ -1,0 +1,98 @@
+You are Replit Agent working in the existing Vipiesse project.
+
+GOAL
+Fix and harden the Resend email integration so it sends real transactional emails reliably (order confirmation + admin notification + shipping notification), using the Replit Resend connector credentials, with a verified domain (vipiesse.com). Ensure no “.it vs .com” mismatch, add Reply-To, add a safe fallback behavior, and add a test endpoint to verify without placing a real order.
+
+RULES
+- Do NOT change product catalog logic.
+- Do NOT change Stripe logic except where needed to ensure emails trigger only after a paid order (webhook-confirmed).
+- Keep existing DB schema unless a small additive field is needed.
+- Prefer minimal changes; focus only email + triggers + testability.
+- Use TypeScript, keep code style consistent with project.
+
+TASKS
+
+1) Fix FROM domain mismatch + enforce a single source of truth
+- Locate the email service file (the one that imports { Resend } from 'resend' and defines sendOrderConfirmationEmail / sendAdminOrderNotification / sendShippingNotification).
+- Introduce a constant:
+  - const DEFAULT_FROM = 'VIPIESSE <noreply@vipiesse.com>';
+- Use connector-provided from_email if present, otherwise DEFAULT_FROM.
+- Remove any hardcoded “vipiesse.it” fallback.
+
+2) Add Reply-To and make it configurable
+- Add a Reply-To header on all outgoing emails:
+  - replyTo should be process.env.REPLY_TO_EMAIL if set, otherwise process.env.ADMIN_EMAIL if set, otherwise 'vipiesses@gmail.com' (last resort).
+- Ensure this works with resend.emails.send.
+
+3) Ensure Resend connector credentials are read correctly
+- Keep using the Replit connector endpoint:
+  GET https://{REPLIT_CONNECTORS_HOSTNAME}/api/v2/connection?include_secrets=true&connector_names=resend
+  with X_REPLIT_TOKEN logic already present.
+- Improve robustness:
+  - Validate that api_key and from_email exist (api_key required).
+  - If api_key missing: log a clear warning and return false (do not throw).
+  - Cache credentials for 60 seconds to avoid repeated calls.
+
+4) Add explicit logging (but no secret leaks)
+- On every send attempt log:
+  - to, subject, chosen from, replyTo, success/failure, resend message id if present.
+- Never log apiKey or connector raw settings.
+
+5) Add a TEST endpoint (no real order needed)
+- Add a protected route in the backend, e.g.:
+  POST /api/admin/test-email
+- Guard it with a simple header token:
+  - require header: x-admin-token === process.env.ADMIN_TOKEN
+- Payload optional; if missing, use safe dummy order data.
+- This endpoint must:
+  - Call sendOrderConfirmationEmail(dummyOrder)
+  - Call sendAdminOrderNotification(dummyOrder)
+  - Return JSON with { ok: boolean, results: { customer: boolean, admin: boolean } }
+
+Also add:
+- If ADMIN_TOKEN is missing, the route returns 503 with a clear message.
+
+6) Ensure emails trigger only after payment is truly confirmed
+- Find the Stripe webhook handler (likely /api/stripe/webhook).
+- Ensure “order marked paid” happens ONLY after checkout.session.completed is verified via Stripe signature.
+- After marking the order paid, trigger:
+  - sendOrderConfirmationEmail(orderData)
+  - sendAdminOrderNotification(orderData)
+- Make sure you DO NOT send emails on “order created” before payment.
+
+7) Shipping email hook (manual trigger)
+- Add a DB-safe function or endpoint to trigger shipping email when tracking is added, WITHOUT touching catalog:
+  - POST /api/admin/orders/:orderId/ship
+  - Guarded with x-admin-token (same as above)
+  - Body: { carrier?: string, trackingNumber?: string, trackingUrl?: string, estimatedDeliveryDate?: string }
+  - Update order fields (tracking/carrier/estimatedDeliveryDate/shippedAt) if such fields exist; if not, add minimal columns to orders table.
+  - Then call sendShippingNotification(compiledOrderData)
+  - Return JSON { ok: true }
+
+8) Fix “favorites error after account creation”
+- Locate favorites/wishlist code path.
+- Common issues:
+  - favorites table missing
+  - user id null / not created
+  - endpoint requires auth but client calls too early
+- Fix by:
+  - Ensuring the favorites table exists with (id, userId, productId, createdAt) and unique(userId, productId)
+  - Ensuring on signup/login the session user id is available before favorites calls
+  - Backend favorites endpoints must validate userId and return 401 if missing (not 500)
+  - Frontend should handle 401 gracefully and prompt login (no crash)
+
+DELIVERABLES
+- Commit code changes across:
+  - email service module
+  - stripe webhook handler
+  - new admin endpoints (test-email, ship order)
+  - favorites backend + migration if needed
+  - minimal DB migration SQL if tables/columns are missing
+- Add a short README section:
+  - Required env/secrets: ADMIN_EMAIL, REPLY_TO_EMAIL (optional), ADMIN_TOKEN, STRIPE_WEBHOOK_SECRET, and Resend connector configured.
+  - How to test: call /api/admin/test-email with x-admin-token.
+
+After finishing, print:
+- What files changed
+- What secrets/env are required
+- Exact curl command examples to test the two admin endpoints.

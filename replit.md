@@ -109,6 +109,36 @@ shared/           # Shared code between frontend/backend
 
 ### Environment Variables Required
 - `DATABASE_URL`: PostgreSQL connection string
-- `ADMIN_EMAIL`: Admin login email
+- `ADMIN_EMAIL`: Admin login email (also receives order notifications)
 - `ADMIN_PASSWORD`: Admin login password
 - `SESSION_SECRET`: Secret for session cookie signing
+- `ADMIN_TOKEN`: Token for API-based admin operations (test-email, ship orders via API)
+- `REPLY_TO_EMAIL`: (Optional) Reply-to email for transactional emails, defaults to ADMIN_EMAIL
+- `STRIPE_SECRET_KEY`: Stripe secret key for payment processing
+- `STRIPE_PUBLISHABLE_KEY`: Stripe publishable key for frontend
+- `STRIPE_WEBHOOK_SECRET`: Stripe webhook signature secret
+
+### Email Configuration
+- **Provider**: Resend (via Replit integration)
+- **From address**: Uses Resend connector's configured from_email, or defaults to `VIPIESSE <noreply@vipiesse.com>`
+- **Reply-To**: Uses REPLY_TO_EMAIL → ADMIN_EMAIL → vipiesses@gmail.com (fallback chain)
+- **Credential caching**: 60 seconds to reduce API calls
+
+### Testing Email Configuration
+```bash
+# Test email endpoint (requires ADMIN_TOKEN secret to be set)
+curl -X POST https://your-domain/api/admin/test-email \
+  -H "Content-Type: application/json" \
+  -H "x-admin-token: YOUR_ADMIN_TOKEN"
+```
+
+### Shipping Orders via API
+```bash
+# Ship an order with tracking info (requires admin session cookie)
+curl -X POST https://your-domain/api/admin/orders/123/ship \
+  -H "Content-Type: application/json" \
+  -H "Cookie: admin_session=YOUR_SESSION" \
+  -d '{"carrier": "BRT", "trackingNumber": "123456789"}'
+```
+
+**Note**: The test-email endpoint uses `x-admin-token` header for headless/API testing. The ship endpoint uses admin session cookies (same as admin panel). Both require proper authentication.
