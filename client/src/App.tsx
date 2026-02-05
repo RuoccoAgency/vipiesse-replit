@@ -17,6 +17,7 @@ import NotFound from "./pages/not-found";
 import { ProductDetail } from "./pages/product-detail";
 import { Toaster } from "@/components/ui/toaster";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { CookieBanner } from "@/components/cookie-banner";
 
 function Router() {
   return (
@@ -80,6 +81,7 @@ function App() {
       <ScrollToTop />
       <Router />
       <Toaster />
+      <CookieBanner />
     </Layout>
   );
 }
