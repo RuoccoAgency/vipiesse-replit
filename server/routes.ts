@@ -423,8 +423,8 @@ export async function registerRoutes(
         if (orderWithItems) {
           const emailData = {
             orderNumber: orderWithItems.orderNumber,
-            customerName: orderWithItems.shippingName,
-            customerEmail: orderWithItems.email,
+            customerName: orderWithItems.customerName,
+            customerEmail: orderWithItems.customerEmail,
             totalCents: orderWithItems.totalCents,
             shippingAddress: orderWithItems.shippingAddress,
             shippingCity: orderWithItems.shippingCity || undefined,
@@ -1820,12 +1820,27 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Order must be paid or processing to ship" });
       }
       
+      // Calculate ETA if not provided (2-5 business days from now)
+      let eta: Date | null = estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : null;
+      if (!eta) {
+        eta = new Date();
+        // Add 3 business days (average of 2-5)
+        let daysToAdd = 3;
+        while (daysToAdd > 0) {
+          eta.setDate(eta.getDate() + 1);
+          const dayOfWeek = eta.getDay();
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            daysToAdd--;
+          }
+        }
+      }
+      
       const updatedOrder = await storage.updateOrder(orderId, {
         status: 'shipped',
-        carrier: carrier || null,
+        carrier: carrier || 'BRT',
         trackingNumber: trackingNumber || null,
         trackingUrl: trackingUrl || null,
-        estimatedDeliveryDate: estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : null,
+        estimatedDeliveryDate: eta,
         shippedAt: new Date(),
         updatedAt: new Date(),
       });
@@ -1835,14 +1850,14 @@ export async function registerRoutes(
       if (orderWithItems) {
         const emailData = {
           orderNumber: orderWithItems.orderNumber,
-          customerName: orderWithItems.shippingName,
-          customerEmail: orderWithItems.email,
+          customerName: orderWithItems.customerName,
+          customerEmail: orderWithItems.customerEmail,
           totalCents: orderWithItems.totalCents,
           shippingAddress: orderWithItems.shippingAddress,
           shippingCity: orderWithItems.shippingCity || undefined,
           shippingCap: orderWithItems.shippingCap || undefined,
-          estimatedDeliveryDate: estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : undefined,
-          carrier: carrier || undefined,
+          estimatedDeliveryDate: eta,
+          carrier: carrier || 'BRT',
           trackingNumber: trackingNumber || undefined,
           trackingUrl: trackingUrl || undefined,
           items: orderWithItems.items.map((item: any) => ({
@@ -3082,6 +3097,57 @@ function getAdminOrderDetailPage(order: any): string {
           <p>${order.notes}</p>
         </div>
         ` : ''}
+        
+        <!-- Shipping Section -->
+        <div class="card" style="margin-top: 2rem; ${['paid', 'processing', 'shipped'].includes(order.status) ? '' : 'opacity: 0.6;'}">
+          <h3>Spedizione</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div>
+              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">Corriere</label>
+              <input type="text" id="carrier" value="${order.carrier || 'BRT'}" placeholder="BRT" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">Numero Tracking</label>
+              <input type="text" id="trackingNumber" value="${order.trackingNumber || ''}" placeholder="Es. 123456789" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">URL Tracking (opzionale)</label>
+              <input type="text" id="trackingUrl" value="${order.trackingUrl || ''}" placeholder="https://..." style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">Consegna Prevista</label>
+              <input type="date" id="estimatedDelivery" value="${order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toISOString().split('T')[0] : ''}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+          </div>
+          
+          ${order.shippedAt ? `
+          <div style="margin-top: 1rem; padding: 0.75rem; background: #f0fdf4; border-radius: 4px; color: #166534;">
+            <strong>Spedito il:</strong> ${new Date(order.shippedAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </div>
+          ` : ''}
+          
+          ${order.deliveredAt ? `
+          <div style="margin-top: 0.5rem; padding: 0.75rem; background: #dcfce7; border-radius: 4px; color: #166534;">
+            <strong>Consegnato il:</strong> ${new Date(order.deliveredAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </div>
+          ` : ''}
+          
+          <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            ${['paid', 'processing'].includes(order.status) ? `
+            <button class="btn" onclick="markAsShipped(${order.id})" style="background: #7c3aed;">
+              Segna come Spedito
+            </button>
+            ` : ''}
+            ${order.status === 'shipped' ? `
+            <button class="btn" onclick="markAsDelivered(${order.id})" style="background: #16a34a;">
+              Segna come Consegnato
+            </button>
+            <button class="btn" onclick="updateTracking(${order.id})" style="background: #666;">
+              Aggiorna Tracking
+            </button>
+            ` : ''}
+          </div>
+        </div>
       </div>
       <script>
         async function logout() {
@@ -3096,6 +3162,89 @@ function getAdminOrderDetailPage(order: any): string {
             body: JSON.stringify({ status })
           });
           location.reload();
+        }
+        
+        async function markAsShipped(id) {
+          const carrier = document.getElementById('carrier').value || 'BRT';
+          const trackingNumber = document.getElementById('trackingNumber').value;
+          const trackingUrl = document.getElementById('trackingUrl').value;
+          const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+          
+          if (!trackingNumber) {
+            alert('Inserisci il numero di tracking');
+            return;
+          }
+          
+          try {
+            const res = await fetch('/api/admin/orders/' + id + '/ship', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                carrier,
+                trackingNumber,
+                trackingUrl: trackingUrl || undefined,
+                estimatedDeliveryDate: estimatedDelivery || undefined
+              })
+            });
+            
+            if (res.ok) {
+              alert('Ordine spedito! Email inviata al cliente.');
+              location.reload();
+            } else {
+              const err = await res.json();
+              alert('Errore: ' + (err.error || 'Spedizione fallita'));
+            }
+          } catch (e) {
+            alert('Errore di connessione');
+          }
+        }
+        
+        async function markAsDelivered(id) {
+          try {
+            const res = await fetch('/api/admin/orders/' + id + '/deliver', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (res.ok) {
+              location.reload();
+            } else {
+              const err = await res.json();
+              alert('Errore: ' + (err.error || 'Operazione fallita'));
+            }
+          } catch (e) {
+            alert('Errore di connessione');
+          }
+        }
+        
+        async function updateTracking(id) {
+          const carrier = document.getElementById('carrier').value;
+          const trackingNumber = document.getElementById('trackingNumber').value;
+          const trackingUrl = document.getElementById('trackingUrl').value;
+          const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+          
+          try {
+            const res = await fetch('/api/admin/orders/' + id + '/tracking', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                carrier,
+                trackingNumber,
+                trackingUrl: trackingUrl || undefined,
+                estimatedDeliveryDate: estimatedDelivery || undefined
+              })
+            });
+            
+            if (res.ok) {
+              alert('Tracking aggiornato!');
+              location.reload();
+            } else {
+              const err = await res.json();
+              alert('Errore: ' + (err.error || 'Aggiornamento fallito'));
+            }
+          } catch (e) {
+            alert('Errore di connessione');
+          }
         }
       </script>
     </body>

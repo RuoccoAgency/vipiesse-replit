@@ -153,21 +153,21 @@ export function MyOrders() {
                         </p>
                         
                         {/* Tracking info for shipped orders */}
-                        {order.status === 'shipped' && order.carrier && (
+                        {order.status === 'shipped' && (
                           <div className="mt-3 pt-3 border-t border-gray-200">
                             <div className="flex items-center gap-2 text-sm text-purple-700">
                               <Truck className="w-4 h-4" />
-                              <span>Spedito con {order.carrier}</span>
+                              <span>Spedito con {order.carrier || 'BRT'}</span>
                               {order.trackingNumber && (
                                 <span className="font-mono">#{order.trackingNumber}</span>
                               )}
                             </div>
-                            {order.trackingUrl && (
+                            {order.trackingNumber && (
                               <a 
-                                href={order.trackingUrl} 
+                                href={order.trackingUrl || `https://vas.brt.it/vas/sped_det.hsm?tession=${order.trackingNumber}`}
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1 mt-1"
+                                className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-md text-xs font-medium hover:bg-purple-200 transition-colors"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 Traccia spedizione <ExternalLink className="w-3 h-3" />

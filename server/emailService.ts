@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer';
-
 interface OrderEmailData {
   orderNumber: string;
   customerName: string;
@@ -21,27 +19,7 @@ interface OrderEmailData {
   }>;
 }
 
-function getTransporter() {
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
-
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.log('[Email] SMTP not configured, emails will be logged only');
-    return null;
-  }
-
-  return nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-  });
-}
+const BRT_TRACKING_BASE_URL = 'https://vas.brt.it/vas/sped_det.hsm?tession=';
 
 function formatPrice(cents: number): string {
   return `€${(cents / 100).toFixed(2)}`;
@@ -68,10 +46,47 @@ function getOrderItemsHtml(items: OrderEmailData['items']): string {
   `).join('');
 }
 
-export async function sendOrderConfirmationEmail(order: OrderEmailData): Promise<boolean> {
-  const transporter = getTransporter();
-  const fromEmail = process.env.EMAIL_FROM || 'noreply@vipiesse.it';
+async function sendWithResend(to: string, subject: string, html: string): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.EMAIL_FROM || 'VIPIESSE <noreply@vipiesse.it>';
+  
+  if (!apiKey) {
+    console.warn('[Email] RESEND_API_KEY not configured, email not sent');
+    console.log('[Email] Would send to:', to);
+    console.log('[Email] Subject:', subject);
+    return false;
+  }
+  
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [to],
+        subject,
+        html,
+      }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('[Email] Resend API error:', error);
+      return false;
+    }
+    
+    console.log('[Email] Sent successfully to:', to);
+    return true;
+  } catch (error) {
+    console.error('[Email] Failed to send:', error);
+    return false;
+  }
+}
 
+export async function sendOrderConfirmationEmail(order: OrderEmailData): Promise<boolean> {
   const emailHtml = `
     <!DOCTYPE html>
     <html>
@@ -129,32 +144,10 @@ export async function sendOrderConfirmationEmail(order: OrderEmailData): Promise
     </html>
   `;
 
-  const mailOptions = {
-    from: `VIPIESSE <${fromEmail}>`,
-    to: order.customerEmail,
-    subject: `Ordine confermato - ${order.orderNumber}`,
-    html: emailHtml,
-  };
-
-  if (!transporter) {
-    console.log('[Email] Order confirmation would be sent to:', order.customerEmail);
-    console.log('[Email] Subject:', mailOptions.subject);
-    return true;
-  }
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('[Email] Order confirmation sent to:', order.customerEmail);
-    return true;
-  } catch (error) {
-    console.error('[Email] Failed to send order confirmation:', error);
-    return false;
-  }
+  return sendWithResend(order.customerEmail, `Ordine confermato - ${order.orderNumber}`, emailHtml);
 }
 
 export async function sendAdminOrderNotification(order: OrderEmailData): Promise<boolean> {
-  const transporter = getTransporter();
-  const fromEmail = process.env.EMAIL_FROM || 'noreply@vipiesse.it';
   const adminEmail = process.env.ADMIN_EMAIL;
 
   if (!adminEmail) {
@@ -193,44 +186,20 @@ export async function sendAdminOrderNotification(order: OrderEmailData): Promise
       <ul>
         ${order.items.map(item => `<li>${item.productName} - ${item.variantColor} - Taglia ${item.variantSize} (x${item.quantity})</li>`).join('')}
       </ul>
-      
-      <p style="margin-top: 24px;"><a href="${process.env.REPLIT_DOMAINS?.split(',')[0] ? 'https://' + process.env.REPLIT_DOMAINS?.split(',')[0] : ''}/admin" style="background: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Gestisci ordine</a></p>
     </body>
     </html>
   `;
 
-  const mailOptions = {
-    from: `VIPIESSE Orders <${fromEmail}>`,
-    to: adminEmail,
-    subject: `Nuovo ordine pagato - ${order.orderNumber}`,
-    html: emailHtml,
-  };
-
-  if (!transporter) {
-    console.log('[Email] Admin notification would be sent to:', adminEmail);
-    console.log('[Email] Subject:', mailOptions.subject);
-    return true;
-  }
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('[Email] Admin notification sent to:', adminEmail);
-    return true;
-  } catch (error) {
-    console.error('[Email] Failed to send admin notification:', error);
-    return false;
-  }
+  return sendWithResend(adminEmail, `Nuovo ordine pagato - ${order.orderNumber}`, emailHtml);
 }
 
 export async function sendShippingNotification(order: OrderEmailData): Promise<boolean> {
-  const transporter = getTransporter();
-  const fromEmail = process.env.EMAIL_FROM || 'noreply@vipiesse.it';
+  const trackingLink = order.trackingUrl || (order.trackingNumber ? `${BRT_TRACKING_BASE_URL}${order.trackingNumber}` : null);
+  const carrierName = order.carrier || 'BRT';
 
-  const trackingSection = order.trackingUrl
-    ? `<p style="margin: 16px 0;"><a href="${order.trackingUrl}" style="background: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Traccia la spedizione</a></p>`
-    : (order.trackingNumber 
-        ? `<p style="margin: 0;">Numero di tracking: <strong>${order.trackingNumber}</strong></p>`
-        : '');
+  const trackingSection = trackingLink
+    ? `<p style="margin: 24px 0;"><a href="${trackingLink}" style="background: #7c3aed; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Traccia la spedizione</a></p>`
+    : '';
 
   const emailHtml = `
     <!DOCTYPE html>
@@ -256,9 +225,9 @@ export async function sendShippingNotification(order: OrderEmailData): Promise<b
           <p style="color: #666;">Ciao ${order.customerName},</p>
           <p style="color: #666;">Siamo lieti di informarti che il tuo ordine <strong>${order.orderNumber}</strong> è stato spedito!</p>
           
-          <div style="background: #faf5ff; padding: 16px; border-radius: 8px; margin: 24px 0;">
-            ${order.carrier ? `<p style="margin: 0 0 8px;"><strong>Corriere:</strong> ${order.carrier}</p>` : ''}
-            ${order.trackingNumber ? `<p style="margin: 0 0 8px;"><strong>Tracking:</strong> ${order.trackingNumber}</p>` : ''}
+          <div style="background: #faf5ff; padding: 20px; border-radius: 8px; margin: 24px 0;">
+            <p style="margin: 0 0 8px;"><strong>Corriere:</strong> ${carrierName}</p>
+            ${order.trackingNumber ? `<p style="margin: 0 0 8px;"><strong>Numero tracking:</strong> <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px;">${order.trackingNumber}</span></p>` : ''}
             ${order.estimatedDeliveryDate ? `<p style="margin: 0;"><strong>Consegna prevista:</strong> ${formatDate(order.estimatedDeliveryDate)}</p>` : ''}
           </div>
           
@@ -281,25 +250,5 @@ export async function sendShippingNotification(order: OrderEmailData): Promise<b
     </html>
   `;
 
-  const mailOptions = {
-    from: `VIPIESSE <${fromEmail}>`,
-    to: order.customerEmail,
-    subject: `Il tuo ordine è in viaggio! - ${order.orderNumber}`,
-    html: emailHtml,
-  };
-
-  if (!transporter) {
-    console.log('[Email] Shipping notification would be sent to:', order.customerEmail);
-    console.log('[Email] Subject:', mailOptions.subject);
-    return true;
-  }
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('[Email] Shipping notification sent to:', order.customerEmail);
-    return true;
-  } catch (error) {
-    console.error('[Email] Failed to send shipping notification:', error);
-    return false;
-  }
+  return sendWithResend(order.customerEmail, `Il tuo ordine è in viaggio! - ${order.orderNumber}`, emailHtml);
 }

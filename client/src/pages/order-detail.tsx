@@ -171,26 +171,32 @@ export function OrderDetail() {
           </div>
 
           {/* Tracking Info */}
-          {order.status === 'shipped' && order.carrier && (
+          {order.status === 'shipped' && (
             <div className="mt-4 pt-4 border-t border-purple-200">
               <div className="flex items-center gap-2 text-sm">
                 <Truck className="w-4 h-4" />
-                <span>Corriere: <strong>{order.carrier}</strong></span>
+                <span>Corriere: <strong>{order.carrier || 'BRT'}</strong></span>
               </div>
               {order.trackingNumber && (
-                <p className="text-sm mt-1">
-                  Tracking: <span className="font-mono font-bold">{order.trackingNumber}</span>
-                </p>
+                <>
+                  <p className="text-sm mt-1">
+                    Tracking: <span className="font-mono font-bold">{order.trackingNumber}</span>
+                  </p>
+                  <a 
+                    href={order.trackingUrl || `https://vas.brt.it/vas/sped_det.hsm?tession=${order.trackingNumber}`}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-3 text-sm bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                  >
+                    Traccia spedizione <ExternalLink className="w-4 h-4" />
+                  </a>
+                </>
               )}
-              {order.trackingUrl && (
-                <a 
-                  href={order.trackingUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-sm bg-white text-purple-700 px-3 py-1.5 rounded-lg hover:bg-purple-50 transition-colors"
-                >
-                  Traccia spedizione <ExternalLink className="w-3 h-3" />
-                </a>
+              {order.estimatedDeliveryDate && (
+                <p className="text-sm mt-2 text-purple-600">
+                  <Clock className="w-3 h-3 inline mr-1" />
+                  Consegna prevista: {formatDate(order.estimatedDeliveryDate)}
+                </p>
               )}
             </div>
           )}
