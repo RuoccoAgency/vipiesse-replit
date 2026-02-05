@@ -1,0 +1,142 @@
+You are working on my existing Replit e-commerce (VIPIESSE). Do NOT change products, variants, images, collections logic. Keep the current database and storage patterns. Implement a complete post-purchase + order tracking flow and fix the Favorites bug.
+
+GOALS
+A) After a successful Stripe payment, the order must be correctly stored, marked paid ONLY after webhook confirmation, and visible:
+   1) In Replit database (orders + order_items tables)
+   2) In the customer account “My Orders” page
+   3) By email (order confirmation to customer + notification to admin)
+
+B) Add order fulfillment tracking:
+   - The merchant can set: carrier, tracking_number, tracking_url (optional), shipped_at, delivered_at
+   - Customer can see shipment status and click tracking link
+   - Add an estimated delivery date (ETA) and display it clearly
+
+C) Fix Favorites (wishlist) feature:
+   - When a user is logged in and clicks “Add to favorites”, it currently errors.
+   - Make it work reliably (create, list, remove favorites) and make sure it’s tied to the authenticated user.
+
+REQUIRED ORDER FLOW (Stripe)
+1) Checkout creation endpoint:
+   - Create a local order with status = "pending_payment" before redirecting to Stripe.
+   - Create Stripe Checkout Session with line items from cart.
+   - Put orderId and orderNumber in Stripe metadata.
+   - Redirect user to Stripe checkout URL.
+
+2) Webhook endpoint /api/stripe/webhook:
+   - Verify signature using STRIPE_WEBHOOK_SECRET.
+   - On event "checkout.session.completed":
+     - Retrieve metadata (orderId/orderNumber) OR lookup by session id.
+     - Mark the local order status = "paid"
+     - Set paymentMethod = "stripe"
+     - Store stripeCheckoutSessionId and paymentIntentId (if available)
+     - ONLY now decrement stock quantities (so stock is not reduced for unpaid orders)
+   - On "checkout.session.expired" or failed:
+     - Mark order status = "expired" (do not decrement stock)
+
+3) IMPORTANT:
+   - Remove any code path that marks order paid without a webhook confirmation.
+   - Ensure the UI does NOT show “Order confirmed” until Stripe success OR until we have paid status in DB.
+
+ORDER STATUSES
+Implement statuses with a clear lifecycle:
+- pending_payment
+- paid
+- processing
+- shipped
+- delivered
+- canceled
+- refunded
+- expired
+
+DATABASE CHANGES (add columns if missing)
+Orders table add:
+- paymentMethod (string)
+- stripeCheckoutSessionId (string, nullable)
+- stripePaymentIntentId (string, nullable)
+- carrier (string, nullable)
+- trackingNumber (string, nullable)
+- trackingUrl (string, nullable)
+- estimatedDeliveryDate (datetime, nullable)
+- shippedAt (datetime, nullable)
+- deliveredAt (datetime, nullable)
+- updatedAt (auto update)
+
+If using migrations, create them properly. If you already have similar columns, reuse them.
+
+ESTIMATED DELIVERY (ETA)
+- Define a simple default delivery rule:
+  - If shipping city/cap is in Italy: ETA = orderPaidDate + 2 to 5 business days
+  - Store estimatedDeliveryDate in DB
+- Display ETA on:
+  - Order confirmation page
+  - My Orders / Order details page
+- Merchant can override ETA manually from admin panel.
+
+CUSTOMER VISIBILITY
+Create/ensure:
+1) "My Orders" page:
+   - lists user orders (most recent first)
+   - shows: order number, date, total, status, ETA
+2) "Order Details" page:
+   - shows items, shipping address, payment method
+   - if shipped: carrier + tracking number + tracking link + shipped date
+   - if delivered: delivered date
+
+EMAILS
+Send emails after payment confirmed (webhook):
+1) Customer confirmation email:
+   - subject: "Order Confirmed - {orderNumber}"
+   - include: order summary, total, shipping address, ETA, and later tracking link if shipped
+2) Admin notification email:
+   - subject: "New Paid Order - {orderNumber}"
+   - include: customer details, items, total, shipping details
+
+Implement email using a simple provider (choose ONE):
+- Resend OR SendGrid OR Nodemailer SMTP
+Add env vars:
+- EMAIL_PROVIDER (resend|sendgrid|smtp)
+- RESEND_API_KEY or SENDGRID_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS
+- EMAIL_FROM
+- ADMIN_EMAIL
+
+If env vars are missing, do not crash:
+- Log a warning and skip sending emails.
+
+ADMIN / MERCHANT FLOW
+Add an Admin Orders screen (or extend existing admin) to:
+- list orders with filters by status
+- open an order and update:
+  - status (processing/shipped/delivered/canceled/refunded)
+  - carrier, trackingNumber, trackingUrl
+  - estimatedDeliveryDate
+- When merchant sets status to "shipped":
+  - set shippedAt = now (if not already set)
+  - if trackingUrl empty, auto-generate based on carrier if possible, else keep blank
+  - email customer: "Your order has shipped" with tracking link
+- When status set to "delivered":
+  - set deliveredAt = now
+
+FAVORITES (WISHLIST) FIX
+1) Investigate current runtime error when clicking favorites.
+2) Ensure API routes exist and work:
+   - POST /api/favorites (add productId)
+   - GET /api/favorites (list user favorites)
+   - DELETE /api/favorites/:productId (remove)
+3) Ensure auth:
+   - If user not logged in -> return 401 and UI shows a friendly message “Please log in”
+4) DB:
+   - favorites table with: id, userId, productId, createdAt
+   - unique index on (userId, productId)
+5) Frontend:
+   - product card heart button toggles favorite (optimistic UI ok)
+   - My Account -> Favorites page listing favorite products
+
+QUALITY REQUIREMENTS
+- Keep code consistent with existing patterns (storage.ts, routes structure, React Query usage).
+- Add proper error handling and logs (server + client).
+- No breaking changes to products.
+- Ensure payment can’t be faked: paid status only from webhook.
+
+DELIVERABLES
+- Implement all backend routes, DB migrations, and frontend pages.
+- Provide a short checklist at the end explaining what env vars to set in Replit Secrets and what URLs to put in Stripe Webhooks.

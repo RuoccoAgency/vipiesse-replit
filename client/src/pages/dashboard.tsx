@@ -41,7 +41,9 @@ export function Dashboard() {
 
   const fetchDashboard = async () => {
     try {
-      const res = await fetch("/api/my/dashboard");
+      const res = await fetch("/api/my/dashboard", {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setDashboard(data);

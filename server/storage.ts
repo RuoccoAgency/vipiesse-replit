@@ -129,6 +129,40 @@ export interface IStorage {
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
   ): Promise<{ order: Order; items: OrderItem[] } | { error: string }>;
   
+  // Create pending order (before Stripe checkout)
+  createPendingOrder(
+    orderData: {
+      orderNumber: string;
+      userId?: number | null;
+      status: string;
+      paymentMethod: string | null;
+      customerEmail: string;
+      customerName: string;
+      customerSurname?: string | null;
+      customerPhone?: string | null;
+      shippingAddress: string;
+      shippingCity?: string | null;
+      shippingCap?: string | null;
+      subtotalCents: number;
+      shippingCents: number;
+      totalCents: number;
+    },
+    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
+  ): Promise<Order>;
+  
+  // Update order with Stripe session ID
+  updateOrderStripeSession(orderId: number, stripeSessionId: string): Promise<Order | undefined>;
+  
+  // Confirm order payment and decrement stock (transactional)
+  confirmOrderPayment(
+    orderId: number,
+    data: {
+      status: string;
+      stripePaymentIntentId?: string | null;
+      estimatedDeliveryDate?: Date;
+    }
+  ): Promise<{ order: Order } | { error: string }>;
+  
   // Sessions
   createSession(email: string, expiresAt: Date, userId?: number, isAdmin?: boolean): Promise<Session>;
   getSession(id: string): Promise<Session | undefined>;
@@ -605,6 +639,7 @@ export class DatabaseStorage implements IStorage {
         paymentMethod: newOrder.payment_method,
         paypalOrderId: newOrder.paypal_order_id,
         stripeSessionId: newOrder.stripe_session_id,
+        stripePaymentIntentId: newOrder.stripe_payment_intent_id,
         customerEmail: newOrder.customer_email,
         customerName: newOrder.customer_name,
         customerSurname: newOrder.customer_surname,
@@ -617,11 +652,180 @@ export class DatabaseStorage implements IStorage {
         subtotalCents: newOrder.subtotal_cents,
         shippingCents: newOrder.shipping_cents,
         totalCents: newOrder.total_cents,
+        carrier: newOrder.carrier,
+        trackingNumber: newOrder.tracking_number,
+        trackingUrl: newOrder.tracking_url,
+        estimatedDeliveryDate: newOrder.estimated_delivery_date,
+        shippedAt: newOrder.shipped_at,
+        deliveredAt: newOrder.delivered_at,
         createdAt: newOrder.created_at,
         updatedAt: newOrder.updated_at
       };
       
       return { order, items: createdItems };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  // Create pending order (without decrementing stock - for pre-checkout)
+  async createPendingOrder(
+    orderData: {
+      orderNumber: string;
+      userId?: number | null;
+      status: string;
+      paymentMethod: string | null;
+      customerEmail: string;
+      customerName: string;
+      customerSurname?: string | null;
+      customerPhone?: string | null;
+      shippingAddress: string;
+      shippingCity?: string | null;
+      shippingCap?: string | null;
+      subtotalCents: number;
+      shippingCents: number;
+      totalCents: number;
+    },
+    items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
+  ): Promise<Order> {
+    // Create order without decrementing stock
+    const [order] = await db.insert(orders)
+      .values({
+        orderNumber: orderData.orderNumber,
+        userId: orderData.userId || null,
+        status: orderData.status,
+        paymentMethod: orderData.paymentMethod,
+        customerEmail: orderData.customerEmail,
+        customerName: orderData.customerName,
+        customerSurname: orderData.customerSurname || null,
+        customerPhone: orderData.customerPhone || null,
+        shippingAddress: orderData.shippingAddress,
+        shippingCity: orderData.shippingCity || null,
+        shippingCap: orderData.shippingCap || null,
+        subtotalCents: orderData.subtotalCents,
+        shippingCents: orderData.shippingCents,
+        totalCents: orderData.totalCents,
+      })
+      .returning();
+    
+    // Create order items
+    for (const item of items) {
+      await db.insert(orderItems).values({
+        orderId: order.id,
+        variantId: item.variantId,
+        productName: item.productName,
+        variantSku: item.variantSku,
+        variantColor: item.variantColor,
+        variantSize: item.variantSize,
+        quantity: item.quantity,
+        priceCents: item.priceCents,
+        imageUrl: item.imageUrl || null,
+      });
+    }
+    
+    return order;
+  }
+
+  // Update order with Stripe session ID
+  async updateOrderStripeSession(orderId: number, stripeSessionId: string): Promise<Order | undefined> {
+    const [updated] = await db.update(orders)
+      .set({ stripeSessionId, updatedAt: new Date() })
+      .where(eq(orders.id, orderId))
+      .returning();
+    return updated || undefined;
+  }
+
+  // Confirm order payment and decrement stock transactionally
+  async confirmOrderPayment(
+    orderId: number,
+    data: {
+      status: string;
+      stripePaymentIntentId?: string | null;
+      estimatedDeliveryDate?: Date;
+    }
+  ): Promise<{ order: Order } | { error: string }> {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // Get order items
+      const orderItemsResult = await client.query(
+        'SELECT variant_id, quantity FROM order_items WHERE order_id = $1',
+        [orderId]
+      );
+      
+      // Lock and validate all variants with SELECT FOR UPDATE
+      for (const item of orderItemsResult.rows) {
+        const lockResult = await client.query(
+          'SELECT id, stock_qty, sku FROM product_variants WHERE id = $1 FOR UPDATE',
+          [item.variant_id]
+        );
+        
+        if (lockResult.rows.length === 0) {
+          await client.query('ROLLBACK');
+          return { error: `Variant not found: ${item.variant_id}` };
+        }
+        
+        const currentStock = lockResult.rows[0].stock_qty;
+        if (currentStock < item.quantity) {
+          await client.query('ROLLBACK');
+          return { error: `Insufficient stock for SKU: ${lockResult.rows[0].sku}. Available: ${currentStock}` };
+        }
+      }
+      
+      // Decrement stock for all variants
+      for (const item of orderItemsResult.rows) {
+        await client.query(
+          'UPDATE product_variants SET stock_qty = stock_qty - $1 WHERE id = $2',
+          [item.quantity, item.variant_id]
+        );
+      }
+      
+      // Update order status
+      const updateResult = await client.query(
+        `UPDATE orders SET status = $1, stripe_payment_intent_id = $2, estimated_delivery_date = $3, updated_at = NOW() WHERE id = $4 RETURNING *`,
+        [data.status, data.stripePaymentIntentId || null, data.estimatedDeliveryDate || null, orderId]
+      );
+      
+      await client.query('COMMIT');
+      
+      const row = updateResult.rows[0];
+      const order: Order = {
+        id: row.id,
+        orderNumber: row.order_number,
+        userId: row.user_id,
+        status: row.status,
+        paymentMethod: row.payment_method,
+        paypalOrderId: row.paypal_order_id,
+        stripeSessionId: row.stripe_session_id,
+        stripePaymentIntentId: row.stripe_payment_intent_id,
+        customerEmail: row.customer_email,
+        customerName: row.customer_name,
+        customerSurname: row.customer_surname,
+        customerPhone: row.customer_phone,
+        shippingAddress: row.shipping_address,
+        shippingCity: row.shipping_city,
+        shippingCap: row.shipping_cap,
+        shippingCountry: row.shipping_country,
+        notes: row.notes,
+        subtotalCents: row.subtotal_cents,
+        shippingCents: row.shipping_cents,
+        totalCents: row.total_cents,
+        carrier: row.carrier,
+        trackingNumber: row.tracking_number,
+        trackingUrl: row.tracking_url,
+        estimatedDeliveryDate: row.estimated_delivery_date,
+        shippedAt: row.shipped_at,
+        deliveredAt: row.delivered_at,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      };
+      
+      return { order };
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;

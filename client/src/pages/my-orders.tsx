@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
-import { Loader2, Package, ArrowLeft, ChevronRight } from "lucide-react";
+import { Loader2, Package, ArrowLeft, ChevronRight, Truck, CheckCircle, Clock, ExternalLink } from "lucide-react";
 
 interface OrderItem {
   productName: string;
@@ -19,16 +19,26 @@ interface Order {
   status: string;
   totalCents: number;
   createdAt: string;
+  estimatedDeliveryDate?: string;
+  shippedAt?: string;
+  deliveredAt?: string;
+  carrier?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
   items?: OrderItem[];
 }
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  pending_payment: { label: "In attesa di pagamento", color: "bg-yellow-100 text-yellow-800" },
-  awaiting_bank: { label: "In attesa bonifico", color: "bg-blue-100 text-blue-800" },
-  paid: { label: "Pagato", color: "bg-green-100 text-green-800" },
-  shipped: { label: "Spedito", color: "bg-purple-100 text-purple-800" },
-  completed: { label: "Completato", color: "bg-gray-100 text-gray-800" },
+const statusLabels: Record<string, { label: string; color: string; icon?: React.ElementType }> = {
+  pending_payment: { label: "In attesa di pagamento", color: "bg-yellow-100 text-yellow-800", icon: Clock },
+  awaiting_bank: { label: "In attesa bonifico", color: "bg-blue-100 text-blue-800", icon: Clock },
+  paid: { label: "Pagato", color: "bg-green-100 text-green-800", icon: CheckCircle },
+  processing: { label: "In elaborazione", color: "bg-blue-100 text-blue-800", icon: Package },
+  shipped: { label: "Spedito", color: "bg-purple-100 text-purple-800", icon: Truck },
+  delivered: { label: "Consegnato", color: "bg-green-100 text-green-800", icon: CheckCircle },
+  completed: { label: "Completato", color: "bg-gray-100 text-gray-800", icon: CheckCircle },
   cancelled: { label: "Annullato", color: "bg-red-100 text-red-800" },
+  refunded: { label: "Rimborsato", color: "bg-orange-100 text-orange-800" },
+  expired: { label: "Scaduto", color: "bg-gray-100 text-gray-600" },
 };
 
 export function MyOrders() {
@@ -50,7 +60,9 @@ export function MyOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/my/orders");
+      const res = await fetch("/api/my/orders", {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
@@ -114,33 +126,80 @@ export function MyOrders() {
           <div className="space-y-4">
             {orders.map((order) => {
               const status = statusLabels[order.status] || { label: order.status, color: "bg-gray-100 text-gray-800" };
+              const StatusIcon = status.icon;
               
               return (
-                <div 
-                  key={order.id} 
-                  className="bg-gray-50 border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors"
-                  data-testid={`order-${order.id}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-mono font-bold text-gray-900">
-                          {order.orderNumber}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
-                          {status.label}
-                        </span>
+                <Link key={order.id} href={`/ordine/${order.orderNumber}`}>
+                  <div 
+                    className="bg-gray-50 border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors cursor-pointer"
+                    data-testid={`order-${order.id}`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="font-mono font-bold text-gray-900">
+                            {order.orderNumber}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${status.color}`}>
+                            {StatusIcon && <StatusIcon className="w-3 h-3" />}
+                            {status.label}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-2">
+                          {formatDate(order.createdAt)}
+                        </p>
+                        <p className="font-bold text-gray-900">
+                          €{(order.totalCents / 100).toFixed(2)}
+                        </p>
+                        
+                        {/* Tracking info for shipped orders */}
+                        {order.status === 'shipped' && order.carrier && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <div className="flex items-center gap-2 text-sm text-purple-700">
+                              <Truck className="w-4 h-4" />
+                              <span>Spedito con {order.carrier}</span>
+                              {order.trackingNumber && (
+                                <span className="font-mono">#{order.trackingNumber}</span>
+                              )}
+                            </div>
+                            {order.trackingUrl && (
+                              <a 
+                                href={order.trackingUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1 mt-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Traccia spedizione <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* ETA for paid/processing orders */}
+                        {(order.status === 'paid' || order.status === 'processing') && order.estimatedDeliveryDate && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <p className="text-sm text-gray-600">
+                              <Clock className="w-4 h-4 inline mr-1" />
+                              Consegna prevista: {formatDate(order.estimatedDeliveryDate)}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {/* Delivered confirmation */}
+                        {order.status === 'delivered' && order.deliveredAt && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <p className="text-sm text-green-700 flex items-center gap-1">
+                              <CheckCircle className="w-4 h-4" />
+                              Consegnato il {formatDate(order.deliveredAt)}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-gray-500 mb-2">
-                        {formatDate(order.createdAt)}
-                      </p>
-                      <p className="font-bold text-gray-900">
-                        €{(order.totalCents / 100).toFixed(2)}
-                      </p>
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

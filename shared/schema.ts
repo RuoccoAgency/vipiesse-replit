@@ -128,10 +128,11 @@ export const orders = pgTable("orders", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   orderNumber: text("order_number").notNull().unique(),
   userId: integer("user_id").references(() => users.id),
-  status: text("status").notNull().default("pending_payment"), // pending_payment, paid, awaiting_bank, shipped, completed, cancelled
+  status: text("status").notNull().default("pending_payment"), // pending_payment, paid, processing, shipped, delivered, cancelled, refunded, expired
   paymentMethod: text("payment_method"), // stripe, bank_transfer
   paypalOrderId: text("paypal_order_id"),
   stripeSessionId: text("stripe_session_id"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
   customerEmail: text("customer_email").notNull(),
   customerName: text("customer_name").notNull(),
   customerSurname: text("customer_surname"),
@@ -144,6 +145,13 @@ export const orders = pgTable("orders", {
   subtotalCents: integer("subtotal_cents").notNull().default(0),
   shippingCents: integer("shipping_cents").notNull().default(0),
   totalCents: integer("total_cents").notNull().default(0),
+  // Tracking fields
+  carrier: text("carrier"),
+  trackingNumber: text("tracking_number"),
+  trackingUrl: text("tracking_url"),
+  estimatedDeliveryDate: timestamp("estimated_delivery_date"),
+  shippedAt: timestamp("shipped_at"),
+  deliveredAt: timestamp("delivered_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

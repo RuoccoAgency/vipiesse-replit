@@ -4,12 +4,14 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification } from "./emailService";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 import express from "express";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
@@ -144,7 +146,8 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Dati di spedizione mancanti" });
       }
 
-      // Calculate total server-side for security
+      // Prepare order items with variant details
+      const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
       let subtotalCents = 0;
       const lineItems: any[] = [];
       
@@ -153,8 +156,35 @@ export async function registerRoutes(
           return res.status(400).json({ error: "Dati prodotto non validi" });
         }
         
-        const itemTotal = item.priceCents * item.quantity;
+        // Fetch variant details
+        const variant = await storage.getVariantById(item.variantId);
+        if (!variant) {
+          return res.status(400).json({ error: `Variante non trovata: ${item.variantId}` });
+        }
+        
+        // Check stock
+        if (variant.stockQty < item.quantity) {
+          return res.status(400).json({ error: `Stock insufficiente per ${item.name}` });
+        }
+        
+        const product = await storage.getProductById(variant.productId);
+        const images = await storage.getImagesByProduct(variant.productId);
+        const variantImages = await storage.getImagesByVariant(variant.id);
+        
+        const priceCents = variant.priceCents || product?.basePriceCents || item.priceCents;
+        const itemTotal = priceCents * item.quantity;
         subtotalCents += itemTotal;
+        
+        orderItems.push({
+          variantId: variant.id,
+          productName: product?.name || item.name,
+          variantSku: variant.sku,
+          variantColor: variant.color || '',
+          variantSize: variant.size,
+          quantity: item.quantity,
+          priceCents,
+          imageUrl: variantImages[0]?.imageUrl || images[0]?.imageUrl || undefined
+        });
         
         lineItems.push({
           price_data: {
@@ -163,7 +193,7 @@ export async function registerRoutes(
               name: item.name,
               description: item.description || undefined,
             },
-            unit_amount: item.priceCents,
+            unit_amount: priceCents,
           },
           quantity: item.quantity,
         });
@@ -171,6 +201,7 @@ export async function registerRoutes(
       
       // Calculate shipping (free over €50)
       const shippingCents = subtotalCents >= 5000 ? 0 : 590;
+      const totalCents = subtotalCents + shippingCents;
       
       if (shippingCents > 0) {
         lineItems.push({
@@ -185,6 +216,25 @@ export async function registerRoutes(
         });
       }
 
+      // Create pending order in database BEFORE Stripe checkout
+      const orderNumber = generateOrderNumber();
+      const pendingOrder = await storage.createPendingOrder({
+        orderNumber,
+        userId: req.userId || null,
+        status: 'pending_payment',
+        paymentMethod: 'stripe',
+        customerEmail,
+        customerName,
+        customerSurname: customerSurname || null,
+        customerPhone: customerPhone || null,
+        shippingAddress,
+        shippingCity: shippingCity || null,
+        shippingCap: shippingCap || null,
+        subtotalCents,
+        shippingCents,
+        totalCents,
+      }, orderItems);
+
       const baseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host')}`;
       
       const session = await stripe.checkout.sessions.create({
@@ -195,17 +245,15 @@ export async function registerRoutes(
         cancel_url: `${baseUrl}/checkout`,
         customer_email: customerEmail,
         metadata: {
-          customerName,
-          customerSurname,
-          customerPhone: customerPhone || '',
-          shippingAddress,
-          shippingCity,
-          shippingCap,
-          items: JSON.stringify(items.map((i: any) => ({ variantId: i.variantId, quantity: i.quantity }))),
+          orderId: String(pendingOrder.id),
+          orderNumber: pendingOrder.orderNumber,
         },
       });
 
-      res.json({ url: session.url, sessionId: session.id });
+      // Update order with Stripe session ID
+      await storage.updateOrderStripeSession(pendingOrder.id, session.id);
+
+      res.json({ url: session.url, sessionId: session.id, orderNumber: pendingOrder.orderNumber });
     } catch (error: any) {
       console.error("Stripe checkout error:", error);
       res.status(500).json({ error: error.message || "Errore durante la creazione del pagamento" });
@@ -282,7 +330,7 @@ export async function registerRoutes(
     }
   });
 
-  // Stripe Webhook endpoint - creates order only after payment confirmation
+  // Stripe Webhook endpoint - updates order after payment confirmation
   app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     
@@ -321,11 +369,25 @@ export async function registerRoutes(
       console.log(`[Stripe Webhook] Processing checkout.session.completed for session: ${session.id}`);
       
       try {
-        // Check if order already exists
-        const existingOrder = await storage.getOrderByStripeSessionId(session.id);
-        if (existingOrder) {
-          console.log(`[Stripe Webhook] Order already exists: ${existingOrder.orderNumber}`);
-          return res.json({ received: true, orderNumber: existingOrder.orderNumber });
+        const metadata = session.metadata || {};
+        const orderId = metadata.orderId ? parseInt(metadata.orderId) : null;
+        const orderNumber = metadata.orderNumber;
+
+        // Find the pending order
+        let order = orderId ? await storage.getOrderById(orderId) : null;
+        if (!order && session.id) {
+          order = await storage.getOrderByStripeSessionId(session.id);
+        }
+
+        if (!order) {
+          console.error(`[Stripe Webhook] Order not found for session: ${session.id}`);
+          return res.status(400).json({ error: "Order not found" });
+        }
+
+        // Check if already paid
+        if (order.status === 'paid') {
+          console.log(`[Stripe Webhook] Order already paid: ${order.orderNumber}`);
+          return res.json({ received: true, orderNumber: order.orderNumber });
         }
 
         // Only process if payment is complete
@@ -334,82 +396,83 @@ export async function registerRoutes(
           return res.json({ received: true, message: "Payment pending" });
         }
 
-        const metadata = session.metadata || {};
-        const cartItems = JSON.parse(metadata.items || '[]');
-        
-        if (cartItems.length === 0) {
-          console.error(`[Stripe Webhook] No items in session metadata`);
-          return res.status(400).json({ error: "No items in order" });
-        }
+        // Calculate ETA (2-5 business days for Italy)
+        const now = new Date();
+        const eta = new Date(now);
+        eta.setDate(eta.getDate() + 4); // Default 4 days
 
-        // Fetch variant details for each item
-        const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
-        let subtotalCents = 0;
-        
-        for (const item of cartItems) {
-          const variant = await storage.getVariantById(item.variantId);
-          if (!variant) {
-            console.error(`[Stripe Webhook] Variant not found: ${item.variantId}`);
-            continue;
-          }
-          
-          const product = await storage.getProductById(variant.productId);
-          const images = await storage.getImagesByProduct(variant.productId);
-          const variantImages = await storage.getImagesByVariant(variant.id);
-          
-          const priceCents = variant.priceCents || product?.basePriceCents || 0;
-          const itemTotal = priceCents * item.quantity;
-          subtotalCents += itemTotal;
-          
-          orderItems.push({
-            variantId: variant.id,
-            productName: product?.name || 'Prodotto',
-            variantSku: variant.sku,
-            variantColor: variant.color || '',
-            variantSize: variant.size,
-            quantity: item.quantity,
-            priceCents,
-            imageUrl: variantImages[0]?.imageUrl || images[0]?.imageUrl || undefined
-          });
-        }
+        // Get payment intent ID if available
+        const paymentIntentId = session.payment_intent || null;
 
-        if (orderItems.length === 0) {
-          console.error(`[Stripe Webhook] No valid items found`);
-          return res.status(400).json({ error: "No valid items" });
-        }
-
-        // Calculate shipping
-        const shippingCents = subtotalCents >= 5000 ? 0 : 590;
-        const totalCents = subtotalCents + shippingCents;
-
-        // Create order with stock decrement
-        const orderNumber = generateOrderNumber();
-        const result = await storage.createOrderWithItems({
-          orderNumber,
+        // Mark order as paid and decrement stock
+        const result = await storage.confirmOrderPayment(order.id, {
           status: 'paid',
-          paymentMethod: 'stripe',
-          stripeSessionId: session.id,
-          customerEmail: session.customer_email || '',
-          customerName: metadata.customerName || '',
-          customerSurname: metadata.customerSurname || null,
-          customerPhone: metadata.customerPhone || null,
-          shippingAddress: metadata.shippingAddress || '',
-          shippingCity: metadata.shippingCity || null,
-          shippingCap: metadata.shippingCap || null,
-          subtotalCents,
-          shippingCents,
-          totalCents,
-        }, orderItems);
-        
+          stripePaymentIntentId: paymentIntentId,
+          estimatedDeliveryDate: eta,
+        });
+
         if ('error' in result) {
-          console.error(`[Stripe Webhook] Order creation failed:`, result.error);
+          console.error(`[Stripe Webhook] Payment confirmation failed:`, result.error);
           return res.status(400).json({ error: result.error });
         }
 
-        console.log(`[Stripe Webhook] Order created successfully: ${result.order.orderNumber}`);
-        return res.json({ received: true, orderNumber: result.order.orderNumber });
+        console.log(`[Stripe Webhook] Order paid successfully: ${order.orderNumber}`);
+        
+        // Send confirmation emails (async, don't block response)
+        const orderWithItems = await storage.getOrderWithItems(order.id);
+        if (orderWithItems) {
+          const emailData = {
+            orderNumber: orderWithItems.orderNumber,
+            customerName: orderWithItems.shippingName,
+            customerEmail: orderWithItems.email,
+            totalCents: orderWithItems.totalCents,
+            shippingAddress: orderWithItems.shippingAddress,
+            shippingCity: orderWithItems.shippingCity || undefined,
+            shippingCap: orderWithItems.shippingCap || undefined,
+            estimatedDeliveryDate: eta,
+            items: orderWithItems.items.map((item: any) => ({
+              productName: item.productName || 'Prodotto',
+              variantColor: item.variantColor || '',
+              variantSize: item.variantSize || '',
+              quantity: item.quantity,
+              priceCents: item.priceCents,
+            })),
+          };
+          
+          sendOrderConfirmationEmail(emailData).catch(err => console.error('[Email] Error:', err));
+          sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+        }
+        
+        return res.json({ received: true, orderNumber: order.orderNumber });
       } catch (error: any) {
         console.error(`[Stripe Webhook] Error processing checkout session:`, error);
+        return res.status(500).json({ error: error.message });
+      }
+    }
+
+    // Handle checkout.session.expired event
+    if (event.type === 'checkout.session.expired') {
+      const session = event.data.object as any;
+      
+      console.log(`[Stripe Webhook] Processing checkout.session.expired for session: ${session.id}`);
+      
+      try {
+        const metadata = session.metadata || {};
+        const orderId = metadata.orderId ? parseInt(metadata.orderId) : null;
+
+        let order = orderId ? await storage.getOrderById(orderId) : null;
+        if (!order && session.id) {
+          order = await storage.getOrderByStripeSessionId(session.id);
+        }
+
+        if (order && order.status === 'pending_payment') {
+          await storage.updateOrderStatus(order.id, 'expired');
+          console.log(`[Stripe Webhook] Order expired: ${order.orderNumber}`);
+        }
+
+        return res.json({ received: true });
+      } catch (error: any) {
+        console.error(`[Stripe Webhook] Error processing expired session:`, error);
         return res.status(500).json({ error: error.message });
       }
     }
@@ -1654,7 +1717,8 @@ export async function registerRoutes(
   app.patch("/api/admin/orders/:id/status", isAdmin, async (req, res) => {
     try {
       const { status } = req.body;
-      if (!['pending', 'paid', 'shipped', 'completed', 'cancelled'].includes(status)) {
+      const validStatuses = ['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
+      if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
       const order = await storage.updateOrderStatus(parseInt(req.params.id), status);
@@ -1664,6 +1728,166 @@ export async function registerRoutes(
       res.json(order);
     } catch (error) {
       res.status(500).json({ error: "Failed to update order status" });
+    }
+  });
+
+  // Zod schema for tracking updates
+  const trackingUpdateSchema = z.object({
+    carrier: z.string().max(100).optional(),
+    trackingNumber: z.string().max(100).optional(),
+    trackingUrl: z.string().url().max(500).optional().or(z.literal('')),
+    estimatedDeliveryDate: z.string().optional().nullable(),
+    status: z.enum(['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded']).optional(),
+  });
+
+  // Update order tracking details
+  app.patch("/api/admin/orders/:id/tracking", isAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      const parseResult = trackingUpdateSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid input", details: parseResult.error.errors });
+      }
+      
+      const { carrier, trackingNumber, trackingUrl, estimatedDeliveryDate, status } = parseResult.data;
+      
+      const order = await storage.getOrderById(orderId);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      
+      const updateData: Partial<typeof order> & { updatedAt: Date } = {
+        updatedAt: new Date(),
+      };
+      
+      if (carrier !== undefined) updateData.carrier = carrier || null;
+      if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber || null;
+      if (trackingUrl !== undefined) updateData.trackingUrl = trackingUrl || null;
+      if (estimatedDeliveryDate !== undefined) {
+        updateData.estimatedDeliveryDate = estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : null;
+      }
+      
+      // Handle status changes with automatic timestamp updates
+      if (status) {
+        updateData.status = status;
+        if (status === 'shipped' && !order.shippedAt) {
+          updateData.shippedAt = new Date();
+        }
+        if (status === 'delivered' && !order.deliveredAt) {
+          updateData.deliveredAt = new Date();
+        }
+      }
+      
+      const updatedOrder = await storage.updateOrder(orderId, updateData as any);
+      if (!updatedOrder) {
+        return res.status(404).json({ error: "Failed to update order" });
+      }
+      
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error("Error updating order tracking:", error);
+      res.status(500).json({ error: "Failed to update order tracking" });
+    }
+  });
+
+  // Zod schema for shipping
+  const shipOrderSchema = z.object({
+    carrier: z.string().max(100).optional(),
+    trackingNumber: z.string().max(100).optional(),
+    trackingUrl: z.string().url().max(500).optional().or(z.literal('')),
+    estimatedDeliveryDate: z.string().optional().nullable(),
+  });
+
+  // Ship order (convenience endpoint)
+  app.post("/api/admin/orders/:id/ship", isAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      const parseResult = shipOrderSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid input", details: parseResult.error.errors });
+      }
+      
+      const { carrier, trackingNumber, trackingUrl, estimatedDeliveryDate } = parseResult.data;
+      
+      const order = await storage.getOrderById(orderId);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      
+      if (!['paid', 'processing'].includes(order.status)) {
+        return res.status(400).json({ error: "Order must be paid or processing to ship" });
+      }
+      
+      const updatedOrder = await storage.updateOrder(orderId, {
+        status: 'shipped',
+        carrier: carrier || null,
+        trackingNumber: trackingNumber || null,
+        trackingUrl: trackingUrl || null,
+        estimatedDeliveryDate: estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : null,
+        shippedAt: new Date(),
+        updatedAt: new Date(),
+      });
+      
+      // Send shipping notification email to customer
+      const orderWithItems = await storage.getOrderWithItems(orderId);
+      if (orderWithItems) {
+        const emailData = {
+          orderNumber: orderWithItems.orderNumber,
+          customerName: orderWithItems.shippingName,
+          customerEmail: orderWithItems.email,
+          totalCents: orderWithItems.totalCents,
+          shippingAddress: orderWithItems.shippingAddress,
+          shippingCity: orderWithItems.shippingCity || undefined,
+          shippingCap: orderWithItems.shippingCap || undefined,
+          estimatedDeliveryDate: estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : undefined,
+          carrier: carrier || undefined,
+          trackingNumber: trackingNumber || undefined,
+          trackingUrl: trackingUrl || undefined,
+          items: orderWithItems.items.map((item: any) => ({
+            productName: item.productName || 'Prodotto',
+            variantColor: item.variantColor || '',
+            variantSize: item.variantSize || '',
+            quantity: item.quantity,
+            priceCents: item.priceCents,
+          })),
+        };
+        
+        sendShippingNotification(emailData).catch(err => console.error('[Email] Shipping error:', err));
+      }
+      
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error("Error shipping order:", error);
+      res.status(500).json({ error: "Failed to ship order" });
+    }
+  });
+
+  // Mark order as delivered
+  app.post("/api/admin/orders/:id/deliver", isAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      const order = await storage.getOrderById(orderId);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      
+      if (order.status !== 'shipped') {
+        return res.status(400).json({ error: "Order must be shipped to mark as delivered" });
+      }
+      
+      const updatedOrder = await storage.updateOrder(orderId, {
+        status: 'delivered',
+        deliveredAt: new Date(),
+        updatedAt: new Date(),
+      });
+      
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error("Error marking order delivered:", error);
+      res.status(500).json({ error: "Failed to mark order delivered" });
     }
   });
 

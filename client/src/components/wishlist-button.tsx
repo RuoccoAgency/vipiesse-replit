@@ -28,7 +28,9 @@ export function WishlistButton({ productId, className, size = "md", showText = f
 
   const checkIfSaved = async () => {
     try {
-      const res = await fetch(`/api/my/saved/${productId}`);
+      const res = await fetch(`/api/my/saved/${productId}`, {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setIsSaved(data.saved);
@@ -60,7 +62,10 @@ export function WishlistButton({ productId, className, size = "md", showText = f
     
     try {
       const method = previousState ? "DELETE" : "POST";
-      const res = await fetch(`/api/my/saved/${productId}`, { method });
+      const res = await fetch(`/api/my/saved/${productId}`, { 
+        method,
+        credentials: 'include',
+      });
       
       if (res.ok) {
         const data = await res.json();

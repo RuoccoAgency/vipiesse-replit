@@ -29,7 +29,9 @@ export function SavedItems() {
 
   const fetchSavedItems = async () => {
     try {
-      const res = await fetch("/api/my/saved");
+      const res = await fetch("/api/my/saved", {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setSavedItems(data);
@@ -44,7 +46,10 @@ export function SavedItems() {
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
     try {
-      const res = await fetch(`/api/my/saved/${productId}`, { method: "DELETE" });
+      const res = await fetch(`/api/my/saved/${productId}`, { 
+        method: "DELETE",
+        credentials: 'include',
+      });
       if (res.ok) {
         setSavedItems(items => items.filter(item => item.id !== productId));
         toast({
