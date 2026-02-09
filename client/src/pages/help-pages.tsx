@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CreditCard, Truck, RefreshCcw, HelpCircle, Mail, MapPin, Phone } from "lucide-react";
+import { CreditCard, Truck, RefreshCcw, HelpCircle, Mail, MapPin, Phone, CheckCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 /* --- LAYOUT WRAPPER --- */
 const HelpLayout = ({ title, subtitle, children }: { title: string, subtitle?: string, children: React.ReactNode }) => (
@@ -22,8 +23,54 @@ const HelpLayout = ({ title, subtitle, children }: { title: string, subtitle?: s
 
 /* --- CONTATTACI --- */
 export function ContactPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => setShowSuccess(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim()) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      if (!res.ok) throw new Error();
+      setName("");
+      setEmail("");
+      setMessage("");
+      setShowSuccess(true);
+    } catch {
+      // silent
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <HelpLayout title="Contattaci" subtitle="Il nostro team è a tua disposizione per qualsiasi domanda o richiesta.">
+      {showSuccess && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300" data-testid="popup-contact-success">
+          <div className="bg-green-50 border border-green-300 rounded-2xl px-8 py-5 shadow-xl flex items-center gap-4">
+            <CheckCircle className="w-7 h-7 text-green-600 shrink-0" />
+            <div>
+              <p className="font-heading font-bold text-green-900 text-lg">Messaggio inviato!</p>
+              <p className="text-green-700 text-sm">Ti risponderemo il prima possibile.</p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div className="space-y-8">
           <div>
@@ -54,21 +101,21 @@ export function ContactPage() {
           </div>
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 font-bold ml-1">Nome</label>
-            <Input placeholder="Il tuo nome" className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
+            <Input data-testid="input-contact-name" placeholder="Il tuo nome" value={name} onChange={e => setName(e.target.value)} required className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
           </div>
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 font-bold ml-1">Email</label>
-            <Input type="email" placeholder="tua@email.com" className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
+            <Input data-testid="input-contact-email" type="email" placeholder="tua@email.com" value={email} onChange={e => setEmail(e.target.value)} required className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
           </div>
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 font-bold ml-1">Messaggio</label>
-            <Textarea placeholder="Come possiamo aiutarti?" className="bg-white border-gray-300 rounded-xl min-h-[150px] focus:border-gray-900 transition-colors p-4 resize-none" />
+            <Textarea data-testid="input-contact-message" placeholder="Come possiamo aiutarti?" value={message} onChange={e => setMessage(e.target.value)} required className="bg-white border-gray-300 rounded-xl min-h-[150px] focus:border-gray-900 transition-colors p-4 resize-none" />
           </div>
-          <Button className="w-full bg-gray-900 text-white hover:bg-gray-800 h-12 mt-2 font-heading uppercase tracking-widest text-sm">
-            Invia Messaggio
+          <Button data-testid="button-contact-submit" type="submit" disabled={isSubmitting} className="w-full bg-gray-900 text-white hover:bg-gray-800 h-12 mt-2 font-heading uppercase tracking-widest text-sm">
+            {isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Invio...</> : "Invia Messaggio"}
           </Button>
         </form>
       </div>

@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, CheckCircle, Building2, Truck, HeadphonesIcon, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,8 +25,16 @@ type BusinessFormData = z.infer<typeof businessSchema>;
 export function Business() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const { toast } = useToast();
   const [, navigate] = useLocation();
+
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
 
   const form = useForm<BusinessFormData>({
     resolver: zodResolver(businessSchema),
@@ -59,10 +67,7 @@ export function Business() {
       }
 
       setIsSuccess(true);
-      toast({
-        title: "Richiesta inviata!",
-        description: "Ti contatteremo entro 24 ore lavorative.",
-      });
+      setShowPopup(true);
     } catch (error: any) {
       toast({
         title: "Errore",
@@ -77,6 +82,17 @@ export function Business() {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-white pt-24">
+        {showPopup && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300" data-testid="popup-business-success">
+            <div className="bg-green-50 border border-green-300 rounded-2xl px-8 py-5 shadow-xl flex items-center gap-4">
+              <CheckCircle className="w-7 h-7 text-green-600 shrink-0" />
+              <div>
+                <p className="font-heading font-bold text-green-900 text-lg">Richiesta inviata!</p>
+                <p className="text-green-700 text-sm">Ti contatteremo entro 24 ore lavorative.</p>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="container mx-auto px-4 py-12 max-w-md">
           <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
