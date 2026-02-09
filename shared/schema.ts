@@ -41,6 +41,7 @@ export const productVariants = pgTable(
     sku: text("sku").notNull().unique(), // Globally unique SKU
     stockQty: integer("stock_qty").notNull().default(0),
     priceCents: integer("price_cents"), // If null, use product.basePriceCents
+    imageUrl: text("image_url"), // Image URL for this color variant
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
@@ -276,6 +277,7 @@ export const insertProductVariantSchema = createInsertSchema(productVariants)
     sku: z.string().min(1, "SKU is required"),
     stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
     priceCents: z.number().int().min(0).nullable().optional(),
+    imageUrl: z.string().nullable().optional(),
   });
 
 export const insertProductImageSchema = createInsertSchema(productImages)
