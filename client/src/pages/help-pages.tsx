@@ -28,6 +28,7 @@ export function ContactPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     if (showSuccess) {
@@ -38,21 +39,29 @@ export function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !message.trim()) return;
+    e.stopPropagation();
+    setErrorMsg("");
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setErrorMsg("Compila tutti i campi");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Errore nell'invio");
+      }
       setName("");
       setEmail("");
       setMessage("");
       setShowSuccess(true);
-    } catch {
-      // silent
+    } catch (err: any) {
+      setErrorMsg(err.message || "Errore nell'invio del messaggio");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,23 +110,26 @@ export function ContactPage() {
           </div>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 font-bold ml-1">Nome</label>
-            <Input data-testid="input-contact-name" placeholder="Il tuo nome" value={name} onChange={e => setName(e.target.value)} required className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
+            <Input data-testid="input-contact-name" placeholder="Il tuo nome" value={name} onChange={e => setName(e.target.value)} className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
           </div>
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 font-bold ml-1">Email</label>
-            <Input data-testid="input-contact-email" type="email" placeholder="tua@email.com" value={email} onChange={e => setEmail(e.target.value)} required className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
+            <Input data-testid="input-contact-email" type="email" placeholder="tua@email.com" value={email} onChange={e => setEmail(e.target.value)} className="bg-white border-gray-300 rounded-xl h-12 focus:border-gray-900 transition-colors" />
           </div>
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 font-bold ml-1">Messaggio</label>
-            <Textarea data-testid="input-contact-message" placeholder="Come possiamo aiutarti?" value={message} onChange={e => setMessage(e.target.value)} required className="bg-white border-gray-300 rounded-xl min-h-[150px] focus:border-gray-900 transition-colors p-4 resize-none" />
+            <Textarea data-testid="input-contact-message" placeholder="Come possiamo aiutarti?" value={message} onChange={e => setMessage(e.target.value)} className="bg-white border-gray-300 rounded-xl min-h-[150px] focus:border-gray-900 transition-colors p-4 resize-none" />
           </div>
-          <Button data-testid="button-contact-submit" type="submit" disabled={isSubmitting} className="w-full bg-gray-900 text-white hover:bg-gray-800 h-12 mt-2 font-heading uppercase tracking-widest text-sm">
+          {errorMsg && (
+            <p className="text-red-600 text-sm font-medium">{errorMsg}</p>
+          )}
+          <Button data-testid="button-contact-submit" type="button" disabled={isSubmitting} onClick={handleSubmit as any} className="w-full bg-gray-900 text-white hover:bg-gray-800 h-12 mt-2 font-heading uppercase tracking-widest text-sm">
             {isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Invio...</> : "Invia Messaggio"}
           </Button>
-        </form>
+        </div>
       </div>
     </HelpLayout>
   );
