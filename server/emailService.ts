@@ -340,6 +340,180 @@ export async function sendShippingNotification(order: OrderEmailData): Promise<b
   return sendWithResend(order.customerEmail, `Il tuo ordine è in viaggio! - ${order.orderNumber}`, emailHtml);
 }
 
+export async function sendBankTransferOrderEmail(order: OrderEmailData): Promise<boolean> {
+  const bankName = process.env.BANK_NAME || 'N/A';
+  const bankIban = process.env.BANK_IBAN || 'N/A';
+  const bankAccountName = process.env.BANK_ACCOUNT_NAME || 'VIPIESSE';
+
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden;">
+        <div style="background: #000; color: white; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">VIPIESSE</h1>
+        </div>
+        
+        <div style="padding: 32px;">
+          <h2 style="margin: 0 0 8px;">Ordine ricevuto!</h2>
+          <p style="color: #666; margin: 0 0 24px;">Ciao ${order.customerName}, abbiamo ricevuto il tuo ordine. Per completarlo, effettua il bonifico bancario con i dati indicati di seguito.</p>
+          
+          <div style="background: #f8f8f8; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <p style="margin: 0;"><strong>Numero ordine:</strong> ${order.orderNumber}</p>
+            <p style="margin: 8px 0 0;"><strong>Totale da pagare:</strong> ${formatPrice(order.totalCents)}</p>
+          </div>
+          
+          <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+            <h3 style="margin: 0 0 12px; color: #92400e;">Dati per il bonifico bancario</h3>
+            <p style="margin: 0 0 8px;"><strong>Intestatario:</strong> ${bankAccountName}</p>
+            <p style="margin: 0 0 8px;"><strong>Banca:</strong> ${bankName}</p>
+            <p style="margin: 0 0 8px;"><strong>IBAN:</strong> <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px;">${bankIban}</span></p>
+            <p style="margin: 0;"><strong>Causale:</strong> <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px;">${order.orderNumber}</span></p>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-bottom: 24px;">
+            <strong>Importante:</strong> Inserisci il numero d'ordine come causale del bonifico per velocizzare la conferma del pagamento. 
+            L'ordine verrà confermato dopo la ricezione del pagamento.
+          </p>
+          
+          <h3 style="margin: 0 0 12px;">Articoli ordinati</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f8f8f8;">
+                <th style="padding: 12px; text-align: left;">Articolo</th>
+                <th style="padding: 12px; text-align: center;">Qtà</th>
+                <th style="padding: 12px; text-align: right;">Prezzo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${getOrderItemsHtml(order.items)}
+            </tbody>
+          </table>
+          
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #000;">
+            <p style="margin: 0; font-size: 18px; text-align: right;"><strong>Totale: ${formatPrice(order.totalCents)}</strong></p>
+          </div>
+          
+          <h3 style="margin: 24px 0 12px;">Indirizzo di spedizione</h3>
+          <p style="margin: 0; color: #666;">
+            ${order.shippingAddress}<br>
+            ${order.shippingCap || ''} ${order.shippingCity || ''}<br>
+            Italia
+          </p>
+        </div>
+        
+        <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
+          <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendWithResend(order.customerEmail, `Ordine ricevuto - Istruzioni pagamento - ${order.orderNumber}`, emailHtml);
+}
+
+export async function sendAdminBankTransferNotification(order: OrderEmailData): Promise<boolean> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+
+  if (!adminEmail) {
+    console.log('[Email] ADMIN_EMAIL not configured, skipping admin notification');
+    return false;
+  }
+
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px;">
+      <h1 style="color: #000;">Nuovo ordine - Bonifico bancario</h1>
+      
+      <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+        <p style="margin: 0 0 8px;"><strong>Ordine:</strong> ${order.orderNumber}</p>
+        <p style="margin: 0 0 8px;"><strong>Totale:</strong> ${formatPrice(order.totalCents)}</p>
+        <p style="margin: 0;"><strong>Pagamento:</strong> In attesa di bonifico bancario</p>
+      </div>
+      
+      <h2>Cliente</h2>
+      <p>
+        <strong>Nome:</strong> ${order.customerName}<br>
+        <strong>Email:</strong> ${order.customerEmail}
+      </p>
+      
+      <h2>Spedizione</h2>
+      <p>
+        ${order.shippingAddress}<br>
+        ${order.shippingCap || ''} ${order.shippingCity || ''}<br>
+        Italia
+      </p>
+      
+      <h2>Articoli (${order.items.length})</h2>
+      <ul>
+        ${order.items.map(item => `<li>${item.productName} - ${item.variantColor} - Taglia ${item.variantSize} (x${item.quantity})</li>`).join('')}
+      </ul>
+      
+      <p style="margin-top: 24px;">
+        <a href="/admin/orders" style="background: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Gestisci Ordini</a>
+      </p>
+    </body>
+    </html>
+  `;
+
+  return sendWithResend(adminEmail, `Nuovo ordine (bonifico) - ${order.orderNumber}`, emailHtml);
+}
+
+export async function sendPaymentConfirmedEmail(order: OrderEmailData): Promise<boolean> {
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden;">
+        <div style="background: #000; color: white; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">VIPIESSE</h1>
+        </div>
+        
+        <div style="padding: 32px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+              <span style="font-size: 32px;">&#10003;</span>
+            </div>
+            <h2 style="margin: 0;">Pagamento confermato!</h2>
+          </div>
+          
+          <p style="color: #666;">Ciao ${order.customerName},</p>
+          <p style="color: #666;">Il pagamento per il tuo ordine <strong>${order.orderNumber}</strong> è stato confermato. Stiamo preparando la tua spedizione!</p>
+          
+          <div style="background: #f0fdf4; border: 1px solid #22c55e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <p style="margin: 0;"><strong>Numero ordine:</strong> ${order.orderNumber}</p>
+            <p style="margin: 8px 0 0;"><strong>Totale pagato:</strong> ${formatPrice(order.totalCents)}</p>
+          </div>
+          
+          <p style="color: #666;">Riceverai un'altra email con il numero di tracking non appena il tuo ordine verrà spedito.</p>
+        </div>
+        
+        <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
+          <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendWithResend(order.customerEmail, `Pagamento confermato - ${order.orderNumber}`, emailHtml);
+}
+
 // Test helper - creates dummy order data for testing
 export function createDummyOrderData(): OrderEmailData {
   return {

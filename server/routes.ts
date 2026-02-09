@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, createDummyOrderData, type OrderEmailData } from "./emailService";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, sendBankTransferOrderEmail, sendAdminBankTransferNotification, sendPaymentConfirmedEmail, createDummyOrderData, type OrderEmailData } from "./emailService";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -1648,6 +1648,29 @@ export async function registerRoutes(
         return res.status(400).json({ error: result.error });
       }
       
+      // Send bank transfer instruction email to customer and notify admin
+      if (validatedPaymentMethod === 'bank_transfer') {
+        const emailData: OrderEmailData = {
+          orderNumber: result.order.orderNumber,
+          customerName: customerName + (customerSurname ? ` ${customerSurname}` : ''),
+          customerEmail,
+          totalCents,
+          shippingAddress,
+          shippingCity: shippingCity || undefined,
+          shippingCap: shippingCap || undefined,
+          items: orderItems.map(item => ({
+            productName: item.productName,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+            priceCents: item.priceCents,
+          })),
+        };
+        
+        sendBankTransferOrderEmail(emailData).catch(err => console.error('[Email] Bank transfer instruction error:', err));
+        sendAdminBankTransferNotification(emailData).catch(err => console.error('[Email] Admin bank transfer notification error:', err));
+      }
+      
       res.status(201).json({ 
         success: true, 
         orderId: result.order.id,
@@ -1717,14 +1740,43 @@ export async function registerRoutes(
   app.patch("/api/admin/orders/:id/status", isAdmin, async (req, res) => {
     try {
       const { status } = req.body;
-      const validStatuses = ['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
+      const validStatuses = ['pending_payment', 'awaiting_bank', 'paid', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
+      
+      const previousOrder = await storage.getOrderById(parseInt(req.params.id));
       const order = await storage.updateOrderStatus(parseInt(req.params.id), status);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
+      
+      // Send payment confirmation email when bank transfer order is marked as paid
+      if (status === 'paid' && previousOrder && 
+          (previousOrder.status === 'awaiting_bank' || previousOrder.status === 'pending_payment') &&
+          previousOrder.paymentMethod === 'bank_transfer') {
+        const orderWithItems = await storage.getOrderWithItems(order.id);
+        if (orderWithItems) {
+          const emailData: OrderEmailData = {
+            orderNumber: orderWithItems.orderNumber,
+            customerName: orderWithItems.customerName + (orderWithItems.customerSurname ? ` ${orderWithItems.customerSurname}` : ''),
+            customerEmail: orderWithItems.customerEmail,
+            totalCents: orderWithItems.totalCents,
+            shippingAddress: orderWithItems.shippingAddress,
+            shippingCity: orderWithItems.shippingCity || undefined,
+            shippingCap: orderWithItems.shippingCap || undefined,
+            items: orderWithItems.items.map((item: any) => ({
+              productName: item.productName || 'Prodotto',
+              variantColor: item.variantColor || '',
+              variantSize: item.variantSize || '',
+              quantity: item.quantity,
+              priceCents: item.priceCents,
+            })),
+          };
+          sendPaymentConfirmedEmail(emailData).catch(err => console.error('[Email] Payment confirmed error:', err));
+        }
+      }
+      
       res.json(order);
     } catch (error) {
       res.status(500).json({ error: "Failed to update order status" });
