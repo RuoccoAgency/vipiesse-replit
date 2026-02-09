@@ -343,18 +343,18 @@ export function ShippingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-6 rounded-2xl border border-gray-200 bg-white">
               <h4 className="text-lg font-bold text-gray-900 mb-2">Italia (Standard)</h4>
-              <p className="text-gray-600 text-sm mb-4">Consegna in 3-5 giorni lavorativi.</p>
+              <p className="text-gray-600 text-sm mb-4">Consegna in 48 ore lavorative.</p>
               <div className="flex justify-between items-center text-sm font-medium border-t border-gray-200 pt-4">
                 <span className="text-gray-900">Costo</span>
                 <span className="text-gray-900">€5.00 (Gratis &gt; 50€)</span>
               </div>
             </div>
             <div className="p-6 rounded-2xl border border-gray-200 bg-white">
-              <h4 className="text-lg font-bold text-gray-900 mb-2">Italia (Express)</h4>
-              <p className="text-gray-600 text-sm mb-4">Consegna in 24/48 ore lavorative.</p>
+              <h4 className="text-lg font-bold text-gray-900 mb-2">Estero</h4>
+              <p className="text-gray-600 text-sm mb-4">Consegna in 3-5 giorni lavorativi.</p>
               <div className="flex justify-between items-center text-sm font-medium border-t border-gray-200 pt-4">
                 <span className="text-gray-900">Costo</span>
-                <span className="text-gray-900">€9.00</span>
+                <span className="text-gray-900">€5.00</span>
               </div>
             </div>
           </div>
