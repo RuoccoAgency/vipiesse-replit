@@ -2327,6 +2327,13 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           </div>
         </div>
         
+        <!-- Color Images Section -->
+        <div class="section" id="colorImagesSection">
+          <h3>Color Images</h3>
+          <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;">Assign an image to each color. All sizes of the same color share this image. On the storefront, the product image updates when a customer selects a color.</p>
+          <div id="colorImagesList"></div>
+        </div>
+
         <!-- Variants Section -->
         <div class="section">
           <h3>Variants (Color + Size Combinations)</h3>
@@ -2334,6 +2341,7 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           <table style="margin-top: 1rem;">
             <thead>
               <tr>
+                <th>Image</th>
                 <th>Color</th>
                 <th>Size</th>
                 <th>SKU</th>
@@ -2346,6 +2354,7 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
             <tbody id="variantsList">
               ${product.variants?.map((v: any) => `
                 <tr data-id="${v.id}">
+                  <td>${v.imageUrl ? '<img src="' + v.imageUrl + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" onerror="this.style.display=\'none\'">' : '<span style="color:#ccc;">—</span>'}</td>
                   <td>${v.color}</td>
                   <td>${v.size}</td>
                   <td>${v.sku}</td>
@@ -2357,7 +2366,7 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                     <button class="btn btn-small btn-danger" onclick="deleteVariant(${v.id})">Delete</button>
                   </td>
                 </tr>
-              `).join('') || '<tr><td colspan="7" style="color: #666;">No variants yet. Add color/size combinations.</td></tr>'}
+              `).join('') || '<tr><td colspan="8" style="color: #666;">No variants yet. Add color/size combinations.</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -2408,6 +2417,102 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
       <script>
         const productId = ${product.id};
         const variants = ${JSON.stringify(product.variants || [])};
+        
+        function slugifyColor(color) {
+          return color.replace(/[^a-zA-Z0-9]/g, '_');
+        }
+
+        function renderColorImages() {
+          const colorMap = {};
+          variants.forEach(v => {
+            if (!colorMap[v.color]) {
+              colorMap[v.color] = { imageUrl: v.imageUrl || '', variantIds: [] };
+            }
+            colorMap[v.color].variantIds.push(v.id);
+            if (v.imageUrl && !colorMap[v.color].imageUrl) {
+              colorMap[v.color].imageUrl = v.imageUrl;
+            }
+          });
+          
+          const container = document.getElementById('colorImagesList');
+          const colors = Object.keys(colorMap).sort();
+          
+          if (colors.length === 0) {
+            container.innerHTML = '<p style="color:#999;">Add variants first to assign color images.</p>';
+            return;
+          }
+          
+          container.innerHTML = colors.map(color => {
+            const info = colorMap[color];
+            const slug = slugifyColor(color);
+            const safeColor = color.replace(/'/g, "\\\\'");
+            return '<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem;border:1px solid #eee;border-radius:8px;margin-bottom:0.75rem;background:#fafafa;">' +
+              '<div style="width:60px;height:60px;border-radius:6px;overflow:hidden;background:#e5e7eb;flex-shrink:0;border:1px solid #ddd;">' +
+                (info.imageUrl ? '<img src="' + info.imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">No img</div>') +
+              '</div>' +
+              '<div style="flex:1;">' +
+                '<strong style="font-size:0.95rem;">' + color + '</strong>' +
+                '<div style="font-size:0.75rem;color:#666;">' + info.variantIds.length + ' variant(s)</div>' +
+              '</div>' +
+              '<div style="display:flex;gap:0.5rem;align-items:center;">' +
+                '<input type="file" id="colorFile_' + slug + '" accept="image/*" style="display:none;" onchange="uploadColorImage(\'' + safeColor + '\')">' +
+                '<button class="btn btn-small" onclick="document.getElementById(\'colorFile_' + slug + '\').click()">Upload Image</button>' +
+                (info.imageUrl ? '<button class="btn btn-small btn-danger" onclick="removeColorImage(\'' + safeColor + '\')">Remove</button>' : '') +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+        
+        async function uploadColorImage(color) {
+          const fileInput = document.getElementById('colorFile_' + slugifyColor(color));
+          const file = fileInput.files[0];
+          if (!file) return;
+          
+          const formData = new FormData();
+          formData.append('images', file);
+          
+          try {
+            const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+            if (!uploadRes.ok) throw new Error('Upload failed');
+            const result = await uploadRes.json();
+            const imageUrl = result.files[0].url;
+            
+            // Update all variants of this color
+            const colorVariants = variants.filter(v => v.color === color);
+            for (const v of colorVariants) {
+              await fetch('/api/admin/variants/' + v.id, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageUrl })
+              });
+              v.imageUrl = imageUrl;
+            }
+            
+            renderColorImages();
+            alert('Image set for color: ' + color);
+          } catch (err) {
+            alert('Error uploading image: ' + err.message);
+          }
+        }
+        
+        async function removeColorImage(color) {
+          if (!confirm('Remove image for color ' + color + '?')) return;
+          
+          const colorVariants = variants.filter(v => v.color === color);
+          for (const v of colorVariants) {
+            await fetch('/api/admin/variants/' + v.id, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imageUrl: null })
+            });
+            v.imageUrl = null;
+          }
+          
+          renderColorImages();
+        }
+        
+        // Initialize color images on load
+        document.addEventListener('DOMContentLoaded', renderColorImages);
         
         async function logout() {
           await fetch('/api/admin/logout', { method: 'POST' });

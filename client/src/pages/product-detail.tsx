@@ -26,6 +26,7 @@ interface ProductVariant {
   sku: string;
   stockQty: number;
   priceCents: number | null;
+  imageUrl: string | null;
   active: boolean;
 }
 
@@ -115,7 +116,6 @@ export function ProductDetail() {
   }, [product, availableColors, selectedColor]);
 
   useEffect(() => {
-    // Always set activeImage to the first gallery image when product loads or changes
     if (galleryImages.length > 0) {
       setActiveImage(galleryImages[0]);
     }
@@ -123,6 +123,14 @@ export function ProductDetail() {
 
   useEffect(() => {
     setSelectedSize("");
+    if (selectedColor && product?.variants) {
+      const colorVariant = product.variants.find(v => v.color === selectedColor && v.imageUrl);
+      if (colorVariant?.imageUrl) {
+        setActiveImage(colorVariant.imageUrl);
+      } else if (galleryImages.length > 0) {
+        setActiveImage(galleryImages[0]);
+      }
+    }
   }, [selectedColor]);
 
   if (isLoading) {
@@ -172,6 +180,7 @@ export function ProductDetail() {
       return;
     }
 
+    const cartImage = selectedVariant.imageUrl || galleryImages[0] || "";
     for (let i = 0; i < quantity; i++) {
       addToCart(
         {
@@ -180,7 +189,7 @@ export function ProductDetail() {
           name: product.name,
           brand: product.brand || "",
           price: displayPrice,
-          image: galleryImages[0] || "",
+          image: cartImage,
           color: selectedColor,
           size: selectedSize,
           sku: selectedVariant.sku,
