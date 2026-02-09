@@ -2,7 +2,7 @@ import { useRoute, Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
-import { Minus, Plus, Heart } from "lucide-react";
+import { Minus, Plus, Heart, Truck } from "lucide-react";
 import { WishlistButton } from "@/components/wishlist-button";
 import { ProductReviews } from "@/components/product-reviews";
 import { motion } from "framer-motion";
@@ -414,6 +414,14 @@ export function ProductDetail() {
                   {stockStatus.inStock ? "AGGIUNGI AL CARRELLO" : "ESAURITO"}
                 </Button>
               </div>
+
+              {/* Delivery info badge */}
+              <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3 mt-4" data-testid="delivery-info">
+                <Truck className="w-5 h-5 text-green-700 shrink-0" />
+                <p className="text-sm text-green-800 font-medium">
+                  Consegna prevista entro <strong>48 ore lavorative</strong>
+                </p>
+              </div>
             </div>
 
             {/* Details Accordion */}
@@ -445,7 +453,7 @@ export function ProductDetail() {
                     Spedizione e Resi
                   </AccordionTrigger>
                   <AccordionContent className="text-gray-600 leading-relaxed text-sm pb-6">
-                    Spedizione gratuita per ordini superiori a €50. Resi gratuiti entro 30 giorni.
+                    Consegna prevista entro 48 ore lavorative. Spedizione gratuita per ordini superiori a €50. Resi gratuiti entro 30 giorni.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
