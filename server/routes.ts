@@ -2448,16 +2448,16 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
             const safeColor = color.replace(/'/g, "\\\\'");
             return '<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem;border:1px solid #eee;border-radius:8px;margin-bottom:0.75rem;background:#fafafa;">' +
               '<div style="width:60px;height:60px;border-radius:6px;overflow:hidden;background:#e5e7eb;flex-shrink:0;border:1px solid #ddd;">' +
-                (info.imageUrl ? '<img src="' + info.imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">No img</div>') +
+                (info.imageUrl ? '<img src="' + info.imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\\\'none\\\'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">No img</div>') +
               '</div>' +
               '<div style="flex:1;">' +
                 '<strong style="font-size:0.95rem;">' + color + '</strong>' +
                 '<div style="font-size:0.75rem;color:#666;">' + info.variantIds.length + ' variant(s)</div>' +
               '</div>' +
               '<div style="display:flex;gap:0.5rem;align-items:center;">' +
-                '<input type="file" id="colorFile_' + slug + '" accept="image/*" style="display:none;" onchange="uploadColorImage(\'' + safeColor + '\')">' +
-                '<button class="btn btn-small" onclick="document.getElementById(\'colorFile_' + slug + '\').click()">Upload Image</button>' +
-                (info.imageUrl ? '<button class="btn btn-small btn-danger" onclick="removeColorImage(\'' + safeColor + '\')">Remove</button>' : '') +
+                '<input type="file" id="colorFile_' + slug + '" accept="image/*" style="display:none;" onchange="uploadColorImage(\\\'' + safeColor + '\\\')">' +
+                '<button class="btn btn-small" onclick="document.getElementById(\\\'colorFile_' + slug + '\\\').click()">Upload Image</button>' +
+                (info.imageUrl ? '<button class="btn btn-small btn-danger" onclick="removeColorImage(\\\'' + safeColor + '\\\')">Remove</button>' : '') +
               '</div>' +
             '</div>';
           }).join('');
