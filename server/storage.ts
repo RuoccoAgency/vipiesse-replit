@@ -206,6 +206,7 @@ export interface IStorage {
   createBusinessRequest(data: InsertBusinessRequest): Promise<BusinessRequest>;
   getAllBusinessRequests(): Promise<BusinessRequest[]>;
   updateBusinessRequestStatus(id: number, status: string): Promise<BusinessRequest | undefined>;
+  getApprovedBusinessRequestByEmail(email: string): Promise<BusinessRequest | undefined>;
 
   // Product Reviews
   createProductReview(data: InsertProductReview): Promise<ProductReview>;
@@ -1037,6 +1038,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(businessRequests.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async getApprovedBusinessRequestByEmail(email: string): Promise<BusinessRequest | undefined> {
+    const [request] = await db.select().from(businessRequests)
+      .where(and(eq(businessRequests.email, email), eq(businessRequests.status, "approved")));
+    return request || undefined;
   }
 
   // B2B

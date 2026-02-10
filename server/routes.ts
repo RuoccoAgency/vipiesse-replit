@@ -618,6 +618,12 @@ export async function registerRoutes(
       const passwordHash = await bcrypt.hash(password, 10);
       const user = await storage.createUser(email, passwordHash, name, surname, phone);
       
+      const approvedRequest = await storage.getApprovedBusinessRequestByEmail(email);
+      if (approvedRequest) {
+        await storage.setUserB2b(user.id, true);
+        user.isB2b = true;
+      }
+      
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       const session = await storage.createSession(email, expiresAt, user.id, false);
       
