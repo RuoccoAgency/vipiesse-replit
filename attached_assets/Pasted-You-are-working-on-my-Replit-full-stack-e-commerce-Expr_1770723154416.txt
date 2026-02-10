@@ -1,0 +1,91 @@
+You are working on my Replit full-stack e-commerce (Express + TS + DB) with Stripe checkout + bank transfer + Resend emails.
+
+PROBLEM (must fix):
+- I place an order, choose Stripe (card), pay successfully, but in “My Orders” it shows “pending_payment / awaiting payment” and “bank transfer” as payment method.
+- When I open order details from “My Orders” it says “order not found”.
+- In the Admin/Backoffice the order exists but still shows pending and the wrong payment method.
+- No emails are sent (customer confirmation + admin notification).
+
+GOAL:
+Make Stripe card payments fully consistent end-to-end:
+1) If user selects Stripe and payment succeeds, the order MUST become:
+   - status: "paid"
+   - paymentMethod: "stripe"
+   - paidAt timestamp (if you have it)
+   - store stripeSessionId and paymentIntentId (if available)
+2) “My Orders” must immediately show the order as PAID and allow opening the details page.
+3) Order details must work for the buyer:
+   - if user is logged in: userId matches OR order.customerEmail matches current user email
+4) Emails must be sent:
+   - customer order confirmation after payment success
+   - admin notification after payment success
+   Use the existing Resend integration code and ensure FROM/REPLY-TO are valid and that sending is actually triggered after paid.
+
+IMPLEMENTATION REQUIREMENTS (do exactly this approach):
+A) Create Stripe Checkout Session flow
+- When creating a Stripe Checkout Session, create a LOCAL order first with:
+  - status: "pending_payment"
+  - paymentMethod: "stripe" (NEVER default to bank_transfer here)
+  - customerEmail/name/address, totals, items
+  - save stripeSessionId (when session is created)
+- Put metadata on the Stripe session:
+  - metadata.orderId = localOrder.id
+  - metadata.orderNumber = localOrder.orderNumber
+
+B) Stripe Webhook (the most important fix)
+- Implement/verify a webhook endpoint (e.g. POST /api/stripe/webhook) that:
+  - verifies signature using STRIPE_WEBHOOK_SECRET
+  - handles at least:
+    - "checkout.session.completed"  (primary)
+    - optionally "payment_intent.succeeded" (secondary)
+- On checkout.session.completed:
+  - read orderId from session.metadata.orderId
+  - fetch that local order
+  - update it to:
+    - status "paid"
+    - paymentMethod "stripe"
+    - store paymentIntentId (session.payment_intent) and stripeSessionId
+  - ONLY AFTER updating to paid:
+    - reduce stock quantities (if you currently reduce stock earlier, move it here)
+    - send emails:
+      - sendOrderConfirmationEmail(orderEmailData)
+      - sendAdminOrderNotification(orderEmailData)
+
+C) Fix wrong “bank_transfer” assignment
+- Find where paymentMethod is being set default to bank_transfer and fix it.
+- Ensure Stripe orders can never be created with bank_transfer.
+- Ensure bank transfer checkout uses paymentMethod "bank_transfer" separately.
+
+D) Fix “Order not found” in My Orders
+- Update endpoints so the buyer can retrieve their order:
+  - My orders endpoint returns orders where:
+    - order.userId === currentUserId OR order.customerEmail === currentUser.email
+  - Order details endpoint allows access if:
+    - order.userId === currentUserId OR order.customerEmail === currentUser.email
+- Also ensure after successful payment, the order is still linked to the user session if available.
+
+E) Add logging + quick test route (dev only)
+- Add clear server logs:
+  - when Stripe session created (orderId, orderNumber, sessionId)
+  - when webhook received (event.type, sessionId, orderId)
+  - when order updated to paid
+  - when emails are sent (success/failure)
+- Add a dev-only endpoint to trigger a test email using createDummyOrderData() so we can confirm Resend works without real payment.
+
+ENV / SECRETS
+- Support both TEST and LIVE keys without conflicts:
+  - STRIPE_SECRET_KEY
+  - STRIPE_PUBLISHABLE_KEY
+  - STRIPE_WEBHOOK_SECRET
+Optionally also:
+  - STRIPE_SECRET_KEY_TEST, STRIPE_PUBLISHABLE_KEY_TEST, STRIPE_WEBHOOK_SECRET_TEST
+Use NODE_ENV or an explicit STRIPE_MODE ("test"|"live") to pick which set is active.
+Do NOT break production.
+
+DELIVERABLES
+- Update server routes/controllers + storage methods as needed
+- Ensure frontend calls the correct Stripe checkout endpoint and passes "stripe" as payment method
+- After changes:
+  - Pay with Stripe test card -> order shows PAID, correct payment method, details open, customer + admin emails arrive.
+
+Make the minimal changes necessary, but fully fix the issue.

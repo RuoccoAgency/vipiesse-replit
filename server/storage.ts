@@ -158,6 +158,7 @@ export interface IStorage {
     orderId: number,
     data: {
       status: string;
+      paymentMethod?: string;
       stripePaymentIntentId?: string | null;
       estimatedDeliveryDate?: Date;
     }
@@ -743,6 +744,7 @@ export class DatabaseStorage implements IStorage {
     orderId: number,
     data: {
       status: string;
+      paymentMethod?: string;
       stripePaymentIntentId?: string | null;
       estimatedDeliveryDate?: Date;
     }
@@ -785,10 +787,19 @@ export class DatabaseStorage implements IStorage {
         );
       }
       
-      // Update order status
+      // Update order status and payment method
+      const updateFields = ['status = $1', 'stripe_payment_intent_id = $2', 'estimated_delivery_date = $3', 'updated_at = NOW()'];
+      const updateParams: any[] = [data.status, data.stripePaymentIntentId || null, data.estimatedDeliveryDate || null];
+      
+      if (data.paymentMethod) {
+        updateFields.push(`payment_method = $${updateParams.length + 1}`);
+        updateParams.push(data.paymentMethod);
+      }
+      
+      updateParams.push(orderId);
       const updateResult = await client.query(
-        `UPDATE orders SET status = $1, stripe_payment_intent_id = $2, estimated_delivery_date = $3, updated_at = NOW() WHERE id = $4 RETURNING *`,
-        [data.status, data.stripePaymentIntentId || null, data.estimatedDeliveryDate || null, orderId]
+        `UPDATE orders SET ${updateFields.join(', ')} WHERE id = $${updateParams.length} RETURNING *`,
+        updateParams
       );
       
       await client.query('COMMIT');

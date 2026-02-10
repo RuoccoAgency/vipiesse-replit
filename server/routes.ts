@@ -253,6 +253,8 @@ export async function registerRoutes(
       // Update order with Stripe session ID
       await storage.updateOrderStripeSession(pendingOrder.id, session.id);
 
+      console.log(`[Stripe Checkout] Session created: sessionId=${session.id}, orderId=${pendingOrder.id}, orderNumber=${pendingOrder.orderNumber}, paymentMethod=stripe`);
+
       res.json({ url: session.url, sessionId: session.id, orderNumber: pendingOrder.orderNumber });
     } catch (error: any) {
       console.error("Stripe checkout error:", error);
@@ -280,7 +282,7 @@ export async function registerRoutes(
     }
   });
 
-  // Confirm order after successful Stripe payment (legacy - checks webhook-created order)
+  // Confirm order after successful Stripe payment (fallback if webhook hasn't processed yet)
   app.post("/api/stripe/confirm-order", async (req, res) => {
     try {
       const { getStripeClient } = await import("./stripeClient");
@@ -292,37 +294,108 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Session ID mancante" });
       }
       
+      console.log(`[Stripe Confirm] Confirming order for session: ${sessionId}`);
+      
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       
       if (session.payment_status !== 'paid') {
+        console.log(`[Stripe Confirm] Payment not completed, status: ${session.payment_status}`);
         return res.status(400).json({ error: "Pagamento non completato" });
       }
       
-      // Check if order was already created by webhook
-      const existingOrder = await storage.getOrderByStripeSessionId(sessionId);
-      if (existingOrder) {
+      // Find the order by stripe session ID or metadata
+      let order = await storage.getOrderByStripeSessionId(sessionId);
+      if (!order && session.metadata?.orderId) {
+        order = await storage.getOrderById(parseInt(session.metadata.orderId));
+      }
+
+      if (!order) {
+        // Wait briefly and try again
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        order = await storage.getOrderByStripeSessionId(sessionId);
+        if (!order && session.metadata?.orderId) {
+          order = await storage.getOrderById(parseInt(session.metadata.orderId));
+        }
+      }
+      
+      if (!order) {
+        console.error(`[Stripe Confirm] Order not found for session: ${sessionId}`);
+        return res.status(202).json({ 
+          success: false, 
+          message: "Ordine in elaborazione. Riceverai una conferma via email."
+        });
+      }
+
+      // If order already paid, return success
+      if (order.status === 'paid' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered') {
+        console.log(`[Stripe Confirm] Order already confirmed: ${order.orderNumber} (status: ${order.status})`);
         return res.json({ 
           success: true, 
-          orderNumber: existingOrder.orderNumber,
+          orderNumber: order.orderNumber,
           message: "Ordine confermato"
         });
       }
 
-      // If webhook hasn't processed yet, wait briefly and check again
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const orderAfterWait = await storage.getOrderByStripeSessionId(sessionId);
-      if (orderAfterWait) {
+      // FALLBACK: If webhook hasn't processed yet, confirm payment here
+      if (order.status === 'pending_payment') {
+        console.log(`[Stripe Confirm] Webhook hasn't processed yet, confirming payment for order: ${order.orderNumber}`);
+        
+        const now = new Date();
+        const eta = new Date(now);
+        eta.setDate(eta.getDate() + 4);
+
+        const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : null;
+
+        const result = await storage.confirmOrderPayment(order.id, {
+          status: 'paid',
+          paymentMethod: 'stripe',
+          stripePaymentIntentId: paymentIntentId,
+          estimatedDeliveryDate: eta,
+        });
+
+        if ('error' in result) {
+          console.error(`[Stripe Confirm] Payment confirmation failed:`, result.error);
+          return res.status(400).json({ error: result.error });
+        }
+
+        console.log(`[Stripe Confirm] Order paid successfully (fallback): ${order.orderNumber}, paymentMethod=stripe`);
+
+        // Send confirmation emails
+        const orderWithItems = await storage.getOrderWithItems(order.id);
+        if (orderWithItems) {
+          const emailData = {
+            orderNumber: orderWithItems.orderNumber,
+            customerName: orderWithItems.customerName,
+            customerEmail: orderWithItems.customerEmail,
+            totalCents: orderWithItems.totalCents,
+            shippingAddress: orderWithItems.shippingAddress,
+            shippingCity: orderWithItems.shippingCity || undefined,
+            shippingCap: orderWithItems.shippingCap || undefined,
+            estimatedDeliveryDate: eta,
+            items: orderWithItems.items.map((item: any) => ({
+              productName: item.productName || 'Prodotto',
+              variantColor: item.variantColor || '',
+              variantSize: item.variantSize || '',
+              quantity: item.quantity,
+              priceCents: item.priceCents,
+            })),
+          };
+          
+          sendOrderConfirmationEmail(emailData).catch(err => console.error('[Email] Error:', err));
+          sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+        }
+
         return res.json({ 
           success: true, 
-          orderNumber: orderAfterWait.orderNumber,
+          orderNumber: order.orderNumber,
           message: "Ordine confermato"
         });
       }
       
-      // Order not found - webhook may not have processed yet
-      return res.status(202).json({ 
-        success: false, 
-        message: "Ordine in elaborazione. Riceverai una conferma via email."
+      return res.json({ 
+        success: true, 
+        orderNumber: order.orderNumber,
+        message: "Ordine confermato"
       });
     } catch (error: any) {
       console.error("Order confirmation error:", error);
@@ -404,9 +477,10 @@ export async function registerRoutes(
         // Get payment intent ID if available
         const paymentIntentId = session.payment_intent || null;
 
-        // Mark order as paid and decrement stock
+        // Mark order as paid, set payment method, and decrement stock
         const result = await storage.confirmOrderPayment(order.id, {
           status: 'paid',
+          paymentMethod: 'stripe',
           stripePaymentIntentId: paymentIntentId,
           estimatedDeliveryDate: eta,
         });
@@ -416,7 +490,7 @@ export async function registerRoutes(
           return res.status(400).json({ error: result.error });
         }
 
-        console.log(`[Stripe Webhook] Order paid successfully: ${order.orderNumber}`);
+        console.log(`[Stripe Webhook] Order paid successfully: ${order.orderNumber}, paymentMethod=stripe`);
         
         // Send confirmation emails (async, don't block response)
         const orderWithItems = await storage.getOrderWithItems(order.id);
@@ -601,18 +675,21 @@ export async function registerRoutes(
     res.json({ user: null });
   });
   
-  // Get user's orders
+  // Get user's orders (by userId OR email to catch all orders)
   app.get("/api/my/orders", isUser, async (req, res) => {
     try {
-      let orders;
-      if (req.userId) {
-        orders = await storage.getOrdersByUserId(req.userId);
-      } else if (req.userEmail) {
-        orders = await storage.getOrdersByEmail(req.userEmail);
-      } else {
-        return res.json([]);
-      }
-      res.json(orders);
+      const ordersByUserId = req.userId ? await storage.getOrdersByUserId(req.userId) : [];
+      const ordersByEmail = req.userEmail ? await storage.getOrdersByEmail(req.userEmail) : [];
+      
+      // Merge and deduplicate
+      const orderMap = new Map<number, any>();
+      for (const o of ordersByUserId) orderMap.set(o.id, o);
+      for (const o of ordersByEmail) orderMap.set(o.id, o);
+      
+      const allOrders = Array.from(orderMap.values())
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      res.json(allOrders);
     } catch (error) {
       res.status(500).json({ error: "Errore nel recupero degli ordini" });
     }
@@ -628,11 +705,10 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Ordine non trovato" });
       }
       
-      // Verify user owns this order
-      if (req.userId && order.userId !== req.userId) {
-        return res.status(403).json({ error: "Non autorizzato" });
-      }
-      if (req.userEmail && order.customerEmail !== req.userEmail) {
+      // Verify user owns this order (allow if userId matches OR email matches)
+      const userIdMatches = req.userId && order.userId === req.userId;
+      const emailMatches = req.userEmail && order.customerEmail === req.userEmail;
+      if (!userIdMatches && !emailMatches) {
         return res.status(403).json({ error: "Non autorizzato" });
       }
       
@@ -3072,7 +3148,7 @@ function getAdminOrdersPage(orders: any[]): string {
                   <td>${date}</td>
                   <td>${o.customerName} ${o.customerSurname}<br><small>${o.customerEmail}</small></td>
                   <td>€${(o.totalCents / 100).toFixed(2)}</td>
-                  <td>${o.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico'}</td>
+                  <td>${o.paymentMethod === 'stripe' ? 'Carta' : o.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico'}</td>
                   <td>
                     <select onchange="updateStatus(${o.id}, this.value)" style="background-color: ${status.color}; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px;">
                       <option value="pending_payment" ${o.status === 'pending_payment' ? 'selected' : ''}>In attesa pagamento</option>
@@ -3243,7 +3319,7 @@ function getAdminOrderDetailPage(order: any): string {
           </div>
           <div class="info-row">
             <span class="info-label">Payment Method</span>
-            <span class="info-value">${order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'}</span>
+            <span class="info-value">${order.paymentMethod === 'stripe' ? 'Carta di Credito' : order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'}</span>
           </div>
           ${order.paypalOrderId ? `
           <div class="info-row">
