@@ -107,6 +107,11 @@ export function ProductDetail() {
     return 0;
   }, [selectedVariant, product?.basePriceCents]);
 
+  const cartPrice = useMemo(() => {
+    if (user?.isB2b && product?.b2bPriceCents) return product.b2bPriceCents / 100;
+    return displayPrice;
+  }, [user?.isB2b, product?.b2bPriceCents, displayPrice]);
+
   const stockStatus = useMemo(() => {
     if (!selectedVariant) return { inStock: false, qty: 0 };
     return { inStock: selectedVariant.stockQty > 0, qty: selectedVariant.stockQty };
@@ -191,7 +196,7 @@ export function ProductDetail() {
           variantId: selectedVariant.id,
           name: product.name,
           brand: product.brand || "",
-          price: displayPrice,
+          price: cartPrice,
           image: cartImage,
           color: selectedColor,
           size: selectedSize,

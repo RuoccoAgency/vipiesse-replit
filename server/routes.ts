@@ -180,7 +180,9 @@ export async function registerRoutes(
         const images = await storage.getImagesByProduct(variant.productId);
         const variantImages = await storage.getImagesByVariant(variant.id);
         
-        const priceCents = variant.priceCents || product?.basePriceCents || item.priceCents;
+        const isB2bUser = req.userId ? (await storage.getUserById(req.userId))?.isB2b : false;
+        const basePriceCents = variant.priceCents || product?.basePriceCents || item.priceCents;
+        const priceCents = (isB2bUser && product?.b2bPriceCents) ? product.b2bPriceCents : basePriceCents;
         const itemTotal = priceCents * item.quantity;
         subtotalCents += itemTotal;
         
@@ -1750,7 +1752,9 @@ export async function registerRoutes(
         const images = await storage.getImagesByProduct(product.id);
         const imageUrl = images.length > 0 ? images[0].imageUrl : undefined;
         
-        const priceCents = variant.priceCents || product.basePriceCents || 0;
+        const isB2bUser = req.userId ? (await storage.getUserById(req.userId))?.isB2b : false;
+        const basePriceCents = variant.priceCents || product.basePriceCents || 0;
+        const priceCents = (isB2bUser && product.b2bPriceCents) ? product.b2bPriceCents : basePriceCents;
         subtotalCents += priceCents * item.quantity;
         
         orderItems.push({
