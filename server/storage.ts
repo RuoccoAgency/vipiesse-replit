@@ -153,6 +153,11 @@ export interface IStorage {
   // Update order with Stripe session ID
   updateOrderStripeSession(orderId: number, stripeSessionId: string): Promise<Order | undefined>;
   
+  // Atomically claim the right to send confirmation email (returns true if this caller should send)
+  claimConfirmationEmail(orderId: number): Promise<boolean>;
+  // Atomically claim the right to send delivered email (returns true if this caller should send)
+  claimDeliveredEmail(orderId: number): Promise<boolean>;
+  
   // Confirm order payment and decrement stock (transactional)
   confirmOrderPayment(
     orderId: number,
@@ -847,6 +852,24 @@ export class DatabaseStorage implements IStorage {
     } finally {
       client.release();
     }
+  }
+
+  // Atomically claim the right to send confirmation email
+  async claimConfirmationEmail(orderId: number): Promise<boolean> {
+    const result = await pool.query(
+      `UPDATE orders SET confirmation_email_sent_at = NOW() WHERE id = $1 AND confirmation_email_sent_at IS NULL RETURNING id`,
+      [orderId]
+    );
+    return result.rows.length > 0;
+  }
+
+  // Atomically claim the right to send delivered email
+  async claimDeliveredEmail(orderId: number): Promise<boolean> {
+    const result = await pool.query(
+      `UPDATE orders SET delivered_email_sent_at = NOW() WHERE id = $1 AND delivered_email_sent_at IS NULL RETURNING id`,
+      [orderId]
+    );
+    return result.rows.length > 0;
   }
 
   // Sessions

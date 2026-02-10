@@ -360,9 +360,9 @@ export async function registerRoutes(
 
         console.log(`[Stripe Confirm] Order paid successfully (fallback): ${order.orderNumber}, paymentMethod=stripe`);
 
-        // Send confirmation emails with idempotency guard
-        const freshOrder = await storage.getOrderById(order.id);
-        if (freshOrder && !freshOrder.confirmationEmailSentAt) {
+        // Send confirmation emails with atomic idempotency guard
+        const canSendConfirmation = await storage.claimConfirmationEmail(order.id);
+        if (canSendConfirmation) {
           const orderWithItems = await storage.getOrderWithItems(order.id);
           if (orderWithItems) {
             const emailData = {
@@ -383,11 +383,9 @@ export async function registerRoutes(
               })),
             };
             
-            const sent = await sendOrderConfirmationEmail(emailData);
-            if (sent) {
-              await storage.updateOrder(order.id, { confirmationEmailSentAt: new Date() });
-              console.log(`[Stripe Confirm] Confirmation email sent for order: ${order.orderNumber}`);
-            }
+            sendOrderConfirmationEmail(emailData)
+              .then(sent => console.log(`[Stripe Confirm] Confirmation email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
+              .catch(err => console.error('[Email] Error:', err));
             sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
           }
         } else {
@@ -501,9 +499,9 @@ export async function registerRoutes(
 
         console.log(`[Stripe Webhook] Order paid successfully: ${order.orderNumber}, paymentMethod=stripe`);
         
-        // Send confirmation emails with idempotency guard
-        const freshOrder = await storage.getOrderById(order.id);
-        if (freshOrder && !freshOrder.confirmationEmailSentAt) {
+        // Send confirmation emails with atomic idempotency guard
+        const canSendConfirmation = await storage.claimConfirmationEmail(order.id);
+        if (canSendConfirmation) {
           const orderWithItems = await storage.getOrderWithItems(order.id);
           if (orderWithItems) {
             const emailData = {
@@ -524,11 +522,9 @@ export async function registerRoutes(
               })),
             };
             
-            const sent = await sendOrderConfirmationEmail(emailData);
-            if (sent) {
-              await storage.updateOrder(order.id, { confirmationEmailSentAt: new Date() });
-              console.log(`[Stripe Webhook] Confirmation email sent for order: ${order.orderNumber}`);
-            }
+            sendOrderConfirmationEmail(emailData)
+              .then(sent => console.log(`[Stripe Webhook] Confirmation email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
+              .catch(err => console.error('[Email] Error:', err));
             sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
           }
         } else {
@@ -1930,28 +1926,29 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Failed to update order" });
       }
       
-      // Send delivered email if status changed to delivered
-      if (status === 'delivered' && !order.deliveredEmailSentAt) {
-        const orderWithItems = await storage.getOrderWithItems(orderId);
-        if (orderWithItems) {
-          const deliveredAt = updatedOrder.deliveredAt || new Date();
-          const sent = await sendDeliveredEmail({
-            orderNumber: orderWithItems.orderNumber,
-            customerName: orderWithItems.customerName,
-            customerEmail: orderWithItems.customerEmail,
-            totalCents: orderWithItems.totalCents,
-            deliveredAt,
-            items: orderWithItems.items.map((item: any) => ({
-              productName: item.productName || 'Prodotto',
-              variantColor: item.variantColor || '',
-              variantSize: item.variantSize || '',
-              quantity: item.quantity,
-              priceCents: item.priceCents,
-            })),
-          });
-          if (sent) {
-            await storage.updateOrder(orderId, { deliveredEmailSentAt: new Date() });
-            console.log(`[Admin] Delivered email sent for order: ${order.orderNumber}`);
+      // Send delivered email if status changed to delivered (atomic guard)
+      if (status === 'delivered') {
+        const canSendDelivered = await storage.claimDeliveredEmail(orderId);
+        if (canSendDelivered) {
+          const orderWithItems = await storage.getOrderWithItems(orderId);
+          if (orderWithItems) {
+            const deliveredAt = updatedOrder.deliveredAt || new Date();
+            sendDeliveredEmail({
+              orderNumber: orderWithItems.orderNumber,
+              customerName: orderWithItems.customerName,
+              customerEmail: orderWithItems.customerEmail,
+              totalCents: orderWithItems.totalCents,
+              deliveredAt,
+              items: orderWithItems.items.map((item: any) => ({
+                productName: item.productName || 'Prodotto',
+                variantColor: item.variantColor || '',
+                variantSize: item.variantSize || '',
+                quantity: item.quantity,
+                priceCents: item.priceCents,
+              })),
+            })
+              .then(sent => console.log(`[Admin] Delivered email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
+              .catch(err => console.error('[Email] Delivered error:', err));
           }
         }
       }
@@ -2122,11 +2119,12 @@ export async function registerRoutes(
       
       console.log(`[Deliver] Order ${order.orderNumber} marked as delivered`);
       
-      // Send delivered email with idempotency guard
-      if (!order.deliveredEmailSentAt) {
+      // Send delivered email with atomic idempotency guard
+      const canSendDelivered = await storage.claimDeliveredEmail(orderId);
+      if (canSendDelivered) {
         const orderWithItems = await storage.getOrderWithItems(orderId);
         if (orderWithItems) {
-          const sent = await sendDeliveredEmail({
+          sendDeliveredEmail({
             orderNumber: orderWithItems.orderNumber,
             customerName: orderWithItems.customerName,
             customerEmail: orderWithItems.customerEmail,
@@ -2139,11 +2137,9 @@ export async function registerRoutes(
               quantity: item.quantity,
               priceCents: item.priceCents,
             })),
-          });
-          if (sent) {
-            await storage.updateOrder(orderId, { deliveredEmailSentAt: new Date() });
-            console.log(`[Deliver] Delivered email sent for order: ${order.orderNumber}`);
-          }
+          })
+            .then(sent => console.log(`[Deliver] Delivered email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
+            .catch(err => console.error('[Email] Delivered error:', err));
         }
       } else {
         console.log(`[Deliver] Delivered email already sent for order: ${order.orderNumber}, skipping`);
