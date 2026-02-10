@@ -126,6 +126,15 @@ export async function registerRoutes(
     });
   });
 
+  // Payment config endpoint (used by order-bank page)
+  app.get("/api/payment-config", (req, res) => {
+    res.json({
+      bankIban: process.env.BANK_IBAN || "",
+      bankAccountName: process.env.BANK_ACCOUNT_NAME || "",
+      bankName: process.env.BANK_NAME || "",
+    });
+  });
+
   // ================================
   // STRIPE CHECKOUT API
   // ================================
@@ -1859,25 +1868,44 @@ export async function registerRoutes(
       if (status === 'paid' && previousOrder && 
           (previousOrder.status === 'awaiting_bank' || previousOrder.status === 'pending_payment') &&
           previousOrder.paymentMethod === 'bank_transfer') {
-        const orderWithItems = await storage.getOrderWithItems(order.id);
-        if (orderWithItems) {
-          const emailData: OrderEmailData = {
-            orderNumber: orderWithItems.orderNumber,
-            customerName: orderWithItems.customerName + (orderWithItems.customerSurname ? ` ${orderWithItems.customerSurname}` : ''),
-            customerEmail: orderWithItems.customerEmail,
-            totalCents: orderWithItems.totalCents,
-            shippingAddress: orderWithItems.shippingAddress,
-            shippingCity: orderWithItems.shippingCity || undefined,
-            shippingCap: orderWithItems.shippingCap || undefined,
-            items: orderWithItems.items.map((item: any) => ({
-              productName: item.productName || 'Prodotto',
-              variantColor: item.variantColor || '',
-              variantSize: item.variantSize || '',
-              quantity: item.quantity,
-              priceCents: item.priceCents,
-            })),
-          };
-          sendPaymentConfirmedEmail(emailData).catch(err => console.error('[Email] Payment confirmed error:', err));
+        // Set 2-day delivery estimate for bank transfer orders
+        const eta = new Date();
+        eta.setDate(eta.getDate() + 2);
+        await storage.updateOrder(order.id, { estimatedDeliveryDate: eta });
+        
+        // Send confirmation email with atomic idempotency guard
+        const canSendConfirmation = await storage.claimConfirmationEmail(order.id);
+        if (canSendConfirmation) {
+          const orderWithItems = await storage.getOrderWithItems(order.id);
+          if (orderWithItems) {
+            const emailData: OrderEmailData = {
+              orderNumber: orderWithItems.orderNumber,
+              customerName: orderWithItems.customerName + (orderWithItems.customerSurname ? ` ${orderWithItems.customerSurname}` : ''),
+              customerEmail: orderWithItems.customerEmail,
+              totalCents: orderWithItems.totalCents,
+              shippingAddress: orderWithItems.shippingAddress,
+              shippingCity: orderWithItems.shippingCity || undefined,
+              shippingCap: orderWithItems.shippingCap || undefined,
+              estimatedDeliveryDate: eta,
+              items: orderWithItems.items.map((item: any) => ({
+                productName: item.productName || 'Prodotto',
+                variantColor: item.variantColor || '',
+                variantSize: item.variantSize || '',
+                quantity: item.quantity,
+                priceCents: item.priceCents,
+              })),
+            };
+            const sent = await sendOrderConfirmationEmail(emailData);
+            if (sent) {
+              console.log(`[Admin] Bank transfer confirmation email sent for order: ${order.orderNumber}`);
+              setTimeout(() => {
+                sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+              }, 1500);
+            } else {
+              console.error(`[Admin] Bank transfer confirmation email failed for order: ${order.orderNumber}, unclaiming`);
+              await storage.unclaimConfirmationEmail(order.id);
+            }
+          }
         }
       }
       
