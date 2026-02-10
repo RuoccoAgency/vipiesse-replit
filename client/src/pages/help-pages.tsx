@@ -327,6 +327,214 @@ export function PaymentsPage() {
   );
 }
 
+/* --- PRIVACY POLICY --- */
+export function PrivacyPolicyPage() {
+  return (
+    <HelpLayout title="Privacy Policy" subtitle="Informativa sul trattamento dei dati personali ai sensi del Regolamento UE 2016/679 (GDPR).">
+      <div className="prose max-w-none text-gray-600">
+        <p className="lead text-gray-900">
+          VIPIESSE S.r.l. (di seguito "Titolare"), con sede in Via Nazionale delle Puglie, 80026 Casoria (NA), P.IVA 01459591218, in qualità di Titolare del trattamento, informa l'utente ai sensi dell'art. 13 del Regolamento UE 2016/679 (GDPR) che i dati personali saranno trattati con le seguenti modalità e per le seguenti finalità.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">1. Tipologia di Dati Raccolti</h3>
+        <p>
+          Durante la navigazione e l'utilizzo del sito, vengono raccolti i seguenti dati personali:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Dati identificativi:</strong> nome, cognome, indirizzo email, numero di telefono, indirizzo di spedizione</li>
+          <li><strong>Dati di navigazione:</strong> indirizzo IP, tipo di browser, pagine visitate, orario di accesso</li>
+          <li><strong>Dati di acquisto:</strong> prodotti acquistati, storico ordini, metodo di pagamento utilizzato</li>
+          <li><strong>Dati forniti volontariamente:</strong> informazioni inserite nei moduli di contatto o registrazione</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">2. Finalità del Trattamento</h3>
+        <p>I dati personali sono trattati per le seguenti finalità:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Gestione degli ordini e delle spedizioni</li>
+          <li>Creazione e gestione dell'account utente</li>
+          <li>Adempimento degli obblighi contrattuali e fiscali</li>
+          <li>Risposta alle richieste di informazioni e assistenza clienti</li>
+          <li>Invio di comunicazioni commerciali (previo consenso)</li>
+          <li>Miglioramento dell'esperienza di navigazione e del servizio</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">3. Base Giuridica del Trattamento</h3>
+        <p>
+          Il trattamento dei dati personali si fonda sulle seguenti basi giuridiche: esecuzione del contratto (art. 6, par. 1, lett. b GDPR), adempimento di obblighi legali (art. 6, par. 1, lett. c GDPR), consenso dell'interessato (art. 6, par. 1, lett. a GDPR), legittimo interesse del Titolare (art. 6, par. 1, lett. f GDPR).
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">4. Conservazione dei Dati</h3>
+        <p>
+          I dati personali saranno conservati per il tempo strettamente necessario al raggiungimento delle finalità per cui sono stati raccolti. In particolare: i dati relativi agli ordini saranno conservati per 10 anni per obblighi fiscali; i dati dell'account utente saranno conservati fino alla cancellazione dell'account; i dati di navigazione saranno conservati per un massimo di 12 mesi.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">5. Condivisione dei Dati</h3>
+        <p>I dati personali potranno essere condivisi con:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Corrieri per la gestione delle spedizioni (BRT, GLS, ecc.)</li>
+          <li>Istituti bancari e fornitori di servizi di pagamento (Stripe)</li>
+          <li>Fornitori di servizi IT e hosting</li>
+          <li>Autorità competenti su richiesta</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">6. Diritti dell'Interessato</h3>
+        <p>L'utente ha il diritto di:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Accedere ai propri dati personali (art. 15 GDPR)</li>
+          <li>Ottenere la rettifica dei dati inesatti (art. 16 GDPR)</li>
+          <li>Ottenere la cancellazione dei dati (art. 17 GDPR)</li>
+          <li>Limitare il trattamento (art. 18 GDPR)</li>
+          <li>Opporsi al trattamento (art. 21 GDPR)</li>
+          <li>Richiedere la portabilità dei dati (art. 20 GDPR)</li>
+          <li>Revocare il consenso in qualsiasi momento</li>
+          <li>Proporre reclamo al Garante per la Protezione dei Dati Personali</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">7. Contatti</h3>
+        <p>
+          Per esercitare i propri diritti o per qualsiasi informazione relativa al trattamento dei dati personali, l'utente può contattare il Titolare all'indirizzo email: <strong>vipiessesales@gmail.com</strong> oppure scrivendo a VIPIESSE S.r.l., Via Nazionale delle Puglie, 80026 Casoria (NA).
+        </p>
+
+        <p className="text-sm text-gray-500 mt-8 italic">Ultimo aggiornamento: Febbraio 2026</p>
+      </div>
+    </HelpLayout>
+  );
+}
+
+/* --- COOKIE POLICY --- */
+export function CookiePolicyPage() {
+  return (
+    <HelpLayout title="Cookie Policy" subtitle="Informativa sull'utilizzo dei cookie ai sensi della normativa vigente.">
+      <div className="prose max-w-none text-gray-600">
+        <p className="lead text-gray-900">
+          Il presente sito web utilizza cookie e tecnologie simili per garantire il corretto funzionamento delle procedure e migliorare l'esperienza di utilizzo delle applicazioni online.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">1. Cosa Sono i Cookie</h3>
+        <p>
+          I cookie sono piccoli file di testo che i siti visitati inviano al browser dell'utente, dove vengono memorizzati per essere poi ritrasmessi agli stessi siti alla visita successiva. I cookie sono utilizzati per diverse finalità, hanno caratteristiche diverse e possono essere utilizzati sia dal titolare del sito che da terze parti.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">2. Tipologie di Cookie Utilizzati</h3>
+
+        <h4 className="font-heading text-gray-900 mt-6">Cookie Tecnici (Necessari)</h4>
+        <p>Questi cookie sono essenziali per il funzionamento del sito e non possono essere disattivati. Includono:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Cookie di sessione:</strong> mantengono la sessione dell'utente attiva durante la navigazione</li>
+          <li><strong>Cookie di autenticazione:</strong> permettono l'accesso all'area riservata dell'utente</li>
+          <li><strong>Cookie del carrello:</strong> memorizzano i prodotti aggiunti al carrello</li>
+          <li><strong>Cookie di preferenze:</strong> memorizzano le scelte dell'utente (es. accettazione cookie)</li>
+        </ul>
+
+        <h4 className="font-heading text-gray-900 mt-6">Cookie Analitici</h4>
+        <p>
+          Utilizziamo cookie analitici per comprendere come gli utenti interagiscono con il sito, raccogliendo informazioni in forma anonima e aggregata sul numero di visitatori, le pagine visitate e il tempo di permanenza.
+        </p>
+
+        <h4 className="font-heading text-gray-900 mt-6">Cookie di Terze Parti</h4>
+        <p>Il sito potrebbe utilizzare cookie di terze parti per i seguenti servizi:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Stripe:</strong> per l'elaborazione sicura dei pagamenti</li>
+          <li><strong>Google Fonts:</strong> per il caricamento dei font del sito</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">3. Gestione dei Cookie</h3>
+        <p>
+          L'utente può gestire le proprie preferenze sui cookie attraverso le impostazioni del proprio browser. Di seguito i link alle guide per i browser più comuni:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Google Chrome:</strong> Impostazioni → Privacy e sicurezza → Cookie</li>
+          <li><strong>Mozilla Firefox:</strong> Opzioni → Privacy e sicurezza → Cookie</li>
+          <li><strong>Safari:</strong> Preferenze → Privacy → Cookie</li>
+          <li><strong>Microsoft Edge:</strong> Impostazioni → Cookie e autorizzazioni sito</li>
+        </ul>
+        <p>
+          La disattivazione dei cookie tecnici potrebbe compromettere l'utilizzo di alcune funzionalità del sito, come il login e il carrello.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">4. Durata dei Cookie</h3>
+        <p>I cookie utilizzati dal sito hanno le seguenti durate:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Cookie di sessione:</strong> vengono cancellati alla chiusura del browser</li>
+          <li><strong>Cookie di autenticazione:</strong> durata massima di 7 giorni</li>
+          <li><strong>Cookie di preferenze:</strong> durata massima di 12 mesi</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">5. Contatti</h3>
+        <p>
+          Per qualsiasi informazione relativa all'utilizzo dei cookie, l'utente può contattarci all'indirizzo email: <strong>vipiessesales@gmail.com</strong>
+        </p>
+
+        <p className="text-sm text-gray-500 mt-8 italic">Ultimo aggiornamento: Febbraio 2026</p>
+      </div>
+    </HelpLayout>
+  );
+}
+
+/* --- DIRITTO DI RECESSO --- */
+export function WithdrawalPage() {
+  return (
+    <HelpLayout title="Diritto di Recesso" subtitle="Informativa sul diritto di recesso ai sensi del D.Lgs. 206/2005 (Codice del Consumo).">
+      <div className="prose max-w-none text-gray-600">
+        <p className="lead text-gray-900">
+          Ai sensi degli artt. 52 e ss. del Codice del Consumo, il consumatore ha il diritto di recedere dal contratto di acquisto senza dover fornire alcuna motivazione e senza alcuna penalità.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">1. Termini per il Recesso</h3>
+        <p>
+          Il diritto di recesso può essere esercitato entro <strong>14 giorni</strong> dalla data di ricevimento dei prodotti. Il termine decorre dal giorno in cui il consumatore o un terzo da lui designato acquisisce il possesso fisico dei beni.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">2. Come Esercitare il Recesso</h3>
+        <p>Per esercitare il diritto di recesso, il consumatore deve:</p>
+        <ol className="list-decimal pl-6 space-y-2">
+          <li>Comunicare la propria decisione di recedere dal contratto tramite una dichiarazione esplicita inviata via email a <strong>vipiessesales@gmail.com</strong>, indicando il numero dell'ordine e i prodotti per i quali si intende esercitare il recesso.</li>
+          <li>Restituire i prodotti entro <strong>14 giorni</strong> dalla comunicazione di recesso al seguente indirizzo: VIPIESSE S.r.l., Via Nazionale delle Puglie, 80026 Casoria (NA).</li>
+        </ol>
+
+        <h3 className="font-heading text-gray-900 mt-8">3. Condizioni dei Prodotti Restituiti</h3>
+        <p>I prodotti restituiti devono essere:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Integri e non utilizzati</li>
+          <li>Nella confezione originale, completa in tutte le sue parti</li>
+          <li>Corredati di tutti gli accessori e le etichette originali</li>
+          <li>Accompagnati dalla ricevuta d'acquisto</li>
+        </ul>
+        <p>
+          Il consumatore è responsabile della diminuzione del valore dei beni risultante da una manipolazione dei prodotti diversa da quella necessaria per stabilirne la natura, le caratteristiche e il funzionamento.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">4. Spese di Restituzione</h3>
+        <p>
+          Le spese di spedizione per la restituzione dei prodotti sono a carico del consumatore, salvo il caso in cui il prodotto risulti difettoso o non conforme a quanto ordinato.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">5. Rimborso</h3>
+        <p>
+          Il rimborso sarà effettuato entro <strong>14 giorni</strong> dalla data in cui il Titolare è stato informato della decisione del consumatore di recedere dal contratto, utilizzando lo stesso mezzo di pagamento usato per la transazione iniziale, salvo diverso accordo. Il rimborso potrà essere trattenuto fino al ricevimento dei beni restituiti o fino alla dimostrazione da parte del consumatore di aver spedito i beni, a seconda di quale situazione si verifichi per prima.
+        </p>
+        <p>
+          Il rimborso includerà il prezzo dei prodotti e le eventuali spese di consegna standard. Non verranno rimborsate eventuali spese aggiuntive derivanti dalla scelta di una modalità di consegna diversa dalla consegna standard.
+        </p>
+
+        <h3 className="font-heading text-gray-900 mt-8">6. Esclusioni</h3>
+        <p>Il diritto di recesso è escluso nei seguenti casi:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Prodotti confezionati su misura o chiaramente personalizzati</li>
+          <li>Prodotti sigillati che non si prestano ad essere restituiti per motivi igienici e che sono stati aperti dopo la consegna</li>
+        </ul>
+
+        <h3 className="font-heading text-gray-900 mt-8">7. Contatti</h3>
+        <p>
+          Per esercitare il diritto di recesso o per qualsiasi domanda, contattaci a: <strong>vipiessesales@gmail.com</strong> oppure al numero <strong>+39 375 643 1589</strong>.
+        </p>
+
+        <p className="text-sm text-gray-500 mt-8 italic">Ultimo aggiornamento: Febbraio 2026</p>
+      </div>
+    </HelpLayout>
+  );
+}
+
 /* --- SPEDIZIONI E RESI --- */
 export function ShippingPage() {
   return (

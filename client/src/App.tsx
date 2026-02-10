@@ -12,7 +12,7 @@ import { MyOrders } from "./pages/my-orders";
 import { Dashboard } from "./pages/dashboard";
 import { SavedItems } from "./pages/saved-items";
 import { OrderDetail } from "./pages/order-detail";
-import { ContactPage, SizeGuidePage, TermsPage, PaymentsPage, ShippingPage } from "./pages/help-pages";
+import { ContactPage, SizeGuidePage, TermsPage, PaymentsPage, ShippingPage, PrivacyPolicyPage, CookiePolicyPage, WithdrawalPage } from "./pages/help-pages";
 import NotFound from "./pages/not-found";
 import { ProductDetail } from "./pages/product-detail";
 import { Toaster } from "@/components/ui/toaster";
@@ -60,6 +60,9 @@ function Router() {
       <Route path="/help/condizioni" component={TermsPage} />
       <Route path="/help/pagamenti" component={PaymentsPage} />
       <Route path="/help/spedizioni-resi" component={ShippingPage} />
+      <Route path="/privacy-policy" component={PrivacyPolicyPage} />
+      <Route path="/cookie-policy" component={CookiePolicyPage} />
+      <Route path="/diritto-recesso" component={WithdrawalPage} />
 
       <Route path="/help/:topic">
         {(params) => (

@@ -37,6 +37,7 @@ export function Footer() {
               <li><Link href="/help/condizioni" className="hover:text-white transition-colors">Condizioni di Vendita</Link></li>
               <li><Link href="/help/pagamenti" className="hover:text-white transition-colors">Metodi di Pagamento</Link></li>
               <li><Link href="/help/spedizioni-resi" className="hover:text-white transition-colors">Spedizioni e Resi</Link></li>
+              <li><Link href="/diritto-recesso" className="hover:text-white transition-colors">Diritto di Recesso</Link></li>
             </ul>
           </div>
 
@@ -56,8 +57,8 @@ export function Footer() {
         <div className="mt-16 pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500">
           <p>&copy; 2026 VIPIESSE S.r.l. Tutti i diritti riservati.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
-            <span>Privacy Policy</span>
-            <span>Cookie Policy</span>
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link>
             <span>P.IVA 01459591218</span>
           </div>
         </div>
