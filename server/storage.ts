@@ -659,6 +659,8 @@ export class DatabaseStorage implements IStorage {
         estimatedDeliveryDate: newOrder.estimated_delivery_date,
         shippedAt: newOrder.shipped_at,
         deliveredAt: newOrder.delivered_at,
+        confirmationEmailSentAt: newOrder.confirmation_email_sent_at,
+        deliveredEmailSentAt: newOrder.delivered_email_sent_at,
         createdAt: newOrder.created_at,
         updatedAt: newOrder.updated_at
       };
@@ -832,6 +834,8 @@ export class DatabaseStorage implements IStorage {
         estimatedDeliveryDate: row.estimated_delivery_date,
         shippedAt: row.shipped_at,
         deliveredAt: row.delivered_at,
+        confirmationEmailSentAt: row.confirmation_email_sent_at,
+        deliveredEmailSentAt: row.delivered_email_sent_at,
         createdAt: row.created_at,
         updatedAt: row.updated_at
       };

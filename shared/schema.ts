@@ -153,6 +153,8 @@ export const orders = pgTable("orders", {
   estimatedDeliveryDate: timestamp("estimated_delivery_date"),
   shippedAt: timestamp("shipped_at"),
   deliveredAt: timestamp("delivered_at"),
+  confirmationEmailSentAt: timestamp("confirmation_email_sent_at"),
+  deliveredEmailSentAt: timestamp("delivered_email_sent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

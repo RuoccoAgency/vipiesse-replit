@@ -1,0 +1,61 @@
+Add missing emails: (1) order confirmation after successful card payment, (2) delivered email.
+
+CURRENT ISSUE
+Only the "shipped" email is sent (from admin ship action). No email is sent on purchase/payment success, and no delivered email is sent.
+
+GOAL
+- When user pays by card (Stripe), order must become PAID and immediately send "Order Confirmation" email.
+- When admin marks order as DELIVERED (or status changes to delivered), send "Delivered" email.
+
+IMPLEMENTATION
+
+A) STRIPE WEBHOOK → ORDER PAID + EMAIL CONFIRMATION
+1) Verify webhook signature using STRIPE_WEBHOOK_SECRET.
+2) Handle these events:
+- checkout.session.completed (preferred) OR payment_intent.succeeded
+3) On event, locate the order reliably:
+- Use metadata.orderId on the Stripe checkout session/payment intent.
+- If metadata is missing, store and match by checkoutSessionId / paymentIntentId saved on the order at checkout creation time.
+4) Update order fields:
+- orderStatus = "paid"
+- paymentMethod = "card"
+- paidAt = now()
+- paymentProvider = "stripe"
+- paymentIntentId / checkoutSessionId saved for traceability
+5) Send email "Conferma ordine" to customer (Resend) exactly once:
+- Implement idempotency: store flags like confirmationEmailSentAt or boolean confirmationEmailSent
+- If already sent, do nothing.
+
+B) DELIVERED ACTION + EMAIL
+1) Add admin endpoint:
+PATCH /api/admin/orders/:id/deliver
+Body: { deliveredAt? }
+2) This endpoint updates:
+- orderStatus = "delivered"
+- deliveredAt = provided or now()
+3) Send email "Ordine consegnato" to customer exactly once:
+- deliveredEmailSentAt / deliveredEmailSent guard
+
+C) EMAIL TEMPLATES
+Create two templates:
+1) Order Confirmation:
+- subject: “Conferma ordine #{orderNumber}”
+- include: items, totals, shipping address, payment method = card, order status = paid
+2) Delivered:
+- subject: “Ordine consegnato #{orderNumber}”
+- include: items, delivered date, support contacts
+
+D) DEBUGGING
+Add server logs (non-sensitive):
+- webhook event type received
+- orderId resolved
+- order status transitions
+- email send success/failure (messageId)
+
+E) FRONTEND
+- In “My Orders” show correct status:
+paid → “Pagato / Confermato”
+delivered → “Consegnato”
+- Order detail must load for the owner and never show “order not found” if it exists.
+
+Do NOT require publishing to test; work in dev/test environment.
