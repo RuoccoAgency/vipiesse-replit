@@ -624,7 +624,7 @@ export async function sendB2bApprovalEmail(email: string, companyName: string): 
           
           <p style="line-height: 1.6;">Siamo lieti di comunicarti che la tua richiesta di account Business è stata <strong>approvata</strong>.</p>
           
-          <p style="line-height: 1.6;">Il tuo account B2B è ora attivo e potrai visualizzare i prezzi esclusivi riservati ai clienti business su tutti i nostri prodotti.</p>
+          <p style="line-height: 1.6;">Il tuo account B2B è ora attivo, registrati con la stessa email della richiesta di approvazione e potrai visualizzare i prezzi esclusivi riservati ai clienti business su tutti i nostri prodotti.</p>
           
           <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 16px; margin: 24px 0;">
             <p style="margin: 0; color: #155724; font-weight: 600;">✓ Account Business Attivato</p>
