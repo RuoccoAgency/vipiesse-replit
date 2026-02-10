@@ -514,6 +514,84 @@ export async function sendPaymentConfirmedEmail(order: OrderEmailData): Promise<
   return sendWithResend(order.customerEmail, `Pagamento confermato - ${order.orderNumber}`, emailHtml);
 }
 
+export interface DeliveredEmailData {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  totalCents: number;
+  deliveredAt: Date;
+  items: Array<{
+    productName: string;
+    variantColor: string;
+    variantSize: string;
+    quantity: number;
+    priceCents: number;
+  }>;
+}
+
+export async function sendDeliveredEmail(order: DeliveredEmailData): Promise<boolean> {
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden;">
+        <div style="background: #000; color: white; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">VIPIESSE</h1>
+        </div>
+        
+        <div style="padding: 32px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+              <span style="font-size: 32px;">&#10003;</span>
+            </div>
+            <h2 style="margin: 0;">Ordine consegnato!</h2>
+          </div>
+          
+          <p style="color: #666;">Ciao ${order.customerName},</p>
+          <p style="color: #666;">Siamo lieti di informarti che il tuo ordine <strong>${order.orderNumber}</strong> è stato consegnato con successo.</p>
+          
+          <div style="background: #f0fdf4; border: 1px solid #22c55e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <p style="margin: 0;"><strong>Numero ordine:</strong> ${order.orderNumber}</p>
+            <p style="margin: 8px 0 0;"><strong>Consegnato il:</strong> ${formatDate(order.deliveredAt)}</p>
+          </div>
+          
+          <h3 style="margin: 24px 0 12px;">Articoli consegnati</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f8f8f8;">
+                <th style="padding: 12px; text-align: left;">Articolo</th>
+                <th style="padding: 12px; text-align: center;">Qtà</th>
+                <th style="padding: 12px; text-align: right;">Prezzo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${getOrderItemsHtml(order.items)}
+            </tbody>
+          </table>
+          
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #000;">
+            <p style="margin: 0; font-size: 18px; text-align: right;"><strong>Totale: ${formatPrice(order.totalCents)}</strong></p>
+          </div>
+          
+          <p style="color: #666; margin-top: 24px;">Grazie per aver scelto VIPIESSE! Se hai bisogno di assistenza, non esitare a contattarci.</p>
+        </div>
+        
+        <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
+          <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendWithResend(order.customerEmail, `Ordine consegnato - ${order.orderNumber}`, emailHtml);
+}
+
 // Test helper - creates dummy order data for testing
 export function createDummyOrderData(): OrderEmailData {
   return {

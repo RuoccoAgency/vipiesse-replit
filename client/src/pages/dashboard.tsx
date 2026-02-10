@@ -16,10 +16,14 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   pending_payment: { label: "In attesa di pagamento", color: "bg-yellow-100 text-yellow-800" },
   awaiting_bank: { label: "In attesa bonifico", color: "bg-blue-100 text-blue-800" },
   awaiting_paypal: { label: "In attesa PayPal", color: "bg-blue-100 text-blue-800" },
-  paid: { label: "Pagato", color: "bg-green-100 text-green-800" },
+  paid: { label: "Pagato / Confermato", color: "bg-green-100 text-green-800" },
+  processing: { label: "In elaborazione", color: "bg-blue-100 text-blue-800" },
   shipped: { label: "Spedito", color: "bg-purple-100 text-purple-800" },
+  delivered: { label: "Consegnato", color: "bg-green-100 text-green-800" },
   completed: { label: "Completato", color: "bg-gray-100 text-gray-800" },
   cancelled: { label: "Annullato", color: "bg-red-100 text-red-800" },
+  refunded: { label: "Rimborsato", color: "bg-orange-100 text-orange-800" },
+  expired: { label: "Scaduto", color: "bg-gray-100 text-gray-600" },
 };
 
 export function Dashboard() {

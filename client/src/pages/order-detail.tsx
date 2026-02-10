@@ -46,7 +46,7 @@ interface OrderWithItems {
 const statusLabels: Record<string, { label: string; color: string; icon?: React.ElementType }> = {
   pending_payment: { label: "In attesa di pagamento", color: "bg-yellow-100 text-yellow-800", icon: Clock },
   awaiting_bank: { label: "In attesa bonifico", color: "bg-blue-100 text-blue-800", icon: Clock },
-  paid: { label: "Pagato", color: "bg-green-100 text-green-800", icon: CheckCircle },
+  paid: { label: "Pagato / Confermato", color: "bg-green-100 text-green-800", icon: CheckCircle },
   processing: { label: "In elaborazione", color: "bg-blue-100 text-blue-800", icon: Package },
   shipped: { label: "Spedito", color: "bg-purple-100 text-purple-800", icon: Truck },
   delivered: { label: "Consegnato", color: "bg-green-100 text-green-800", icon: CheckCircle },

@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, sendBankTransferOrderEmail, sendAdminBankTransferNotification, sendPaymentConfirmedEmail, createDummyOrderData, type OrderEmailData } from "./emailService";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, sendBankTransferOrderEmail, sendAdminBankTransferNotification, sendPaymentConfirmedEmail, sendDeliveredEmail, createDummyOrderData, type OrderEmailData } from "./emailService";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -360,29 +360,38 @@ export async function registerRoutes(
 
         console.log(`[Stripe Confirm] Order paid successfully (fallback): ${order.orderNumber}, paymentMethod=stripe`);
 
-        // Send confirmation emails
-        const orderWithItems = await storage.getOrderWithItems(order.id);
-        if (orderWithItems) {
-          const emailData = {
-            orderNumber: orderWithItems.orderNumber,
-            customerName: orderWithItems.customerName,
-            customerEmail: orderWithItems.customerEmail,
-            totalCents: orderWithItems.totalCents,
-            shippingAddress: orderWithItems.shippingAddress,
-            shippingCity: orderWithItems.shippingCity || undefined,
-            shippingCap: orderWithItems.shippingCap || undefined,
-            estimatedDeliveryDate: eta,
-            items: orderWithItems.items.map((item: any) => ({
-              productName: item.productName || 'Prodotto',
-              variantColor: item.variantColor || '',
-              variantSize: item.variantSize || '',
-              quantity: item.quantity,
-              priceCents: item.priceCents,
-            })),
-          };
-          
-          sendOrderConfirmationEmail(emailData).catch(err => console.error('[Email] Error:', err));
-          sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+        // Send confirmation emails with idempotency guard
+        const freshOrder = await storage.getOrderById(order.id);
+        if (freshOrder && !freshOrder.confirmationEmailSentAt) {
+          const orderWithItems = await storage.getOrderWithItems(order.id);
+          if (orderWithItems) {
+            const emailData = {
+              orderNumber: orderWithItems.orderNumber,
+              customerName: orderWithItems.customerName,
+              customerEmail: orderWithItems.customerEmail,
+              totalCents: orderWithItems.totalCents,
+              shippingAddress: orderWithItems.shippingAddress,
+              shippingCity: orderWithItems.shippingCity || undefined,
+              shippingCap: orderWithItems.shippingCap || undefined,
+              estimatedDeliveryDate: eta,
+              items: orderWithItems.items.map((item: any) => ({
+                productName: item.productName || 'Prodotto',
+                variantColor: item.variantColor || '',
+                variantSize: item.variantSize || '',
+                quantity: item.quantity,
+                priceCents: item.priceCents,
+              })),
+            };
+            
+            const sent = await sendOrderConfirmationEmail(emailData);
+            if (sent) {
+              await storage.updateOrder(order.id, { confirmationEmailSentAt: new Date() });
+              console.log(`[Stripe Confirm] Confirmation email sent for order: ${order.orderNumber}`);
+            }
+            sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+          }
+        } else {
+          console.log(`[Stripe Confirm] Confirmation email already sent for order: ${order?.orderNumber}, skipping`);
         }
 
         return res.json({ 
@@ -492,29 +501,38 @@ export async function registerRoutes(
 
         console.log(`[Stripe Webhook] Order paid successfully: ${order.orderNumber}, paymentMethod=stripe`);
         
-        // Send confirmation emails (async, don't block response)
-        const orderWithItems = await storage.getOrderWithItems(order.id);
-        if (orderWithItems) {
-          const emailData = {
-            orderNumber: orderWithItems.orderNumber,
-            customerName: orderWithItems.customerName,
-            customerEmail: orderWithItems.customerEmail,
-            totalCents: orderWithItems.totalCents,
-            shippingAddress: orderWithItems.shippingAddress,
-            shippingCity: orderWithItems.shippingCity || undefined,
-            shippingCap: orderWithItems.shippingCap || undefined,
-            estimatedDeliveryDate: eta,
-            items: orderWithItems.items.map((item: any) => ({
-              productName: item.productName || 'Prodotto',
-              variantColor: item.variantColor || '',
-              variantSize: item.variantSize || '',
-              quantity: item.quantity,
-              priceCents: item.priceCents,
-            })),
-          };
-          
-          sendOrderConfirmationEmail(emailData).catch(err => console.error('[Email] Error:', err));
-          sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+        // Send confirmation emails with idempotency guard
+        const freshOrder = await storage.getOrderById(order.id);
+        if (freshOrder && !freshOrder.confirmationEmailSentAt) {
+          const orderWithItems = await storage.getOrderWithItems(order.id);
+          if (orderWithItems) {
+            const emailData = {
+              orderNumber: orderWithItems.orderNumber,
+              customerName: orderWithItems.customerName,
+              customerEmail: orderWithItems.customerEmail,
+              totalCents: orderWithItems.totalCents,
+              shippingAddress: orderWithItems.shippingAddress,
+              shippingCity: orderWithItems.shippingCity || undefined,
+              shippingCap: orderWithItems.shippingCap || undefined,
+              estimatedDeliveryDate: eta,
+              items: orderWithItems.items.map((item: any) => ({
+                productName: item.productName || 'Prodotto',
+                variantColor: item.variantColor || '',
+                variantSize: item.variantSize || '',
+                quantity: item.quantity,
+                priceCents: item.priceCents,
+              })),
+            };
+            
+            const sent = await sendOrderConfirmationEmail(emailData);
+            if (sent) {
+              await storage.updateOrder(order.id, { confirmationEmailSentAt: new Date() });
+              console.log(`[Stripe Webhook] Confirmation email sent for order: ${order.orderNumber}`);
+            }
+            sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+          }
+        } else {
+          console.log(`[Stripe Webhook] Confirmation email already sent for order: ${order.orderNumber}, skipping`);
         }
         
         return res.json({ received: true, orderNumber: order.orderNumber });
@@ -1912,6 +1930,32 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Failed to update order" });
       }
       
+      // Send delivered email if status changed to delivered
+      if (status === 'delivered' && !order.deliveredEmailSentAt) {
+        const orderWithItems = await storage.getOrderWithItems(orderId);
+        if (orderWithItems) {
+          const deliveredAt = updatedOrder.deliveredAt || new Date();
+          const sent = await sendDeliveredEmail({
+            orderNumber: orderWithItems.orderNumber,
+            customerName: orderWithItems.customerName,
+            customerEmail: orderWithItems.customerEmail,
+            totalCents: orderWithItems.totalCents,
+            deliveredAt,
+            items: orderWithItems.items.map((item: any) => ({
+              productName: item.productName || 'Prodotto',
+              variantColor: item.variantColor || '',
+              variantSize: item.variantSize || '',
+              quantity: item.quantity,
+              priceCents: item.priceCents,
+            })),
+          });
+          if (sent) {
+            await storage.updateOrder(orderId, { deliveredEmailSentAt: new Date() });
+            console.log(`[Admin] Delivered email sent for order: ${order.orderNumber}`);
+          }
+        }
+      }
+      
       res.json(updatedOrder);
     } catch (error) {
       console.error("Error updating order tracking:", error);
@@ -2068,11 +2112,42 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Order must be shipped to mark as delivered" });
       }
       
+      const deliveredAt = req.body?.deliveredAt ? new Date(req.body.deliveredAt) : new Date();
+      
       const updatedOrder = await storage.updateOrder(orderId, {
         status: 'delivered',
-        deliveredAt: new Date(),
+        deliveredAt,
         updatedAt: new Date(),
       });
+      
+      console.log(`[Deliver] Order ${order.orderNumber} marked as delivered`);
+      
+      // Send delivered email with idempotency guard
+      if (!order.deliveredEmailSentAt) {
+        const orderWithItems = await storage.getOrderWithItems(orderId);
+        if (orderWithItems) {
+          const sent = await sendDeliveredEmail({
+            orderNumber: orderWithItems.orderNumber,
+            customerName: orderWithItems.customerName,
+            customerEmail: orderWithItems.customerEmail,
+            totalCents: orderWithItems.totalCents,
+            deliveredAt,
+            items: orderWithItems.items.map((item: any) => ({
+              productName: item.productName || 'Prodotto',
+              variantColor: item.variantColor || '',
+              variantSize: item.variantSize || '',
+              quantity: item.quantity,
+              priceCents: item.priceCents,
+            })),
+          });
+          if (sent) {
+            await storage.updateOrder(orderId, { deliveredEmailSentAt: new Date() });
+            console.log(`[Deliver] Delivered email sent for order: ${order.orderNumber}`);
+          }
+        }
+      } else {
+        console.log(`[Deliver] Delivered email already sent for order: ${order.orderNumber}, skipping`);
+      }
       
       res.json(updatedOrder);
     } catch (error) {
