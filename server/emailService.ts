@@ -604,6 +604,89 @@ export async function sendDeliveredEmail(order: DeliveredEmailData): Promise<boo
   return sendWithResend(order.customerEmail, `Ordine consegnato - ${order.orderNumber}`, emailHtml);
 }
 
+export async function sendB2bApprovalEmail(email: string, companyName: string): Promise<boolean> {
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden;">
+        <div style="background: #000; color: white; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">VIPIESSE</h1>
+        </div>
+        
+        <div style="padding: 32px;">
+          <h2 style="margin: 0 0 8px;">Richiesta B2B Approvata!</h2>
+          <p style="color: #666; margin: 0 0 24px;">Gentile ${companyName},</p>
+          
+          <p style="line-height: 1.6;">Siamo lieti di comunicarti che la tua richiesta di account Business è stata <strong>approvata</strong>.</p>
+          
+          <p style="line-height: 1.6;">Il tuo account B2B è ora attivo e potrai visualizzare i prezzi esclusivi riservati ai clienti business su tutti i nostri prodotti.</p>
+          
+          <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 16px; margin: 24px 0;">
+            <p style="margin: 0; color: #155724; font-weight: 600;">✓ Account Business Attivato</p>
+            <p style="margin: 8px 0 0; color: #155724;">Accedi al tuo account per iniziare a fare acquisti con i prezzi B2B.</p>
+          </div>
+          
+          <p style="color: #666; margin-top: 24px;">Grazie per aver scelto VIPIESSE! Se hai bisogno di assistenza, non esitare a contattarci.</p>
+        </div>
+        
+        <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
+          <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendWithResend(email, 'La tua richiesta B2B è stata approvata - VIPIESSE', emailHtml);
+}
+
+export async function sendB2bRejectionEmail(email: string, companyName: string): Promise<boolean> {
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden;">
+        <div style="background: #000; color: white; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">VIPIESSE</h1>
+        </div>
+        
+        <div style="padding: 32px;">
+          <h2 style="margin: 0 0 8px;">Aggiornamento Richiesta B2B</h2>
+          <p style="color: #666; margin: 0 0 24px;">Gentile ${companyName},</p>
+          
+          <p style="line-height: 1.6;">Ci dispiace comunicarti che la tua richiesta di account Business non è stata approvata in questo momento.</p>
+          
+          <p style="line-height: 1.6;">Se ritieni che ci sia stato un errore o desideri fornire ulteriori informazioni, non esitare a contattarci per maggiori dettagli.</p>
+          
+          <div style="background: #f8f8f8; border-radius: 8px; padding: 16px; margin: 24px 0;">
+            <p style="margin: 0; color: #666;">Per qualsiasi domanda puoi scriverci a <strong>info@vipiesse.com</strong> o chiamarci.</p>
+          </div>
+          
+          <p style="color: #666; margin-top: 24px;">Grazie per il tuo interesse in VIPIESSE.</p>
+        </div>
+        
+        <div style="background: #f8f8f8; padding: 24px; text-align: center; color: #666; font-size: 14px;">
+          <p style="margin: 0;">Hai domande? Contattaci a info@vipiesse.com</p>
+          <p style="margin: 12px 0 0;">&copy; ${new Date().getFullYear()} VIPIESSE - Ingrosso Calzature</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendWithResend(email, 'Aggiornamento richiesta B2B - VIPIESSE', emailHtml);
+}
+
 // Test helper - creates dummy order data for testing
 export function createDummyOrderData(): OrderEmailData {
   return {

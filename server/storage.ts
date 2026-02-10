@@ -198,6 +198,10 @@ export interface IStorage {
   removeSavedItem(userId: number, productId: number): Promise<void>;
   isProductSaved(userId: number, productId: number): Promise<boolean>;
 
+  // B2B
+  updateProductB2bPrice(productId: number, b2bPriceCents: number | null): Promise<Product | undefined>;
+  setUserB2b(userId: number, isB2b: boolean): Promise<void>;
+
   // Business Requests
   createBusinessRequest(data: InsertBusinessRequest): Promise<BusinessRequest>;
   getAllBusinessRequests(): Promise<BusinessRequest[]>;
@@ -1033,6 +1037,21 @@ export class DatabaseStorage implements IStorage {
       .where(eq(businessRequests.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  // B2B
+  async updateProductB2bPrice(productId: number, b2bPriceCents: number | null): Promise<Product | undefined> {
+    const [updated] = await db.update(products)
+      .set({ b2bPriceCents, updatedAt: new Date() })
+      .where(eq(products.id, productId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async setUserB2b(userId: number, isB2b: boolean): Promise<void> {
+    await db.update(users)
+      .set({ isB2b })
+      .where(eq(users.id, userId));
   }
 
   // Product Reviews

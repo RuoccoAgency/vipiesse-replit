@@ -2,6 +2,7 @@ import { useRoute, Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
+import { useAuth } from "@/context/auth-context";
 import { Minus, Plus, Heart, Truck } from "lucide-react";
 import { WishlistButton } from "@/components/wishlist-button";
 import { ProductReviews } from "@/components/product-reviews";
@@ -43,6 +44,7 @@ interface ProductWithVariants {
   brand: string | null;
   description: string | null;
   basePriceCents: number | null;
+  b2bPriceCents?: number | null;
   active: boolean;
   variants: ProductVariant[];
   images: ProductImage[];
@@ -56,6 +58,7 @@ export function ProductDetail() {
     enabled: !!params?.id,
   });
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const [selectedColor, setSelectedColor] = useState<string>("");
@@ -276,9 +279,23 @@ export function ProductDetail() {
               </h1>
 
               <div className="flex items-center justify-between pb-6 border-b border-gray-200">
-                <span className="text-2xl font-bold text-gray-900">
-                  €{displayPrice.toFixed(2)}
-                </span>
+                {user?.isB2b && product.b2bPriceCents ? (
+                  <div className="flex items-center gap-2" data-testid="b2b-price-section">
+                    <span className="text-2xl font-bold text-gray-900">
+                      €{(product.b2bPriceCents / 100).toFixed(2)}
+                    </span>
+                    <span className="text-lg text-gray-400 line-through">
+                      €{displayPrice.toFixed(2)}
+                    </span>
+                    <span className="text-xs font-bold bg-black text-white px-2 py-1 rounded">
+                      B2B
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-2xl font-bold text-gray-900">
+                    €{displayPrice.toFixed(2)}
+                  </span>
+                )}
                 <WishlistButton productId={product.id} showText size="md" />
               </div>
 

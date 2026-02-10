@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { WishlistButton } from "./wishlist-button";
+import { useAuth } from "@/context/auth-context";
 
 interface ProductVariant {
   id: number;
@@ -24,6 +25,7 @@ interface ProductWithVariants {
   name: string;
   brand: string | null;
   basePriceCents: number | null;
+  b2bPriceCents?: number | null;
   active: boolean;
   variants?: ProductVariant[];
   images?: ProductImage[];
@@ -37,6 +39,9 @@ interface ProductCardProps {
 const NO_IMAGE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f3f4f6' width='400' height='400'/%3E%3Ctext x='200' y='200' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-size='14' fill='%239ca3af'%3ENessuna immagine%3C/text%3E%3C/svg%3E";
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { user } = useAuth();
+  const isB2b = user?.isB2b && product.b2bPriceCents;
+
   const mainImage = useMemo(() => {
     if (product.images && product.images.length > 0) {
       return [...product.images].sort(
@@ -119,9 +124,25 @@ export function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-900 font-medium">
-            €{displayPrice.toFixed(2)}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {isB2b ? (
+              <>
+                <span className="text-gray-900 font-medium" data-testid={`text-b2b-price-${product.id}`}>
+                  €{(product.b2bPriceCents! / 100).toFixed(2)}
+                </span>
+                <span className="text-xs text-gray-400 line-through">
+                  €{displayPrice.toFixed(2)}
+                </span>
+                <span className="text-[10px] font-bold bg-black text-white px-1 py-0.5 rounded">
+                  B2B
+                </span>
+              </>
+            ) : (
+              <span className="text-gray-900 font-medium">
+                €{displayPrice.toFixed(2)}
+              </span>
+            )}
+          </div>
 
           {colorCount > 0 && (
             <span className="text-xs text-gray-500">

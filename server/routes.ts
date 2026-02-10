@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, sendBankTransferOrderEmail, sendAdminBankTransferNotification, sendPaymentConfirmedEmail, sendDeliveredEmail, createDummyOrderData, type OrderEmailData } from "./emailService";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, sendBankTransferOrderEmail, sendAdminBankTransferNotification, sendPaymentConfirmedEmail, sendDeliveredEmail, createDummyOrderData, sendB2bApprovalEmail, sendB2bRejectionEmail, type OrderEmailData } from "./emailService";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -630,7 +630,7 @@ export async function registerRoutes(
       
       res.json({ 
         success: true, 
-        user: { id: user.id, email: user.email, name: user.name, surname: user.surname } 
+        user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b } 
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -669,7 +669,7 @@ export async function registerRoutes(
       
       res.json({ 
         success: true, 
-        user: { id: user.id, email: user.email, name: user.name, surname: user.surname } 
+        user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b } 
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -704,7 +704,7 @@ export async function registerRoutes(
       const user = await storage.getUserById(session.userId);
       if (user) {
         return res.json({ 
-          user: { id: user.id, email: user.email, name: user.name, surname: user.surname } 
+          user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b } 
         });
       }
     }
@@ -906,10 +906,41 @@ export async function registerRoutes(
       if (!updated) {
         return res.status(404).json({ error: "Richiesta non trovata" });
       }
+
+      if (status === "approved") {
+        const user = await storage.getUserByEmail(updated.email);
+        if (user) {
+          await storage.setUserB2b(user.id, true);
+        }
+        sendB2bApprovalEmail(updated.email, updated.companyName).catch(err =>
+          console.error("[B2B] Failed to send approval email:", err)
+        );
+      } else if (status === "rejected") {
+        sendB2bRejectionEmail(updated.email, updated.companyName).catch(err =>
+          console.error("[B2B] Failed to send rejection email:", err)
+        );
+      }
+
       res.json(updated);
     } catch (error) {
       console.error("Error updating business request:", error);
       res.status(500).json({ error: "Errore nell'aggiornamento della richiesta" });
+    }
+  });
+
+  // Admin: Update product B2B price
+  app.patch("/api/admin/products/:id/b2b-price", isAdmin, async (req, res) => {
+    try {
+      const { b2bPriceCents } = req.body;
+      const priceValue = b2bPriceCents === null || b2bPriceCents === undefined || b2bPriceCents === "" ? null : parseInt(b2bPriceCents);
+      const updated = await storage.updateProductB2bPrice(parseInt(req.params.id), priceValue);
+      if (!updated) {
+        return res.status(404).json({ error: "Prodotto non trovato" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating B2B price:", error);
+      res.status(500).json({ error: "Errore nell'aggiornamento del prezzo B2B" });
     }
   });
   
@@ -1559,6 +1590,8 @@ export async function registerRoutes(
           <a href="/admin/collections">Collections</a>
           <a href="/admin/orders">Orders</a>
           <a href="/admin/contacts">Contacts</a>
+          <a href="/admin/business-requests">Business Requests</a>
+          <a href="/admin/b2b-products">B2B Products</a>
         </div>
         <div class="container">
           <h2>Welcome, ${req.adminEmail}</h2>
@@ -1621,6 +1654,18 @@ export async function registerRoutes(
   app.get("/admin/contacts", isAdminHTML, async (req, res) => {
     const contacts = await storage.getAllContactMessages();
     res.send(getAdminContactsPage(contacts));
+  });
+
+  // Admin Business Requests page
+  app.get("/admin/business-requests", isAdminHTML, async (req, res) => {
+    const requests = await storage.getAllBusinessRequests();
+    res.send(getAdminBusinessRequestsPage(requests));
+  });
+
+  // Admin B2B Products page
+  app.get("/admin/b2b-products", isAdminHTML, async (req, res) => {
+    const allProducts = await storage.getAllProducts();
+    res.send(getAdminB2bProductsPage(allProducts));
   });
 
   // ================================
@@ -2260,6 +2305,8 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
         <a href="/admin/collections">Collections</a>
         <a href="/admin/orders">Orders</a>
         <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
         <div class="controls">
@@ -2494,6 +2541,8 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         <a href="/admin/collections">Collections</a>
         <a href="/admin/orders">Orders</a>
         <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
         <a href="/admin/products" class="back-link">← Back to Products</a>
@@ -3071,6 +3120,8 @@ function getAdminCollectionsPage(collections: any[]): string {
         <a href="/admin/collections" class="active">Collections</a>
         <a href="/admin/orders">Orders</a>
         <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
         <div class="controls">
@@ -3243,6 +3294,8 @@ function getAdminOrdersPage(orders: any[]): string {
         <a href="/admin/collections">Collections</a>
         <a href="/admin/orders" class="active">Orders</a>
         <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
         <h2 style="margin-bottom: 1rem;">Orders (${orders.length})</h2>
@@ -3372,6 +3425,8 @@ function getAdminOrderDetailPage(order: any): string {
         <a href="/admin/collections">Collections</a>
         <a href="/admin/orders" class="active">Orders</a>
         <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
         <a href="/admin/orders" class="back-link">← Back to Orders</a>
@@ -3698,6 +3753,8 @@ function getAdminContactsPage(contacts: any[]): string {
         <a href="/admin/collections">Collections</a>
         <a href="/admin/orders">Orders</a>
         <a href="/admin/contacts" class="active">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
         <h2 style="margin-bottom: 1.5rem;">Contact Messages (${contacts.length})</h2>
@@ -3750,6 +3807,285 @@ function getAdminContactsPage(contacts: any[]): string {
             body: JSON.stringify({ status: 'replied' })
           });
           location.reload();
+        }
+      </script>
+    </body>
+    </html>
+  `;
+}
+
+function getAdminBusinessRequestsPage(requests: any[]): string {
+  const rowsHtml = requests.map(r => {
+    const date = new Date(r.createdAt).toLocaleDateString('it-IT', { year: 'numeric', month: 'short', day: 'numeric' });
+    const statusClass = r.status === 'approved' ? 'status-approved' : r.status === 'rejected' ? 'status-rejected' : 'status-pending';
+    const statusLabel = r.status === 'approved' ? 'Approvata' : r.status === 'rejected' ? 'Rifiutata' : 'In attesa';
+    const actions = r.status === 'pending'
+      ? '<button class="btn btn-approve" onclick="updateStatus(' + r.id + ", 'approved'" + ')">Approva</button>' +
+        '<button class="btn btn-reject" onclick="updateStatus(' + r.id + ", 'rejected'" + ')">Rifiuta</button>'
+      : '-';
+    return '<tr>' +
+      '<td>' + r.companyName + '</td>' +
+      '<td>' + r.vatNumber + '</td>' +
+      '<td>' + r.email + '</td>' +
+      '<td>' + (r.phone || '-') + '</td>' +
+      '<td>' + (r.businessType || '-') + '</td>' +
+      '<td>' + (r.contactPerson || '-') + '</td>' +
+      '<td><span class="status-badge ' + statusClass + '">' + statusLabel + '</span></td>' +
+      '<td>' + date + '</td>' +
+      '<td>' + actions + '</td>' +
+      '</tr>';
+  }).join('');
+
+  const tableHtml = requests.length === 0
+    ? '<div class="empty">Nessuna richiesta business</div>'
+    : '<table><thead><tr><th>Azienda</th><th>P.IVA</th><th>Email</th><th>Telefono</th><th>Tipo Attività</th><th>Referente</th><th>Stato</th><th>Data</th><th>Azioni</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>';
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Richieste Business - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .logout { background: transparent; border: 1px solid white; color: white; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
+        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
+        .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
+        .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+        th { background: #f8f8f8; font-weight: 600; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .status-pending { background: #ffc107; color: #000; }
+        .status-approved { background: #28a745; color: white; }
+        .status-rejected { background: #dc3545; color: white; }
+        .btn { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 500; }
+        .btn-approve { background: #28a745; color: white; }
+        .btn-approve:hover { background: #218838; }
+        .btn-reject { background: #dc3545; color: white; margin-left: 0.25rem; }
+        .btn-reject:hover { background: #c82333; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .empty { text-align: center; padding: 4rem; color: #666; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 6px; color: white; font-weight: 500; z-index: 9999; display: none; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests" class="active">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
+      </div>
+      <div class="container">
+        <h2 style="margin-bottom: 1rem;">Richieste Business (${requests.length})</h2>
+        ${tableHtml}
+      </div>
+      <div class="toast" id="toast"></div>
+      <script>
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
+
+        function showToast(message, type) {
+          const toast = document.getElementById('toast');
+          toast.textContent = message;
+          toast.className = 'toast ' + type;
+          toast.style.display = 'block';
+          setTimeout(function() { toast.style.display = 'none'; }, 3000);
+        }
+
+        async function updateStatus(id, status) {
+          try {
+            const res = await fetch('/api/admin/business-requests/' + id + '/status', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: status })
+            });
+            if (res.ok) {
+              showToast(status === 'approved' ? 'Richiesta approvata!' : 'Richiesta rifiutata', 'success');
+              setTimeout(function() { location.reload(); }, 1000);
+            } else {
+              showToast('Errore aggiornamento', 'error');
+            }
+          } catch (e) {
+            showToast('Errore di connessione', 'error');
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `;
+}
+
+function getAdminB2bProductsPage(allProducts: any[]): string {
+  const rowsHtml = allProducts.map(p => {
+    const basePrice = p.basePriceCents ? (p.basePriceCents / 100).toFixed(2) : '-';
+    const b2bPrice = p.b2bPriceCents ? (p.b2bPriceCents / 100).toFixed(2) : '';
+    const discount = p.basePriceCents && p.b2bPriceCents ? Math.round((1 - p.b2bPriceCents / p.basePriceCents) * 100) : '';
+    const clearBtn = p.b2bPriceCents
+      ? '<button class="btn-clear" onclick="clearB2bPrice(' + p.id + ')">Rimuovi</button>'
+      : '';
+    return '<tr id="row-' + p.id + '">' +
+      '<td>' + p.name + '</td>' +
+      '<td>' + (p.brand || '-') + '</td>' +
+      '<td class="original-price">&euro;' + basePrice + '</td>' +
+      '<td><input type="number" class="price-input" id="b2b-' + p.id + '" value="' + b2bPrice + '" step="0.01" min="0" placeholder="Prezzo B2B" onchange="calcDiscount(' + p.id + ', ' + (p.basePriceCents || 0) + ')"></td>' +
+      '<td><span class="discount" id="discount-' + p.id + '">' + (discount ? discount + '%' : '-') + '</span></td>' +
+      '<td><button class="btn-save" onclick="saveB2bPrice(' + p.id + ')">Salva</button>' + clearBtn + '<span class="saved-msg" id="saved-' + p.id + '">&#10003; Salvato</span></td>' +
+      '</tr>';
+  }).join('');
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Prodotti B2B - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .logout { background: transparent; border: 1px solid white; color: white; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
+        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
+        .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
+        .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f8f8; font-weight: 600; }
+        .price-input { width: 120px; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+        .btn-save { padding: 0.4rem 0.8rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .btn-save:hover { background: #333; }
+        .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-clear { padding: 0.4rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 0.25rem; }
+        .btn-clear:hover { background: #c82333; }
+        .discount { font-size: 0.85rem; color: #28a745; font-weight: 600; }
+        .original-price { color: #666; }
+        .saved-msg { color: #28a745; font-size: 0.8rem; display: none; margin-left: 0.5rem; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 6px; color: white; font-weight: 500; z-index: 9999; display: none; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products" class="active">B2B Products</a>
+      </div>
+      <div class="container">
+        <h2 style="margin-bottom: 1rem;">Prodotti B2B - Gestione Prezzi (${allProducts.length})</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome Prodotto</th>
+              <th>Brand</th>
+              <th>Prezzo Originale</th>
+              <th>Prezzo B2B (&euro;)</th>
+              <th>Sconto %</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+      <div class="toast" id="toast"></div>
+      <script>
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
+
+        function showToast(message, type) {
+          var toast = document.getElementById('toast');
+          toast.textContent = message;
+          toast.className = 'toast ' + type;
+          toast.style.display = 'block';
+          setTimeout(function() { toast.style.display = 'none'; }, 3000);
+        }
+
+        function calcDiscount(productId, basePriceCents) {
+          var input = document.getElementById('b2b-' + productId);
+          var discountEl = document.getElementById('discount-' + productId);
+          var val = parseFloat(input.value);
+          if (val > 0 && basePriceCents > 0) {
+            var b2bCents = Math.round(val * 100);
+            var disc = Math.round((1 - b2bCents / basePriceCents) * 100);
+            discountEl.textContent = disc + '%';
+          } else {
+            discountEl.textContent = '-';
+          }
+        }
+
+        async function saveB2bPrice(productId) {
+          var input = document.getElementById('b2b-' + productId);
+          var val = parseFloat(input.value);
+          var b2bPriceCents = val > 0 ? Math.round(val * 100) : null;
+          
+          try {
+            var res = await fetch('/api/admin/products/' + productId + '/b2b-price', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ b2bPriceCents: b2bPriceCents })
+            });
+            if (res.ok) {
+              var saved = document.getElementById('saved-' + productId);
+              saved.style.display = 'inline';
+              setTimeout(function() { saved.style.display = 'none'; }, 2000);
+              showToast('Prezzo B2B aggiornato!', 'success');
+            } else {
+              showToast('Errore nel salvataggio', 'error');
+            }
+          } catch (e) {
+            showToast('Errore di connessione', 'error');
+          }
+        }
+
+        async function clearB2bPrice(productId) {
+          var input = document.getElementById('b2b-' + productId);
+          input.value = '';
+          
+          try {
+            var res = await fetch('/api/admin/products/' + productId + '/b2b-price', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ b2bPriceCents: null })
+            });
+            if (res.ok) {
+              document.getElementById('discount-' + productId).textContent = '-';
+              showToast('Prezzo B2B rimosso', 'success');
+              setTimeout(function() { location.reload(); }, 1000);
+            } else {
+              showToast('Errore nella rimozione', 'error');
+            }
+          } catch (e) {
+            showToast('Errore di connessione', 'error');
+          }
         }
       </script>
     </body>

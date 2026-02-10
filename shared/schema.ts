@@ -21,6 +21,7 @@ export const products = pgTable("products", {
   brand: text("brand"),
   description: text("description"),
   basePriceCents: integer("base_price_cents"), // Default price if variant doesn't have one
+  b2bPriceCents: integer("b2b_price_cents"), // Discounted B2B price (nullable)
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -119,6 +120,7 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   surname: text("surname").notNull(),
   phone: text("phone"),
+  isB2b: boolean("is_b2b").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
