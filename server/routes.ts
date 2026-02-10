@@ -342,7 +342,7 @@ export async function registerRoutes(
         
         const now = new Date();
         const eta = new Date(now);
-        eta.setDate(eta.getDate() + 4);
+        eta.setDate(eta.getDate() + 2);
 
         const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : null;
 
@@ -383,10 +383,17 @@ export async function registerRoutes(
               })),
             };
             
-            sendOrderConfirmationEmail(emailData)
-              .then(sent => console.log(`[Stripe Confirm] Confirmation email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
-              .catch(err => console.error('[Email] Error:', err));
-            sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+            // Send customer email first (with retries), then admin with delay
+            const sent = await sendOrderConfirmationEmail(emailData);
+            if (sent) {
+              console.log(`[Stripe Confirm] Confirmation email sent for order: ${order.orderNumber}`);
+              setTimeout(() => {
+                sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+              }, 1500);
+            } else {
+              console.error(`[Stripe Confirm] Confirmation email failed for order: ${order.orderNumber}, unclaiming`);
+              await storage.unclaimConfirmationEmail(order.id);
+            }
           }
         } else {
           console.log(`[Stripe Confirm] Confirmation email already sent for order: ${order?.orderNumber}, skipping`);
@@ -476,10 +483,10 @@ export async function registerRoutes(
           return res.json({ received: true, message: "Payment pending" });
         }
 
-        // Calculate ETA (2-5 business days for Italy)
+        // Calculate ETA (2 business days for Italy)
         const now = new Date();
         const eta = new Date(now);
-        eta.setDate(eta.getDate() + 4); // Default 4 days
+        eta.setDate(eta.getDate() + 2);
 
         // Get payment intent ID if available
         const paymentIntentId = session.payment_intent || null;
@@ -522,10 +529,17 @@ export async function registerRoutes(
               })),
             };
             
-            sendOrderConfirmationEmail(emailData)
-              .then(sent => console.log(`[Stripe Webhook] Confirmation email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
-              .catch(err => console.error('[Email] Error:', err));
-            sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+            // Send customer email first (with retries), then admin with delay
+            const sent = await sendOrderConfirmationEmail(emailData);
+            if (sent) {
+              console.log(`[Stripe Webhook] Confirmation email sent for order: ${order.orderNumber}`);
+              setTimeout(() => {
+                sendAdminOrderNotification(emailData).catch(err => console.error('[Email] Admin error:', err));
+              }, 1500);
+            } else {
+              console.error(`[Stripe Webhook] Confirmation email failed for order: ${order.orderNumber}, unclaiming`);
+              await storage.unclaimConfirmationEmail(order.id);
+            }
           }
         } else {
           console.log(`[Stripe Webhook] Confirmation email already sent for order: ${order.orderNumber}, skipping`);
@@ -1933,7 +1947,7 @@ export async function registerRoutes(
           const orderWithItems = await storage.getOrderWithItems(orderId);
           if (orderWithItems) {
             const deliveredAt = updatedOrder.deliveredAt || new Date();
-            sendDeliveredEmail({
+            const sent = await sendDeliveredEmail({
               orderNumber: orderWithItems.orderNumber,
               customerName: orderWithItems.customerName,
               customerEmail: orderWithItems.customerEmail,
@@ -1946,9 +1960,12 @@ export async function registerRoutes(
                 quantity: item.quantity,
                 priceCents: item.priceCents,
               })),
-            })
-              .then(sent => console.log(`[Admin] Delivered email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
-              .catch(err => console.error('[Email] Delivered error:', err));
+            });
+            if (sent) {
+              console.log(`[Admin] Delivered email sent for order: ${order.orderNumber}`);
+            } else {
+              await storage.unclaimDeliveredEmail(orderId);
+            }
           }
         }
       }
@@ -2124,7 +2141,7 @@ export async function registerRoutes(
       if (canSendDelivered) {
         const orderWithItems = await storage.getOrderWithItems(orderId);
         if (orderWithItems) {
-          sendDeliveredEmail({
+          const sent = await sendDeliveredEmail({
             orderNumber: orderWithItems.orderNumber,
             customerName: orderWithItems.customerName,
             customerEmail: orderWithItems.customerEmail,
@@ -2137,9 +2154,13 @@ export async function registerRoutes(
               quantity: item.quantity,
               priceCents: item.priceCents,
             })),
-          })
-            .then(sent => console.log(`[Deliver] Delivered email ${sent ? 'sent' : 'failed'} for order: ${order.orderNumber}`))
-            .catch(err => console.error('[Email] Delivered error:', err));
+          });
+          if (sent) {
+            console.log(`[Deliver] Delivered email sent for order: ${order.orderNumber}`);
+          } else {
+            console.error(`[Deliver] Delivered email failed for order: ${order.orderNumber}, unclaiming`);
+            await storage.unclaimDeliveredEmail(orderId);
+          }
         }
       } else {
         console.log(`[Deliver] Delivered email already sent for order: ${order.orderNumber}, skipping`);

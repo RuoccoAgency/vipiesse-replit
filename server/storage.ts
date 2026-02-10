@@ -863,6 +863,14 @@ export class DatabaseStorage implements IStorage {
     return result.rows.length > 0;
   }
 
+  // Unclaim confirmation email (reset) if sending failed
+  async unclaimConfirmationEmail(orderId: number): Promise<void> {
+    await pool.query(
+      `UPDATE orders SET confirmation_email_sent_at = NULL WHERE id = $1`,
+      [orderId]
+    );
+  }
+
   // Atomically claim the right to send delivered email
   async claimDeliveredEmail(orderId: number): Promise<boolean> {
     const result = await pool.query(
@@ -870,6 +878,14 @@ export class DatabaseStorage implements IStorage {
       [orderId]
     );
     return result.rows.length > 0;
+  }
+
+  // Unclaim delivered email (reset) if sending failed
+  async unclaimDeliveredEmail(orderId: number): Promise<void> {
+    await pool.query(
+      `UPDATE orders SET delivered_email_sent_at = NULL WHERE id = $1`,
+      [orderId]
+    );
   }
 
   // Sessions

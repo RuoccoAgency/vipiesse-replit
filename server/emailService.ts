@@ -115,7 +115,11 @@ function getOrderItemsHtml(items: OrderEmailData['items']): string {
   `).join('');
 }
 
-async function sendWithResend(to: string, subject: string, html: string): Promise<boolean> {
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function sendWithResend(to: string, subject: string, html: string, maxRetries: number = 3): Promise<boolean> {
   const credentials = await getResendCredentials();
   
   if (!credentials) {
@@ -127,46 +131,54 @@ async function sendWithResend(to: string, subject: string, html: string): Promis
   const fromEmail = credentials.fromEmail || DEFAULT_FROM;
   const replyTo = getReplyTo();
 
-  console.log('[Email] Attempting to send:', { to, subject, from: fromEmail, replyTo });
-  
-  try {
-    const resend = new Resend(credentials.apiKey);
+  const resend = new Resend(credentials.apiKey);
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    console.log('[Email] Attempting to send (attempt ' + attempt + '/' + maxRetries + '):', { to, subject, from: fromEmail, replyTo });
     
-    const { data, error } = await resend.emails.send({
-      from: fromEmail,
-      to: [to],
-      subject,
-      html,
-      replyTo: replyTo,
-    });
-    
-    if (error) {
-      console.error('[Email] Resend API error:', { 
-        to, 
-        subject, 
+    try {
+      const { data, error } = await resend.emails.send({
         from: fromEmail,
-        error: error.message || error 
+        to: [to],
+        subject,
+        html,
+        replyTo: replyTo,
       });
+      
+      if (error) {
+        const errorMsg = (error as any).message || String(error);
+        const isRateLimit = errorMsg.toLowerCase().includes('too many requests') || errorMsg.toLowerCase().includes('rate limit');
+        
+        if (isRateLimit && attempt < maxRetries) {
+          const waitMs = attempt * 1500;
+          console.warn(`[Email] Rate limited, retrying in ${waitMs}ms...`);
+          await delay(waitMs);
+          continue;
+        }
+        
+        console.error('[Email] Resend API error:', { to, subject, from: fromEmail, error: errorMsg });
+        return false;
+      }
+      
+      console.log('[Email] Sent successfully:', { to, subject, from: fromEmail, replyTo, messageId: data?.id });
+      return true;
+    } catch (error: any) {
+      const errorMsg = error.message || String(error);
+      const isRateLimit = errorMsg.toLowerCase().includes('too many requests') || errorMsg.toLowerCase().includes('rate limit');
+      
+      if (isRateLimit && attempt < maxRetries) {
+        const waitMs = attempt * 1500;
+        console.warn(`[Email] Rate limited (exception), retrying in ${waitMs}ms...`);
+        await delay(waitMs);
+        continue;
+      }
+      
+      console.error('[Email] Failed to send:', { to, subject, from: fromEmail, error: errorMsg });
       return false;
     }
-    
-    console.log('[Email] Sent successfully:', { 
-      to, 
-      subject, 
-      from: fromEmail, 
-      replyTo,
-      messageId: data?.id 
-    });
-    return true;
-  } catch (error: any) {
-    console.error('[Email] Failed to send:', { 
-      to, 
-      subject, 
-      from: fromEmail,
-      error: error.message || error 
-    });
-    return false;
   }
+  
+  return false;
 }
 
 export async function sendOrderConfirmationEmail(order: OrderEmailData): Promise<boolean> {
@@ -602,7 +614,7 @@ export function createDummyOrderData(): OrderEmailData {
     shippingAddress: 'Via Test 123',
     shippingCity: 'Napoli',
     shippingCap: '80100',
-    estimatedDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    estimatedDeliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     carrier: 'BRT',
     trackingNumber: 'TEST123456789',
     items: [
