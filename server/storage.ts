@@ -48,7 +48,7 @@ export interface IStorage {
   getProductById(id: number): Promise<Product | undefined>;
   getProductWithVariants(id: number): Promise<ProductWithVariants | undefined>;
   getAllProductsWithVariants(): Promise<ProductWithVariants[]>;
-  getProductsByCollection(collectionSlug: string): Promise<ProductWithVariants[]>;
+  getProductsByCollection(collectionSlug: string, includeOutlet?: boolean): Promise<ProductWithVariants[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<void>;
@@ -266,7 +266,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getProductsByCollection(collectionSlug: string): Promise<ProductWithVariants[]> {
+  async getProductsByCollection(collectionSlug: string, includeOutlet: boolean = false): Promise<ProductWithVariants[]> {
     const collection = await this.getCollectionBySlug(collectionSlug);
     if (!collection) return [];
     
@@ -277,7 +277,7 @@ export class DatabaseStorage implements IStorage {
     if (productIds.length === 0) return [];
 
     let excludeIds: number[] = [];
-    if (collectionSlug !== 'outlet') {
+    if (!includeOutlet && collectionSlug !== 'outlet') {
       const outletCollection = await this.getCollectionBySlug('outlet');
       if (outletCollection) {
         const outletProductIds = await db.select({ productId: productCollections.productId })

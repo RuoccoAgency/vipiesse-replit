@@ -30,7 +30,7 @@ export function Outlet({ category }: OutletProps) {
 
   const { data: categoryProducts = [], isLoading: isLoadingCategory } = useQuery({
     queryKey: ['products', category],
-    queryFn: () => fetchProductsByCollection(category!),
+    queryFn: () => fetchProductsByCollection(category!, true),
     enabled: !!category,
   });
 

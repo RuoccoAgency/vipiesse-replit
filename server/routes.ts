@@ -1053,7 +1053,8 @@ export async function registerRoutes(
 
   app.get("/api/products/collection/:slug", async (req, res) => {
     try {
-      const products = await storage.getProductsByCollection(req.params.slug);
+      const includeOutlet = req.query.includeOutlet === 'true';
+      const products = await storage.getProductsByCollection(req.params.slug, includeOutlet);
       res.json(products);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch products" });
