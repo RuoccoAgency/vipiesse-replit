@@ -2593,6 +2593,13 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                 <input type="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
               </div>
               <div class="form-group">
+                <label>Prezzo Pre-Sconto / Outlet (€)</label>
+                <input type="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
+                <small style="color:#666;font-size:0.75rem;">Se compilato, nella sezione Outlet verrà mostrato come prezzo barrato con la % di sconto</small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
                 <label>Active</label>
                 <select id="active">
                   <option value="true" ${product.active ? 'selected' : ''}>Yes</option>
@@ -2853,11 +2860,13 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           e.preventDefault();
           
           const basePriceInput = document.getElementById('basePrice').value;
+          const compareAtPriceInput = document.getElementById('compareAtPrice').value;
           const data = {
             name: document.getElementById('name').value,
             brand: document.getElementById('brand').value || null,
             description: document.getElementById('description').value || null,
             basePriceCents: parsePrice(basePriceInput),
+            compareAtPriceCents: parsePrice(compareAtPriceInput),
             active: document.getElementById('active').value === 'true'
           };
           
