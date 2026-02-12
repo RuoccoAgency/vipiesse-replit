@@ -275,10 +275,27 @@ export class DatabaseStorage implements IStorage {
       .where(eq(productCollections.collectionId, collection.id));
     
     if (productIds.length === 0) return [];
+
+    let excludeIds: number[] = [];
+    if (collectionSlug !== 'outlet') {
+      const outletCollection = await this.getCollectionBySlug('outlet');
+      if (outletCollection) {
+        const outletProductIds = await db.select({ productId: productCollections.productId })
+          .from(productCollections)
+          .where(eq(productCollections.collectionId, outletCollection.id));
+        excludeIds = outletProductIds.map(p => p.productId);
+      }
+    }
+
+    const filteredIds = productIds
+      .map(p => p.productId)
+      .filter(id => !excludeIds.includes(id));
+    
+    if (filteredIds.length === 0) return [];
     
     const collectionProducts = await db.select().from(products)
       .where(and(
-        inArray(products.id, productIds.map(p => p.productId)),
+        inArray(products.id, filteredIds),
         eq(products.active, true)
       ));
     
