@@ -303,7 +303,7 @@ export function Outlet({ category }: OutletProps) {
       {!isLoading && filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-12">
           {filteredProducts.map((product: any) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} isOutlet />
           ))}
         </div>
       ) : !isLoading ? (

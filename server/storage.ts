@@ -200,6 +200,7 @@ export interface IStorage {
 
   // B2B
   updateProductB2bPrice(productId: number, b2bPriceCents: number | null): Promise<Product | undefined>;
+  updateProductComparePrice(productId: number, compareAtPriceCents: number | null): Promise<Product | undefined>;
   setUserB2b(userId: number, isB2b: boolean): Promise<void>;
 
   // Business Requests
@@ -1050,6 +1051,14 @@ export class DatabaseStorage implements IStorage {
   async updateProductB2bPrice(productId: number, b2bPriceCents: number | null): Promise<Product | undefined> {
     const [updated] = await db.update(products)
       .set({ b2bPriceCents, updatedAt: new Date() })
+      .where(eq(products.id, productId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async updateProductComparePrice(productId: number, compareAtPriceCents: number | null): Promise<Product | undefined> {
+    const [updated] = await db.update(products)
+      .set({ compareAtPriceCents, updatedAt: new Date() })
       .where(eq(products.id, productId))
       .returning();
     return updated || undefined;

@@ -26,6 +26,7 @@ interface ProductWithVariants {
   brand: string | null;
   basePriceCents: number | null;
   b2bPriceCents?: number | null;
+  compareAtPriceCents?: number | null;
   active: boolean;
   variants?: ProductVariant[];
   images?: ProductImage[];
@@ -33,12 +34,13 @@ interface ProductWithVariants {
 
 interface ProductCardProps {
   product: ProductWithVariants;
+  isOutlet?: boolean;
 }
 
 // Neutral gray placeholder for products without images
 const NO_IMAGE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f3f4f6' width='400' height='400'/%3E%3Ctext x='200' y='200' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-size='14' fill='%239ca3af'%3ENessuna immagine%3C/text%3E%3C/svg%3E";
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, isOutlet }: ProductCardProps) {
   const { user } = useAuth();
   const isB2b = user?.isB2b && product.b2bPriceCents;
 
@@ -62,6 +64,11 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     return (product.basePriceCents ?? 0) / 100;
   }, [product.variants, product.basePriceCents]);
+
+  const hasDiscount = isOutlet && product.compareAtPriceCents && product.compareAtPriceCents > (product.basePriceCents || 0);
+  const discountPercent = hasDiscount
+    ? Math.round((1 - (product.basePriceCents || 0) / product.compareAtPriceCents!) * 100)
+    : 0;
 
   const hasStock = useMemo(() => {
     if (!product.variants) return true;
@@ -88,6 +95,11 @@ export function ProductCard({ product }: ProductCardProps) {
         {!hasStock && (
           <span className="absolute top-2 left-2 z-10 bg-black text-white text-[10px] font-bold px-2 py-1 uppercase">
             Esaurito
+          </span>
+        )}
+        {hasStock && hasDiscount && (
+          <span className="absolute top-2 left-2 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase rounded">
+            -{discountPercent}%
           </span>
         )}
 
@@ -123,7 +135,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h3>
 
-        <div className="flex items-center justify-between text-sm">
+        <div className="text-sm">
           <div className="flex items-center gap-1.5">
             {isB2b ? (
               <>
@@ -137,17 +149,34 @@ export function ProductCard({ product }: ProductCardProps) {
                   B2B
                 </span>
               </>
+            ) : hasDiscount ? (
+              <>
+                <span className="text-red-600 font-semibold" data-testid={`text-outlet-price-${product.id}`}>
+                  da €{displayPrice.toFixed(2)}
+                </span>
+              </>
             ) : (
               <span className="text-gray-900 font-medium">
                 €{displayPrice.toFixed(2)}
               </span>
             )}
+
+            {!hasDiscount && colorCount > 0 && (
+              <span className="text-xs text-gray-500 ml-auto">
+                {colorCount} color{colorCount > 1 ? "i" : "e"}
+              </span>
+            )}
           </div>
 
-          {colorCount > 0 && (
-            <span className="text-xs text-gray-500">
-              {colorCount} color{colorCount > 1 ? "i" : "e"}
-            </span>
+          {hasDiscount && (
+            <div className="mt-1 space-y-0.5">
+              <p className="text-[11px] text-gray-500">
+                Prezzo più basso degli ultimi 30 giorni: <span className="line-through">€{(product.compareAtPriceCents! / 100).toFixed(2)}</span>
+              </p>
+              <p className="text-xs font-bold text-red-600">
+                Fino a -{discountPercent}%
+              </p>
+            </div>
           )}
         </div>
       </div>

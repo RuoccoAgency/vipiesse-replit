@@ -952,6 +952,22 @@ export async function registerRoutes(
     }
   });
   
+  // Admin: Update compare-at price (outlet)
+  app.patch("/api/admin/products/:id/compare-price", isAdmin, async (req, res) => {
+    try {
+      const { compareAtPriceCents } = req.body;
+      const priceValue = compareAtPriceCents === null || compareAtPriceCents === undefined || compareAtPriceCents === "" ? null : parseInt(compareAtPriceCents);
+      const updated = await storage.updateProductComparePrice(parseInt(req.params.id), priceValue);
+      if (!updated) {
+        return res.status(404).json({ error: "Prodotto non trovato" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating compare price:", error);
+      res.status(500).json({ error: "Errore nell'aggiornamento del prezzo outlet" });
+    }
+  });
+
   // Admin: Get all contact messages
   app.get("/api/admin/contacts", isAdmin, async (req, res) => {
     try {
@@ -3945,7 +3961,9 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
   const rowsHtml = allProducts.map(p => {
     const basePrice = p.basePriceCents ? (p.basePriceCents / 100).toFixed(2) : '-';
     const b2bPrice = p.b2bPriceCents ? (p.b2bPriceCents / 100).toFixed(2) : '';
+    const comparePrice = p.compareAtPriceCents ? (p.compareAtPriceCents / 100).toFixed(2) : '';
     const discount = p.basePriceCents && p.b2bPriceCents ? Math.round((1 - p.b2bPriceCents / p.basePriceCents) * 100) : '';
+    const outletDiscount = p.basePriceCents && p.compareAtPriceCents ? Math.round((1 - p.basePriceCents / p.compareAtPriceCents) * 100) : '';
     const clearBtn = p.b2bPriceCents
       ? '<button class="btn-clear" onclick="clearB2bPrice(' + p.id + ')">Rimuovi</button>'
       : '';
@@ -3953,6 +3971,8 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
       '<td>' + p.name + '</td>' +
       '<td>' + (p.brand || '-') + '</td>' +
       '<td class="original-price">&euro;' + basePrice + '</td>' +
+      '<td><input type="number" class="price-input" id="compare-' + p.id + '" value="' + comparePrice + '" step="0.01" min="0" placeholder="Prezzo originale" onchange="calcOutletDiscount(' + p.id + ', ' + (p.basePriceCents || 0) + ')"></td>' +
+      '<td><span class="discount-outlet" id="outlet-discount-' + p.id + '">' + (outletDiscount ? '-' + outletDiscount + '%' : '-') + '</span> <button class="btn-save btn-outlet" onclick="saveComparePrice(' + p.id + ')">Salva</button></td>' +
       '<td><input type="number" class="price-input" id="b2b-' + p.id + '" value="' + b2bPrice + '" step="0.01" min="0" placeholder="Prezzo B2B" onchange="calcDiscount(' + p.id + ', ' + (p.basePriceCents || 0) + ')"></td>' +
       '<td><span class="discount" id="discount-' + p.id + '">' + (discount ? discount + '%' : '-') + '</span></td>' +
       '<td><button class="btn-save" onclick="saveB2bPrice(' + p.id + ')">Salva</button>' + clearBtn + '<span class="saved-msg" id="saved-' + p.id + '">&#10003; Salvato</span></td>' +
@@ -4007,16 +4027,18 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
         <a href="/admin/b2b-products" class="active">B2B Products</a>
       </div>
       <div class="container">
-        <h2 style="margin-bottom: 1rem;">Prodotti B2B - Gestione Prezzi (${allProducts.length})</h2>
+        <h2 style="margin-bottom: 1rem;">Gestione Prezzi - B2B &amp; Outlet (${allProducts.length})</h2>
         <table>
           <thead>
             <tr>
               <th>Nome Prodotto</th>
               <th>Brand</th>
-              <th>Prezzo Originale</th>
+              <th>Prezzo Attuale</th>
+              <th>Prezzo Pre-Sconto (Outlet)</th>
+              <th>Sconto Outlet</th>
               <th>Prezzo B2B (&euro;)</th>
-              <th>Sconto %</th>
-              <th>Azioni</th>
+              <th>Sconto B2B</th>
+              <th>Azioni B2B</th>
             </tr>
           </thead>
           <tbody>
@@ -4068,6 +4090,40 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
               saved.style.display = 'inline';
               setTimeout(function() { saved.style.display = 'none'; }, 2000);
               showToast('Prezzo B2B aggiornato!', 'success');
+            } else {
+              showToast('Errore nel salvataggio', 'error');
+            }
+          } catch (e) {
+            showToast('Errore di connessione', 'error');
+          }
+        }
+
+        function calcOutletDiscount(productId, basePriceCents) {
+          var input = document.getElementById('compare-' + productId);
+          var discountEl = document.getElementById('outlet-discount-' + productId);
+          var val = parseFloat(input.value);
+          if (val > 0 && basePriceCents > 0) {
+            var compareCents = Math.round(val * 100);
+            var disc = Math.round((1 - basePriceCents / compareCents) * 100);
+            discountEl.textContent = '-' + disc + '%';
+          } else {
+            discountEl.textContent = '-';
+          }
+        }
+
+        async function saveComparePrice(productId) {
+          var input = document.getElementById('compare-' + productId);
+          var val = parseFloat(input.value);
+          var compareAtPriceCents = val > 0 ? Math.round(val * 100) : null;
+          
+          try {
+            var res = await fetch('/api/admin/products/' + productId + '/compare-price', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ compareAtPriceCents: compareAtPriceCents })
+            });
+            if (res.ok) {
+              showToast('Prezzo outlet aggiornato!', 'success');
             } else {
               showToast('Errore nel salvataggio', 'error');
             }

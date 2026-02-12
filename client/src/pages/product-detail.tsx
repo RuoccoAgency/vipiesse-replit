@@ -296,6 +296,23 @@ export function ProductDetail() {
                       B2B
                     </span>
                   </div>
+                ) : product.compareAtPriceCents && product.compareAtPriceCents > (product.basePriceCents || 0) ? (
+                  <div data-testid="outlet-price-section">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-bold text-red-600">
+                        €{displayPrice.toFixed(2)}
+                      </span>
+                      <span className="text-lg text-gray-400 line-through">
+                        €{(product.compareAtPriceCents / 100).toFixed(2)}
+                      </span>
+                      <span className="text-xs font-bold bg-red-600 text-white px-2 py-1 rounded">
+                        -{Math.round((1 - (product.basePriceCents || 0) / product.compareAtPriceCents) * 100)}%
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Prezzo più basso degli ultimi 30 giorni: €{(product.compareAtPriceCents / 100).toFixed(2)}
+                    </p>
+                  </div>
                 ) : (
                   <span className="text-2xl font-bold text-gray-900">
                     €{displayPrice.toFixed(2)}
