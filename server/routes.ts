@@ -1,6 +1,8 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
@@ -2090,6 +2092,96 @@ export async function registerRoutes(
     }
     next();
   };
+
+  app.post("/api/admin/sync-data", isAdminToken, async (req, res) => {
+    try {
+      console.log('[Sync] Starting data sync from bundled JSON...');
+      const syncDataPath = path.join(process.cwd(), 'server', 'sync-data.json');
+      const rawData = fs.readFileSync(syncDataPath, 'utf-8');
+      const syncData = JSON.parse(rawData);
+      
+      const results = { productsUpdated: 0, productsInserted: 0, variantsInserted: 0, imagesInserted: 0, collectionsAssigned: 0 };
+      
+      for (const p of syncData.products) {
+        const existing = await storage.getProductById(p.id);
+        if (existing) {
+          await storage.updateProduct(p.id, {
+            name: p.name,
+            brand: p.brand,
+            description: p.description,
+            basePriceCents: p.basePriceCents,
+            b2bPriceCents: p.b2bPriceCents,
+            compareAtPriceCents: p.compareAtPriceCents,
+            active: p.active,
+          });
+          results.productsUpdated++;
+        } else {
+          const { Pool } = await import('pg');
+          const directPool = new Pool({ connectionString: process.env.DATABASE_URL });
+          await directPool.query(
+            `INSERT INTO products (id, name, brand, description, base_price_cents, b2b_price_cents, compare_at_price_cents, active)
+             OVERRIDING SYSTEM VALUE
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             ON CONFLICT (id) DO UPDATE SET
+               name = EXCLUDED.name,
+               brand = EXCLUDED.brand,
+               description = EXCLUDED.description,
+               base_price_cents = EXCLUDED.base_price_cents,
+               b2b_price_cents = EXCLUDED.b2b_price_cents,
+               compare_at_price_cents = EXCLUDED.compare_at_price_cents,
+               active = EXCLUDED.active`,
+            [p.id, p.name, p.brand, p.description, p.basePriceCents, p.b2bPriceCents, p.compareAtPriceCents, p.active]
+          );
+          await directPool.end();
+          results.productsInserted++;
+        }
+      }
+      
+      for (const v of syncData.variants) {
+        const existingVariant = await storage.getVariantBySku(v.sku);
+        if (!existingVariant) {
+          await storage.createVariant({
+            productId: v.productId,
+            color: v.color,
+            size: v.size,
+            sku: v.sku,
+            stockQty: v.stockQty,
+            priceCents: v.priceCents,
+            imageUrl: v.imageUrl,
+          });
+          results.variantsInserted++;
+        }
+      }
+      
+      for (const img of syncData.images) {
+        const existingImages = await storage.getImagesByProduct(img.productId);
+        const alreadyExists = existingImages.some((ei: any) => ei.imageUrl === img.imageUrl);
+        if (!alreadyExists) {
+          await storage.createProductImage({
+            productId: img.productId,
+            imageUrl: img.imageUrl,
+            sortOrder: img.sortOrder,
+          });
+          results.imagesInserted++;
+        }
+      }
+      
+      for (const pc of syncData.productCollections) {
+        await storage.assignProductToCollection(pc.productId, pc.collectionId, pc.position);
+        results.collectionsAssigned++;
+      }
+      
+      const maxIdResult = await db.execute(sql`SELECT MAX(id) as max_id FROM products`);
+      const maxId = (maxIdResult as any).rows?.[0]?.max_id || 30;
+      await db.execute(sql`SELECT setval(pg_get_serial_sequence('products', 'id'), ${Number(maxId) + 1}, false)`);
+      
+      console.log('[Sync] Data sync complete:', results);
+      res.json({ ok: true, results });
+    } catch (error: any) {
+      console.error('[Sync] Error:', error);
+      res.status(500).json({ ok: false, error: error.message });
+    }
+  });
 
   // Test email endpoint - for verifying email configuration without placing an order
   app.post("/api/admin/test-email", isAdminToken, async (req, res) => {
