@@ -1,6 +1,106 @@
 {
   "products": [
     {
+      "id": 3,
+      "name": "Pantofole Donna De Fonseca - Comfort Quotidiano per la Casa",
+      "brand": "de fonseca (ROMA TOPI WA20)",
+      "description": "-Materiale suola EVA\n-Materiale esterno Vinile\n-Materiale interno Feltro\n-Livello di resistenza all'acqua Idrorepellente\n-Paese di origine Cina\n\n\n-Materiali Premium: Realizzate con tessuti morbidi, memory foam o pelliccia sintetica per un comfort eccezionale.\n-Design Versatile: Disponibili in vari stili, dai modelli classici ed eleganti a quelli più giocosi e colorati.\n-Calde e Accoglienti: Perfette per mantenere i piedi al caldo durante i mesi più freddi.\n-Suola Antiscivolo: Progettate per garantire sicurezza e stabilità su tutte le superfici domestiche.\n-Adatte a Ogni Gusto: Ideali per uomo e donna, con opzioni per chi cerca stile, comfort o un look originale.",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 4,
+      "name": "Pantofole Donna De Fonseca - Comode e Calde",
+      "brand": "de fonseca (VERONAE WA30)",
+      "description": "Suola\tEVA\t\nFodera\tCOTONE\t\nEsterno\tMICROFIBRA\t\nInterno\tMICROFIBRA\t\nSottopiede MICROFIBRA IMBOTTITO\t\nTacco 2 cm\t\nPleateau 1,5 cm\t",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 5,
+      "name": "Pantofole donna De Fonseca in Canvas",
+      "brand": "de fonseca (BARI TOPE PA WA32)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tCOTONE\nInterno\tCOTONE\nSottopiede COTONE IMBOTTITO\nTacco 1,5 cm\nPleateau 1,5 cm",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 6,
+      "name": "Pantofole donna De Fonseca Peluche",
+      "brand": "de fonseca (ROMA TOPI WA49)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tPELUCHE\nInterno\tPELUCHE\nSottopiede PELUCHE IMBOTTITO\nTacco 2 cm\nPleateau 1,5 cm",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 7,
+      "name": "Pantofole Uomo in Lana Calda con Motivo Scozzese",
+      "brand": "de fonseca (ROMA TOPI M940)",
+      "description": "Suola\tEVA\t\nFodera\tCOTONE\t\nEsterno\tTESSUTO\t\nInterno\tTESSUTO\t\nSottopiede PELUCHE IMBOTTITO\t\nTacco 2,5 cm\nPleateau 1,5 cm",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 8,
+      "name": "Pantofole donna De Fonseca in Canvas",
+      "brand": "de fonseca (PALERMOE W930)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tCAMBAS\nInterno\tCAMBAS\nSottopiede COTONE IMBOTTITO\nTacco 4 cm\nPleateau 1 cm",
+      "basePriceCents": 1750,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 9,
+      "name": "Pantofole donna De Fonseca in Canvas",
+      "brand": "de fonseca (VERONAP W00)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tCOTONE\nInterno\tCOTONE\nSottopiede COTONE IMBOTTITO\nTacco 3 cm\nPleateau 1 cm",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 10,
+      "name": "Pantofole uomo De Fonseca in Morbido Velluto Liscio",
+      "brand": "de fonseca (AOSTAC M15)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tMICROFIBRA\nInterno\tMICROFIBRA\nSottopiede MICROFIBRA IMBOTTITO\nTacco 2 cm \nPleateau 1,5 cm",
+      "basePriceCents": 1990,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 11,
+      "name": "Pantofole donna De Fonseca in Morbido Velluto Liscio",
+      "brand": "de fonseca (ROMA TOPI W727)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tMICROFIBRA\nInterno\tMICROFIBRA\nSottopiede MICROFIBRA IMBOTTITO\nTacco 1 cm\nPleateau 1 cm",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
+      "id": 12,
+      "name": "Pantofole uomo De Fonseca Fluffy",
+      "brand": "de fonseca (ROMA TOPI M951)",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tTEDDY\nInterno\tTEDDY\nSottopiede TEDDY IMBOTTITO\nTacco 2 cm\nPleateau 1,5 cm",
+      "basePriceCents": 1490,
+      "b2bPriceCents": 999,
+      "compareAtPriceCents": null,
+      "active": true
+    },
+    {
       "id": 13,
       "name": "Stivaletti Donna Inblu con Inserto Elasticizzato e Plantare Imbottito Estraibile",
       "brand": "Inblu (WG 59)",
@@ -152,197 +252,3639 @@
     }
   ],
   "variants": [
-    {"productId": 19, "color": "BLU", "size": "25/26", "sku": "SEGNOBL25/26", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png"},
-    {"productId": 19, "color": "BLU", "size": "27/28", "sku": "SEGNOBL27/28", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png"},
-    {"productId": 19, "color": "BLU", "size": "29/30", "sku": "SEGNOBL29/30", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png"},
-    {"productId": 19, "color": "BLU", "size": "31/32", "sku": "SEGNOBL31/32", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png"},
-    {"productId": 19, "color": "BLU", "size": "33/34", "sku": "SEGNOBL33/34", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png"},
-    {"productId": 19, "color": "ROSSO", "size": "25/26", "sku": "SEGNORO25/26", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png"},
-    {"productId": 19, "color": "ROSSO", "size": "27/28", "sku": "SEGNORO27/28", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png"},
-    {"productId": 19, "color": "ROSSO", "size": "29/30", "sku": "SEGNORO29/30", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png"},
-    {"productId": 19, "color": "ROSSO", "size": "31/32", "sku": "SEGNORO31/32", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png"},
-    {"productId": 19, "color": "ROSSO", "size": "33/34", "sku": "SEGNORO33/34", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png"},
-    {"productId": 20, "color": "BLU", "size": "27/28", "sku": "FACCIONEBL27/28", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png"},
-    {"productId": 20, "color": "BLU", "size": "29/30", "sku": "FACCIONEBL29/30", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png"},
-    {"productId": 20, "color": "BLU", "size": "31/32", "sku": "FACCIONEBL31/32", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png"},
-    {"productId": 20, "color": "BLU", "size": "33/34", "sku": "FACCIONEBL33/34", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png"},
-    {"productId": 20, "color": "ROSSO", "size": "27/28", "sku": "FACCIONERO27/28", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png"},
-    {"productId": 20, "color": "ROSSO", "size": "29/30", "sku": "FACCIONERO29/30", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png"},
-    {"productId": 20, "color": "ROSSO", "size": "31/32", "sku": "FACCIONERO31/32", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png"},
-    {"productId": 20, "color": "ROSSO", "size": "33/34", "sku": "FACCIONERO33/34", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png"},
-    {"productId": 21, "color": "BLU", "size": "28/29", "sku": "BARIK572BL28/29", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png"},
-    {"productId": 21, "color": "BLU", "size": "30/31", "sku": "BARIK572BL30/31", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png"},
-    {"productId": 21, "color": "BLU", "size": "32/33", "sku": "BARIK572BL32/33", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png"},
-    {"productId": 21, "color": "BLU", "size": "34/35", "sku": "BARIK572BL34/35", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png"},
-    {"productId": 21, "color": "BLU", "size": "36/37", "sku": "BARIK572BL36/37", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png"},
-    {"productId": 21, "color": "ROSSO", "size": "28/29", "sku": "BARIK572RO28/29", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png"},
-    {"productId": 21, "color": "ROSSO", "size": "30/31", "sku": "BARIK572RO30/31", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png"},
-    {"productId": 21, "color": "ROSSO", "size": "32/33", "sku": "BARIK572RO32/33", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png"},
-    {"productId": 21, "color": "ROSSO", "size": "34/35", "sku": "BARIK572RO34/35", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png"},
-    {"productId": 21, "color": "ROSSO", "size": "36/37", "sku": "BARIK572RO36/37", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png"},
-    {"productId": 22, "color": "LILLA", "size": "25/26", "sku": "NETTALI25/26", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png"},
-    {"productId": 22, "color": "LILLA", "size": "27/28", "sku": "NETTALI27/28", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png"},
-    {"productId": 22, "color": "LILLA", "size": "29/30", "sku": "NETTALI29/30", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png"},
-    {"productId": 22, "color": "LILLA", "size": "31/32", "sku": "NETTALI31/32", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png"},
-    {"productId": 22, "color": "LILLA", "size": "33/34", "sku": "NETTALI33/34", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png"},
-    {"productId": 22, "color": "ROSA", "size": "25/26", "sku": "NETTARO25/26", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png"},
-    {"productId": 22, "color": "ROSA", "size": "27/28", "sku": "NETTARO27/28", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png"},
-    {"productId": 22, "color": "ROSA", "size": "29/30", "sku": "NETTARO29/30", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png"},
-    {"productId": 22, "color": "ROSA", "size": "31/32", "sku": "NETTARO31/32", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png"},
-    {"productId": 22, "color": "ROSA", "size": "33/34", "sku": "NETTARO33/34", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png"},
-    {"productId": 23, "color": "BLU", "size": "35/36", "sku": "BARITOPW318BL35/36", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/53415ae0-59f2-4da3-b917-5a5cd1bd0444.png"},
-    {"productId": 23, "color": "BLU", "size": "37/38", "sku": "BARITOPW318BL37/38", "stockQty": 5, "priceCents": null, "imageUrl": "/uploads/53415ae0-59f2-4da3-b917-5a5cd1bd0444.png"},
-    {"productId": 23, "color": "BLU", "size": "39/40", "sku": "BARITOPW318BL39/40", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/53415ae0-59f2-4da3-b917-5a5cd1bd0444.png"},
-    {"productId": 23, "color": "VIOLA", "size": "35/36", "sku": "BARITOPW318VI35/36", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/642868f4-bf35-420b-86ed-496e3952a68a.png"},
-    {"productId": 23, "color": "VIOLA", "size": "37/38", "sku": "BARITOPW318VI37/38", "stockQty": 6, "priceCents": null, "imageUrl": "/uploads/642868f4-bf35-420b-86ed-496e3952a68a.png"},
-    {"productId": 23, "color": "VIOLA", "size": "39/40", "sku": "BARITOPW318VI39/40", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/642868f4-bf35-420b-86ed-496e3952a68a.png"},
-    {"productId": 24, "color": "ROSA - VERDE", "size": "28/29", "sku": "FV116123CROCSRO28/29", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png"},
-    {"productId": 24, "color": "ROSA - VERDE", "size": "30/31", "sku": "FV116123CROCSRO30/31", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png"},
-    {"productId": 24, "color": "ROSA - VERDE", "size": "32/33", "sku": "FV116123CROCSRO32/33", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png"},
-    {"productId": 24, "color": "ROSA - VERDE", "size": "34/35", "sku": "FV116123CROCSRO34/35", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png"},
-    {"productId": 25, "color": "BLU", "size": "41", "sku": "26PVBL41", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png"},
-    {"productId": 25, "color": "BLU", "size": "42", "sku": "26PVBL42", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png"},
-    {"productId": 25, "color": "BLU", "size": "43", "sku": "26PVBL43", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png"},
-    {"productId": 25, "color": "BLU", "size": "44", "sku": "26PVBL44", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png"},
-    {"productId": 25, "color": "BLU", "size": "26PVBL45", "sku": "26PVBL45", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png"},
-    {"productId": 25, "color": "BLU", "size": "46", "sku": "26PVBL46", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png"},
-    {"productId": 26, "color": "GRIGIO", "size": "40", "sku": "24PVGR40", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png"},
-    {"productId": 26, "color": "GRIGIO", "size": "41", "sku": "24PVGR41", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png"},
-    {"productId": 26, "color": "GRIGIO", "size": "42", "sku": "24PVGR42", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png"},
-    {"productId": 26, "color": "GRIGIO", "size": "43", "sku": "24PVGR43", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png"},
-    {"productId": 26, "color": "GRIGIO", "size": "44", "sku": "24PVGR44", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png"},
-    {"productId": 26, "color": "GRIGIO", "size": "45", "sku": "24PVGR45", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png"},
-    {"productId": 26, "color": "BLU", "size": "41", "sku": "24PVBL41", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png"},
-    {"productId": 26, "color": "BLU", "size": "42", "sku": "24PVBL42", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png"},
-    {"productId": 26, "color": "BLU", "size": "43", "sku": "24PVBL43", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png"},
-    {"productId": 26, "color": "BLU", "size": "44", "sku": "24PVBL44", "stockQty": 3, "priceCents": null, "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png"},
-    {"productId": 26, "color": "BLU", "size": "45", "sku": "24PVBL45", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png"},
-    {"productId": 26, "color": "BLU", "size": "46", "sku": "24PVBL46", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png"},
-    {"productId": 27, "color": "BLU", "size": "28", "sku": "LIPARIK43BL28", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "29", "sku": "LIPARIK43BL29", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "30", "sku": "LIPARIK43BL30", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "31", "sku": "LIPARIK43BL31", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "32", "sku": "LIPARIK43BL32", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "33", "sku": "LIPARIK43BL33", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "34", "sku": "LIPARIK43BL34", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 27, "color": "BLU", "size": "35", "sku": "LIPARIK43BL35", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "28", "sku": "WAVESGI65FX28", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "29", "sku": "WAVESGI65FX29", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "30", "sku": "WAVESGI65FX30", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "31", "sku": "WAVESGI65FX31", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "32", "sku": "WAVESGI65FX32", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "33", "sku": "WAVESGI65FX33", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "34", "sku": "WAVESGI65FX34", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "FUCSIA", "size": "35", "sku": "WAVESGI65FX35", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png"},
-    {"productId": 28, "color": "ROSA", "size": "28", "sku": "WAVESGI65RO28", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "29", "sku": "WAVESGI65RO29", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "30", "sku": "WAVESGI65RO30", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "31", "sku": "WAVESGI65RO31", "stockQty": 2, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "32", "sku": "WAVESGI65RO32", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "33", "sku": "WAVESGI65RO33", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "34", "sku": "WAVESGI65RO34", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"},
-    {"productId": 28, "color": "ROSA", "size": "35", "sku": "WAVESGI65RO35", "stockQty": 1, "priceCents": null, "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png"}
+    {
+      "id": 111,
+      "productId": 3,
+      "color": "BORDEAUX",
+      "size": "36/37",
+      "sku": "ROMATOPIWA20BO36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f4f61291-4658-434b-90f3-9a4db4f156da.png",
+      "active": true
+    },
+    {
+      "id": 113,
+      "productId": 3,
+      "color": "BORDEAUX",
+      "size": "38/39",
+      "sku": "ROMATOPIWA20BO38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/f4f61291-4658-434b-90f3-9a4db4f156da.png",
+      "active": true
+    },
+    {
+      "id": 115,
+      "productId": 3,
+      "color": "BORDEAUX",
+      "size": "40/41",
+      "sku": "ROMATOPIWA20BO40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f4f61291-4658-434b-90f3-9a4db4f156da.png",
+      "active": true
+    },
+    {
+      "id": 117,
+      "productId": 3,
+      "color": "BIANCO FANTASIA",
+      "size": "36/37",
+      "sku": "ROMATOPIWA20BI36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/25b6b6e9-99af-435b-8c4d-58bd5ef78e89.png",
+      "active": true
+    },
+    {
+      "id": 119,
+      "productId": 3,
+      "color": "BIANCO FANTASIA",
+      "size": "38/39",
+      "sku": "ROMATOPIWA20BI38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/25b6b6e9-99af-435b-8c4d-58bd5ef78e89.png",
+      "active": true
+    },
+    {
+      "id": 121,
+      "productId": 3,
+      "color": "BIANCO FANTASIA",
+      "size": "40/41",
+      "sku": "ROMATOPIWA20BI40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/25b6b6e9-99af-435b-8c4d-58bd5ef78e89.png",
+      "active": true
+    },
+    {
+      "id": 123,
+      "productId": 3,
+      "color": "ROSA",
+      "size": "36/37",
+      "sku": "ROMATOPIWA20RO36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/d3975ccc-39d0-4256-b900-d7f5ad6f20e9.jpg",
+      "active": true
+    },
+    {
+      "id": 125,
+      "productId": 3,
+      "color": "ROSA",
+      "size": "38/39",
+      "sku": "ROMATOPIWA20RO38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/d3975ccc-39d0-4256-b900-d7f5ad6f20e9.jpg",
+      "active": true
+    },
+    {
+      "id": 127,
+      "productId": 3,
+      "color": "ROSA",
+      "size": "40/41",
+      "sku": "ROMATOPIWA20RO40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/d3975ccc-39d0-4256-b900-d7f5ad6f20e9.jpg",
+      "active": true
+    },
+    {
+      "id": 129,
+      "productId": 4,
+      "color": "GRIGIO",
+      "size": "36",
+      "sku": "VERONAEWA30GR36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b7edade2-6827-4ab8-92c0-1bbf07e3b35e.jpg",
+      "active": true
+    },
+    {
+      "id": 130,
+      "productId": 4,
+      "color": "GRIGIO",
+      "size": "37",
+      "sku": "VERONAEWA30GR37",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b7edade2-6827-4ab8-92c0-1bbf07e3b35e.jpg",
+      "active": true
+    },
+    {
+      "id": 131,
+      "productId": 4,
+      "color": "GRIGIO",
+      "size": "38",
+      "sku": "VERONAEWA30GR38",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b7edade2-6827-4ab8-92c0-1bbf07e3b35e.jpg",
+      "active": true
+    },
+    {
+      "id": 132,
+      "productId": 4,
+      "color": "GRIGIO",
+      "size": "39",
+      "sku": "VERONAEWA30GR39",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b7edade2-6827-4ab8-92c0-1bbf07e3b35e.jpg",
+      "active": true
+    },
+    {
+      "id": 133,
+      "productId": 4,
+      "color": "BLU",
+      "size": "36",
+      "sku": "VERONAEWA30BL36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b8c8a3aa-318c-464e-98a8-a3b1155486f4.jpg",
+      "active": true
+    },
+    {
+      "id": 134,
+      "productId": 4,
+      "color": "BLU",
+      "size": "37",
+      "sku": "VERONAEWA30BL37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/b8c8a3aa-318c-464e-98a8-a3b1155486f4.jpg",
+      "active": true
+    },
+    {
+      "id": 135,
+      "productId": 4,
+      "color": "BLU",
+      "size": "38",
+      "sku": "VERONAEWA30BL38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/b8c8a3aa-318c-464e-98a8-a3b1155486f4.jpg",
+      "active": true
+    },
+    {
+      "id": 136,
+      "productId": 4,
+      "color": "BLU",
+      "size": "39",
+      "sku": "VERONAEWA30BL39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/b8c8a3aa-318c-464e-98a8-a3b1155486f4.jpg",
+      "active": true
+    },
+    {
+      "id": 137,
+      "productId": 4,
+      "color": "BLU",
+      "size": "40",
+      "sku": "VERONAEWA30BL40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/b8c8a3aa-318c-464e-98a8-a3b1155486f4.jpg",
+      "active": true
+    },
+    {
+      "id": 138,
+      "productId": 4,
+      "color": "BLU",
+      "size": "41",
+      "sku": "VERONAEWA30BL41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b8c8a3aa-318c-464e-98a8-a3b1155486f4.jpg",
+      "active": true
+    },
+    {
+      "id": 139,
+      "productId": 4,
+      "color": "ROSA",
+      "size": "37",
+      "sku": "VERONAEWA30RO37",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5743c0bb-b97b-48c5-bf62-9a58190f4f9d.jpg",
+      "active": true
+    },
+    {
+      "id": 140,
+      "productId": 4,
+      "color": "ROSA",
+      "size": "38",
+      "sku": "VERONAEWA30RO38",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5743c0bb-b97b-48c5-bf62-9a58190f4f9d.jpg",
+      "active": true
+    },
+    {
+      "id": 141,
+      "productId": 4,
+      "color": "ROSA",
+      "size": "39",
+      "sku": "VERONAEWA30RO39",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5743c0bb-b97b-48c5-bf62-9a58190f4f9d.jpg",
+      "active": true
+    },
+    {
+      "id": 142,
+      "productId": 4,
+      "color": "ROSA",
+      "size": "40",
+      "sku": "VERONAEWA30RO40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5743c0bb-b97b-48c5-bf62-9a58190f4f9d.jpg",
+      "active": true
+    },
+    {
+      "id": 143,
+      "productId": 4,
+      "color": "VERDE",
+      "size": "38",
+      "sku": "VERONAEWA30VE38",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f04c492d-1810-42ef-b98d-90b623d7c4cb.jpg",
+      "active": true
+    },
+    {
+      "id": 144,
+      "productId": 4,
+      "color": "VERDE",
+      "size": "39",
+      "sku": "VERONAEWA30VE39",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f04c492d-1810-42ef-b98d-90b623d7c4cb.jpg",
+      "active": true
+    },
+    {
+      "id": 145,
+      "productId": 4,
+      "color": "VERDE",
+      "size": "40",
+      "sku": "VERONAEWA30VE40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f04c492d-1810-42ef-b98d-90b623d7c4cb.jpg",
+      "active": true
+    },
+    {
+      "id": 146,
+      "productId": 4,
+      "color": "VERDE",
+      "size": "41",
+      "sku": "VERONAEWA30VE41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f04c492d-1810-42ef-b98d-90b623d7c4cb.jpg",
+      "active": true
+    },
+    {
+      "id": 147,
+      "productId": 5,
+      "color": "BLU",
+      "size": "36/37",
+      "sku": "BARITOPEPAWA32BL36/37",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/16578cb0-2a14-43d8-8cab-42fd4c6925ca.jpg",
+      "active": true
+    },
+    {
+      "id": 149,
+      "productId": 5,
+      "color": "BLU",
+      "size": "38/39",
+      "sku": "BARITOPEPAWA32BL38/39",
+      "stockQty": 6,
+      "priceCents": null,
+      "imageUrl": "/uploads/16578cb0-2a14-43d8-8cab-42fd4c6925ca.jpg",
+      "active": true
+    },
+    {
+      "id": 151,
+      "productId": 5,
+      "color": "BLU",
+      "size": "40/41",
+      "sku": "BARITOPEPAWA32BL40/41",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/16578cb0-2a14-43d8-8cab-42fd4c6925ca.jpg",
+      "active": true
+    },
+    {
+      "id": 153,
+      "productId": 5,
+      "color": "GRIGIO",
+      "size": "36/37",
+      "sku": "BARITOPEPAWA32GR36/37",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/7396227f-b659-4ce4-b486-285e97f653d2.jpg",
+      "active": true
+    },
+    {
+      "id": 155,
+      "productId": 5,
+      "color": "GRIGIO",
+      "size": "38/39",
+      "sku": "BARITOPEPAWA32GR38/39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/7396227f-b659-4ce4-b486-285e97f653d2.jpg",
+      "active": true
+    },
+    {
+      "id": 157,
+      "productId": 5,
+      "color": "GRIGIO",
+      "size": "40/41",
+      "sku": "BARITOPEPAWA32GR40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/7396227f-b659-4ce4-b486-285e97f653d2.jpg",
+      "active": true
+    },
+    {
+      "id": 159,
+      "productId": 5,
+      "color": "FUCSIA",
+      "size": "36/37",
+      "sku": "BARITOPEPAWA32FX36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b50520c-fa90-46b2-8ead-bc0f6bd8c125.jpg",
+      "active": true
+    },
+    {
+      "id": 161,
+      "productId": 5,
+      "color": "FUCSIA",
+      "size": "38/39",
+      "sku": "BARITOPEPAWA32FX38/39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b50520c-fa90-46b2-8ead-bc0f6bd8c125.jpg",
+      "active": true
+    },
+    {
+      "id": 163,
+      "productId": 5,
+      "color": "FUCSIA",
+      "size": "40/41",
+      "sku": "BARITOPEPAWA32FX40/41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b50520c-fa90-46b2-8ead-bc0f6bd8c125.jpg",
+      "active": true
+    },
+    {
+      "id": 165,
+      "productId": 6,
+      "color": "LAVANDA",
+      "size": "36/37",
+      "sku": "ROMATOPIWA49LA36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/4a190251-d6eb-4d73-b182-e78bce733139.jpg",
+      "active": true
+    },
+    {
+      "id": 167,
+      "productId": 6,
+      "color": "LAVANDA",
+      "size": "38/39",
+      "sku": "ROMATOPIWA49LA38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/4a190251-d6eb-4d73-b182-e78bce733139.jpg",
+      "active": true
+    },
+    {
+      "id": 169,
+      "productId": 6,
+      "color": "LAVANDA",
+      "size": "40/41",
+      "sku": "ROMATOPIWA49LA40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/4a190251-d6eb-4d73-b182-e78bce733139.jpg",
+      "active": true
+    },
+    {
+      "id": 171,
+      "productId": 6,
+      "color": "LILLA",
+      "size": "36/37",
+      "sku": "ROMATOPIWA49LI36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/687268b2-04ac-4289-86e9-70e68cd37f95.jpg",
+      "active": true
+    },
+    {
+      "id": 173,
+      "productId": 6,
+      "color": "LILLA",
+      "size": "38/39",
+      "sku": "ROMATOPIWA49LI38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/687268b2-04ac-4289-86e9-70e68cd37f95.jpg",
+      "active": true
+    },
+    {
+      "id": 175,
+      "productId": 6,
+      "color": "LILLA",
+      "size": "40/41",
+      "sku": "ROMATOPIWA49LI40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/687268b2-04ac-4289-86e9-70e68cd37f95.jpg",
+      "active": true
+    },
+    {
+      "id": 177,
+      "productId": 6,
+      "color": "VERDE",
+      "size": "36/37",
+      "sku": "ROMATOPIWA49VE36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/ebba1ad3-d73f-4d92-b2d5-ddc46de32d9c.jpg",
+      "active": true
+    },
+    {
+      "id": 179,
+      "productId": 6,
+      "color": "VERDE",
+      "size": "38/39",
+      "sku": "ROMATOPIWA49VE38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/ebba1ad3-d73f-4d92-b2d5-ddc46de32d9c.jpg",
+      "active": true
+    },
+    {
+      "id": 181,
+      "productId": 6,
+      "color": "VERDE",
+      "size": "40/41",
+      "sku": "ROMATOPIWA49VE40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/ebba1ad3-d73f-4d92-b2d5-ddc46de32d9c.jpg",
+      "active": true
+    },
+    {
+      "id": 183,
+      "productId": 7,
+      "color": "BLU",
+      "size": "39/40",
+      "sku": "ROMATOPIM940BL39/40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5c833443-0133-496b-a92a-5131af65ea90.jpg",
+      "active": true
+    },
+    {
+      "id": 185,
+      "productId": 7,
+      "color": "BLU",
+      "size": "41/42",
+      "sku": "ROMATOPIM940BL41/42",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/5c833443-0133-496b-a92a-5131af65ea90.jpg",
+      "active": true
+    },
+    {
+      "id": 187,
+      "productId": 7,
+      "color": "BLU",
+      "size": "43/44",
+      "sku": "ROMATOPIM940BL43/44",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/5c833443-0133-496b-a92a-5131af65ea90.jpg",
+      "active": true
+    },
+    {
+      "id": 189,
+      "productId": 7,
+      "color": "BLU",
+      "size": "45/46",
+      "sku": "ROMATOPIM940BL45/46",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5c833443-0133-496b-a92a-5131af65ea90.jpg",
+      "active": true
+    },
+    {
+      "id": 191,
+      "productId": 7,
+      "color": "GRIGIO",
+      "size": "41/42",
+      "sku": "ROMATOPIM940GR41/42",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/9c2225e4-51b9-44bf-8075-00448d86f39a.jpg",
+      "active": true
+    },
+    {
+      "id": 193,
+      "productId": 7,
+      "color": "GRIGIO",
+      "size": "43/44",
+      "sku": "ROMATOPIM940GR43/44",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/9c2225e4-51b9-44bf-8075-00448d86f39a.jpg",
+      "active": true
+    },
+    {
+      "id": 195,
+      "productId": 7,
+      "color": "GRIGIO",
+      "size": "45/46",
+      "sku": "ROMATOPIM940GR45/46",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/9c2225e4-51b9-44bf-8075-00448d86f39a.jpg",
+      "active": true
+    },
+    {
+      "id": 197,
+      "productId": 7,
+      "color": "FANTASIA GRIGIO",
+      "size": "39/40",
+      "sku": "ROMATOPIM940FGR39/40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f85474e3-e195-416c-a700-b871473ec784.jpg",
+      "active": true
+    },
+    {
+      "id": 199,
+      "productId": 7,
+      "color": "FANTASIA GRIGIO",
+      "size": "41/42",
+      "sku": "ROMATOPIM940FGR41/42",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/f85474e3-e195-416c-a700-b871473ec784.jpg",
+      "active": true
+    },
+    {
+      "id": 201,
+      "productId": 7,
+      "color": "FANTASIA GRIGIO",
+      "size": "43/44",
+      "sku": "ROMATOPIM940FGR43/44",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f85474e3-e195-416c-a700-b871473ec784.jpg",
+      "active": true
+    },
+    {
+      "id": 203,
+      "productId": 8,
+      "color": "BLU",
+      "size": "36",
+      "sku": "PALERMOEW930BL36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f6e44228-bc41-4bc9-bff3-4527f66bf028.jpg",
+      "active": true
+    },
+    {
+      "id": 204,
+      "productId": 8,
+      "color": "BLU",
+      "size": "37",
+      "sku": "PALERMOEW930BL37",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f6e44228-bc41-4bc9-bff3-4527f66bf028.jpg",
+      "active": true
+    },
+    {
+      "id": 205,
+      "productId": 8,
+      "color": "BLU",
+      "size": "38",
+      "sku": "PALERMOEW930BL38",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f6e44228-bc41-4bc9-bff3-4527f66bf028.jpg",
+      "active": true
+    },
+    {
+      "id": 206,
+      "productId": 8,
+      "color": "BLU",
+      "size": "39",
+      "sku": "PALERMOEW930BL39",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f6e44228-bc41-4bc9-bff3-4527f66bf028.jpg",
+      "active": true
+    },
+    {
+      "id": 207,
+      "productId": 8,
+      "color": "BLU",
+      "size": "40",
+      "sku": "PALERMOEW930BL40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f6e44228-bc41-4bc9-bff3-4527f66bf028.jpg",
+      "active": true
+    },
+    {
+      "id": 208,
+      "productId": 8,
+      "color": "BLU",
+      "size": "41",
+      "sku": "PALERMOEW930BL41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f6e44228-bc41-4bc9-bff3-4527f66bf028.jpg",
+      "active": true
+    },
+    {
+      "id": 209,
+      "productId": 8,
+      "color": "FUCSIA",
+      "size": "36",
+      "sku": "PALERMOEW930FX36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b237d84-86e3-49e2-ab8b-5c0c2a97e8f4.jpg",
+      "active": true
+    },
+    {
+      "id": 210,
+      "productId": 8,
+      "color": "FUCSIA",
+      "size": "37",
+      "sku": "PALERMOEW930FX37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b237d84-86e3-49e2-ab8b-5c0c2a97e8f4.jpg",
+      "active": true
+    },
+    {
+      "id": 211,
+      "productId": 8,
+      "color": "FUCSIA",
+      "size": "38",
+      "sku": "PALERMOEW930FX38",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b237d84-86e3-49e2-ab8b-5c0c2a97e8f4.jpg",
+      "active": true
+    },
+    {
+      "id": 212,
+      "productId": 8,
+      "color": "FUCSIA",
+      "size": "39",
+      "sku": "PALERMOEW930FX39",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b237d84-86e3-49e2-ab8b-5c0c2a97e8f4.jpg",
+      "active": true
+    },
+    {
+      "id": 213,
+      "productId": 8,
+      "color": "FUCSIA",
+      "size": "40",
+      "sku": "PALERMOEW930FX40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/5b237d84-86e3-49e2-ab8b-5c0c2a97e8f4.jpg",
+      "active": true
+    },
+    {
+      "id": 214,
+      "productId": 8,
+      "color": "GRIGIO",
+      "size": "37",
+      "sku": "PALERMOEW930GR37",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/fb26e4b9-e9ac-4697-a0f2-fb32181c1813.jpg",
+      "active": true
+    },
+    {
+      "id": 215,
+      "productId": 8,
+      "color": "GRIGIO",
+      "size": "38",
+      "sku": "PALERMOEW930GR38",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/fb26e4b9-e9ac-4697-a0f2-fb32181c1813.jpg",
+      "active": true
+    },
+    {
+      "id": 216,
+      "productId": 8,
+      "color": "GRIGIO",
+      "size": "39",
+      "sku": "PALERMOEW930GR39",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/fb26e4b9-e9ac-4697-a0f2-fb32181c1813.jpg",
+      "active": true
+    },
+    {
+      "id": 217,
+      "productId": 8,
+      "color": "GRIGIO",
+      "size": "40",
+      "sku": "PALERMOEW930GR40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/fb26e4b9-e9ac-4697-a0f2-fb32181c1813.jpg",
+      "active": true
+    },
+    {
+      "id": 218,
+      "productId": 8,
+      "color": "GRIGIO",
+      "size": "41",
+      "sku": "PALERMOEW930GR41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/fb26e4b9-e9ac-4697-a0f2-fb32181c1813.jpg",
+      "active": true
+    },
+    {
+      "id": 219,
+      "productId": 9,
+      "color": "FUCSIA",
+      "size": "36",
+      "sku": "VERONAPW00FX36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/05e285b2-d233-4528-b10c-59c1147d6d5b.jpg",
+      "active": true
+    },
+    {
+      "id": 220,
+      "productId": 9,
+      "color": "FUCSIA",
+      "size": "37",
+      "sku": "VERONAPW00FX37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/05e285b2-d233-4528-b10c-59c1147d6d5b.jpg",
+      "active": true
+    },
+    {
+      "id": 221,
+      "productId": 9,
+      "color": "FUCSIA",
+      "size": "38",
+      "sku": "VERONAPW00FX38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/05e285b2-d233-4528-b10c-59c1147d6d5b.jpg",
+      "active": true
+    },
+    {
+      "id": 222,
+      "productId": 9,
+      "color": "FUCSIA",
+      "size": "39",
+      "sku": "VERONAPW00FX39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/05e285b2-d233-4528-b10c-59c1147d6d5b.jpg",
+      "active": true
+    },
+    {
+      "id": 223,
+      "productId": 9,
+      "color": "FUCSIA",
+      "size": "40",
+      "sku": "VERONAPW00FX40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/05e285b2-d233-4528-b10c-59c1147d6d5b.jpg",
+      "active": true
+    },
+    {
+      "id": 224,
+      "productId": 9,
+      "color": "FUCSIA",
+      "size": "41",
+      "sku": "VERONAPW00FX41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/05e285b2-d233-4528-b10c-59c1147d6d5b.jpg",
+      "active": true
+    },
+    {
+      "id": 225,
+      "productId": 10,
+      "color": "BLU",
+      "size": "40/41",
+      "sku": "AOSTACM15BL40/41",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/36dbbb5f-fc62-4b82-bbd1-3806bc9160e0.jpg",
+      "active": true
+    },
+    {
+      "id": 227,
+      "productId": 10,
+      "color": "BLU",
+      "size": "42/43",
+      "sku": "AOSTACM15BL42/43",
+      "stockQty": 12,
+      "priceCents": null,
+      "imageUrl": "/uploads/36dbbb5f-fc62-4b82-bbd1-3806bc9160e0.jpg",
+      "active": true
+    },
+    {
+      "id": 229,
+      "productId": 10,
+      "color": "BLU",
+      "size": "44/45",
+      "sku": "AOSTACM15BL44/45",
+      "stockQty": 8,
+      "priceCents": null,
+      "imageUrl": "/uploads/36dbbb5f-fc62-4b82-bbd1-3806bc9160e0.jpg",
+      "active": true
+    },
+    {
+      "id": 231,
+      "productId": 11,
+      "color": "AZZURRO",
+      "size": "36/37",
+      "sku": "ROMATOPIW727AZ36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/7f726dfc-5ee8-4c32-8035-08a3d9ef69f3.png",
+      "active": true
+    },
+    {
+      "id": 233,
+      "productId": 11,
+      "color": "AZZURRO",
+      "size": "38/39",
+      "sku": "ROMATOPIW727AZ38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/7f726dfc-5ee8-4c32-8035-08a3d9ef69f3.png",
+      "active": true
+    },
+    {
+      "id": 234,
+      "productId": 11,
+      "color": "AZZURRO",
+      "size": "39/420",
+      "sku": "ROMATOPIW727AZ39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/7f726dfc-5ee8-4c32-8035-08a3d9ef69f3.png",
+      "active": false
+    },
+    {
+      "id": 235,
+      "productId": 11,
+      "color": "AZZURRO",
+      "size": "40/41",
+      "sku": "ROMATOPIW727AZ40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/7f726dfc-5ee8-4c32-8035-08a3d9ef69f3.png",
+      "active": true
+    },
+    {
+      "id": 236,
+      "productId": 11,
+      "color": "ROSA",
+      "size": "36/37",
+      "sku": "ROMATOPIW727RO36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/a9953c6e-b37e-456f-a143-35f07b69d83b.png",
+      "active": true
+    },
+    {
+      "id": 238,
+      "productId": 11,
+      "color": "ROSA",
+      "size": "38/39",
+      "sku": "ROMATOPIW727RO38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/a9953c6e-b37e-456f-a143-35f07b69d83b.png",
+      "active": true
+    },
+    {
+      "id": 239,
+      "productId": 11,
+      "color": "ROSA",
+      "size": "39",
+      "sku": "ROMATOPIW727RO39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/a9953c6e-b37e-456f-a143-35f07b69d83b.png",
+      "active": false
+    },
+    {
+      "id": 240,
+      "productId": 11,
+      "color": "ROSA",
+      "size": "40/41",
+      "sku": "ROMATOPIW727RO40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/a9953c6e-b37e-456f-a143-35f07b69d83b.png",
+      "active": true
+    },
+    {
+      "id": 243,
+      "productId": 11,
+      "color": "VERDE",
+      "size": "36/37",
+      "sku": "ROMATOPIW727VE36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8038821d-4e16-441a-88f2-6458c6bcf985.png",
+      "active": true
+    },
+    {
+      "id": 245,
+      "productId": 11,
+      "color": "VERDE",
+      "size": "38/39",
+      "sku": "ROMATOPIW727VE38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/8038821d-4e16-441a-88f2-6458c6bcf985.png",
+      "active": true
+    },
+    {
+      "id": 247,
+      "productId": 11,
+      "color": "VERDE",
+      "size": "40/41",
+      "sku": "ROMATOPIW727VE40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8038821d-4e16-441a-88f2-6458c6bcf985.png",
+      "active": true
+    },
+    {
+      "id": 249,
+      "productId": 12,
+      "color": "NERO",
+      "size": "40/41",
+      "sku": "ROMATOPIM951NE40/41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b58f0020-acb6-4d3d-8877-2c3fd9987445.png",
+      "active": true
+    },
+    {
+      "id": 251,
+      "productId": 12,
+      "color": "NERO",
+      "size": "42/43",
+      "sku": "ROMATOPIM951NE42/43",
+      "stockQty": 5,
+      "priceCents": null,
+      "imageUrl": "/uploads/b58f0020-acb6-4d3d-8877-2c3fd9987445.png",
+      "active": true
+    },
+    {
+      "id": 253,
+      "productId": 12,
+      "color": "NERO",
+      "size": "44/45",
+      "sku": "ROMATOPIM951NE44/45",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/b58f0020-acb6-4d3d-8877-2c3fd9987445.png",
+      "active": true
+    },
+    {
+      "id": 255,
+      "productId": 12,
+      "color": "NERO",
+      "size": "46/47",
+      "sku": "ROMATOPIM951NE46/47",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b58f0020-acb6-4d3d-8877-2c3fd9987445.png",
+      "active": true
+    },
+    {
+      "id": 257,
+      "productId": 12,
+      "color": "GRIGIO",
+      "size": "40/41",
+      "sku": "ROMATOPIM951GR40/41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/8b9f6aa9-5aa4-40a9-8b5c-be45e945ae0c.png",
+      "active": true
+    },
+    {
+      "id": 259,
+      "productId": 12,
+      "color": "GRIGIO",
+      "size": "42/43",
+      "sku": "ROMATOPIM951GR42/43",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/8b9f6aa9-5aa4-40a9-8b5c-be45e945ae0c.png",
+      "active": true
+    },
+    {
+      "id": 261,
+      "productId": 12,
+      "color": "GRIGIO",
+      "size": "44/45",
+      "sku": "ROMATOPIM951GR44/45",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8b9f6aa9-5aa4-40a9-8b5c-be45e945ae0c.png",
+      "active": true
+    },
+    {
+      "id": 263,
+      "productId": 12,
+      "color": "GRIGIO",
+      "size": "46/47",
+      "sku": "ROMATOPIM951GR46/47",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/8b9f6aa9-5aa4-40a9-8b5c-be45e945ae0c.png",
+      "active": true
+    },
+    {
+      "id": 265,
+      "productId": 12,
+      "color": "VERDE",
+      "size": "40/41",
+      "sku": "ROMATOPIM951VE40/41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/0b9c89fe-47fb-4213-a737-3f9314773297.png",
+      "active": true
+    },
+    {
+      "id": 267,
+      "productId": 12,
+      "color": "VERDE",
+      "size": "42/43",
+      "sku": "ROMATOPIM951VE42/43",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/0b9c89fe-47fb-4213-a737-3f9314773297.png",
+      "active": true
+    },
+    {
+      "id": 269,
+      "productId": 12,
+      "color": "VERDE",
+      "size": "44/45",
+      "sku": "ROMATOPIM951VE44/45",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/0b9c89fe-47fb-4213-a737-3f9314773297.png",
+      "active": true
+    },
+    {
+      "id": 273,
+      "productId": 13,
+      "color": "NERO",
+      "size": "36",
+      "sku": "WG59NE36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/8d7e365e-95e5-4947-ad04-b387aa12d350.jpg",
+      "active": true
+    },
+    {
+      "id": 274,
+      "productId": 13,
+      "color": "NERO",
+      "size": "37",
+      "sku": "WG59NE37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8d7e365e-95e5-4947-ad04-b387aa12d350.jpg",
+      "active": true
+    },
+    {
+      "id": 275,
+      "productId": 13,
+      "color": "NERO",
+      "size": "38",
+      "sku": "WG59NE38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/8d7e365e-95e5-4947-ad04-b387aa12d350.jpg",
+      "active": true
+    },
+    {
+      "id": 276,
+      "productId": 13,
+      "color": "NERO",
+      "size": "39",
+      "sku": "WG59NE39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/8d7e365e-95e5-4947-ad04-b387aa12d350.jpg",
+      "active": true
+    },
+    {
+      "id": 277,
+      "productId": 13,
+      "color": "NERO",
+      "size": "40",
+      "sku": "WG59NE40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8d7e365e-95e5-4947-ad04-b387aa12d350.jpg",
+      "active": true
+    },
+    {
+      "id": 278,
+      "productId": 13,
+      "color": "NERO",
+      "size": "41",
+      "sku": "WG59NE41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/8d7e365e-95e5-4947-ad04-b387aa12d350.jpg",
+      "active": true
+    },
+    {
+      "id": 279,
+      "productId": 14,
+      "color": "NERO",
+      "size": "36",
+      "sku": "WG49NE36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/4b93860f-c696-45ae-bbb6-447c0d1c4336.jpg",
+      "active": true
+    },
+    {
+      "id": 280,
+      "productId": 14,
+      "color": "NERO",
+      "size": "37",
+      "sku": "WG49NE37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/4b93860f-c696-45ae-bbb6-447c0d1c4336.jpg",
+      "active": true
+    },
+    {
+      "id": 281,
+      "productId": 14,
+      "color": "NERO",
+      "size": "38",
+      "sku": "WG49NE38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/4b93860f-c696-45ae-bbb6-447c0d1c4336.jpg",
+      "active": true
+    },
+    {
+      "id": 282,
+      "productId": 14,
+      "color": "NERO",
+      "size": "39",
+      "sku": "WG49NE39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/4b93860f-c696-45ae-bbb6-447c0d1c4336.jpg",
+      "active": true
+    },
+    {
+      "id": 283,
+      "productId": 14,
+      "color": "NERO",
+      "size": "40",
+      "sku": "WG49NE40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/4b93860f-c696-45ae-bbb6-447c0d1c4336.jpg",
+      "active": true
+    },
+    {
+      "id": 284,
+      "productId": 14,
+      "color": "NERO",
+      "size": "41",
+      "sku": "WG49NE41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/4b93860f-c696-45ae-bbb6-447c0d1c4336.jpg",
+      "active": true
+    },
+    {
+      "id": 285,
+      "productId": 15,
+      "color": "NERO",
+      "size": "36",
+      "sku": "WG22NE36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/cc8101bb-4125-43d1-9a03-b49c5077602b.jpg",
+      "active": true
+    },
+    {
+      "id": 286,
+      "productId": 15,
+      "color": "NERO",
+      "size": "37",
+      "sku": "WG22NE37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/cc8101bb-4125-43d1-9a03-b49c5077602b.jpg",
+      "active": true
+    },
+    {
+      "id": 287,
+      "productId": 15,
+      "color": "NERO",
+      "size": "38",
+      "sku": "WG22NE38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/cc8101bb-4125-43d1-9a03-b49c5077602b.jpg",
+      "active": true
+    },
+    {
+      "id": 288,
+      "productId": 15,
+      "color": "NERO",
+      "size": "39",
+      "sku": "WG22NE39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/cc8101bb-4125-43d1-9a03-b49c5077602b.jpg",
+      "active": true
+    },
+    {
+      "id": 289,
+      "productId": 15,
+      "color": "NERO",
+      "size": "40",
+      "sku": "WG22NE40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/cc8101bb-4125-43d1-9a03-b49c5077602b.jpg",
+      "active": true
+    },
+    {
+      "id": 290,
+      "productId": 15,
+      "color": "NERO",
+      "size": "41",
+      "sku": "WG22NE41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/cc8101bb-4125-43d1-9a03-b49c5077602b.jpg",
+      "active": true
+    },
+    {
+      "id": 291,
+      "productId": 16,
+      "color": "NERO",
+      "size": "36",
+      "sku": "WG47NE36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/89c871b7-342b-4f4d-84c1-dda5bd72596e.jpg",
+      "active": true
+    },
+    {
+      "id": 292,
+      "productId": 16,
+      "color": "NERO",
+      "size": "37",
+      "sku": "WG47NE37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/89c871b7-342b-4f4d-84c1-dda5bd72596e.jpg",
+      "active": true
+    },
+    {
+      "id": 293,
+      "productId": 16,
+      "color": "NERO",
+      "size": "38",
+      "sku": "WG47NE38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/89c871b7-342b-4f4d-84c1-dda5bd72596e.jpg",
+      "active": true
+    },
+    {
+      "id": 294,
+      "productId": 16,
+      "color": "NERO",
+      "size": "39",
+      "sku": "WG47NE39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/89c871b7-342b-4f4d-84c1-dda5bd72596e.jpg",
+      "active": true
+    },
+    {
+      "id": 295,
+      "productId": 16,
+      "color": "NERO",
+      "size": "40",
+      "sku": "WG47NE40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/89c871b7-342b-4f4d-84c1-dda5bd72596e.jpg",
+      "active": true
+    },
+    {
+      "id": 296,
+      "productId": 16,
+      "color": "NERO",
+      "size": "41",
+      "sku": "WG47NE41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/89c871b7-342b-4f4d-84c1-dda5bd72596e.jpg",
+      "active": true
+    },
+    {
+      "id": 297,
+      "productId": 18,
+      "color": "NERO",
+      "size": "36",
+      "sku": "WG42NE36",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/46007b3e-f4c8-423c-be46-1a05dd33c191.jpg",
+      "active": true
+    },
+    {
+      "id": 298,
+      "productId": 18,
+      "color": "NERO",
+      "size": "37",
+      "sku": "WG42NE37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/46007b3e-f4c8-423c-be46-1a05dd33c191.jpg",
+      "active": true
+    },
+    {
+      "id": 299,
+      "productId": 18,
+      "color": "NERO",
+      "size": "38",
+      "sku": "WG42NE38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/46007b3e-f4c8-423c-be46-1a05dd33c191.jpg",
+      "active": true
+    },
+    {
+      "id": 300,
+      "productId": 18,
+      "color": "NERO",
+      "size": "39",
+      "sku": "WG42NE39",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/46007b3e-f4c8-423c-be46-1a05dd33c191.jpg",
+      "active": true
+    },
+    {
+      "id": 301,
+      "productId": 18,
+      "color": "NERO",
+      "size": "40",
+      "sku": "WG42NE40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/46007b3e-f4c8-423c-be46-1a05dd33c191.jpg",
+      "active": true
+    },
+    {
+      "id": 302,
+      "productId": 18,
+      "color": "NERO",
+      "size": "41",
+      "sku": "WG42NE41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/46007b3e-f4c8-423c-be46-1a05dd33c191.jpg",
+      "active": true
+    },
+    {
+      "id": 303,
+      "productId": 19,
+      "color": "BLU",
+      "size": "25/26",
+      "sku": "SEGNOBL25/26",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png",
+      "active": true
+    },
+    {
+      "id": 304,
+      "productId": 19,
+      "color": "BLU",
+      "size": "27/28",
+      "sku": "SEGNOBL27/28",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png",
+      "active": true
+    },
+    {
+      "id": 305,
+      "productId": 19,
+      "color": "BLU",
+      "size": "29/30",
+      "sku": "SEGNOBL29/30",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png",
+      "active": true
+    },
+    {
+      "id": 306,
+      "productId": 19,
+      "color": "BLU",
+      "size": "31/32",
+      "sku": "SEGNOBL31/32",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png",
+      "active": true
+    },
+    {
+      "id": 307,
+      "productId": 19,
+      "color": "BLU",
+      "size": "33/34",
+      "sku": "SEGNOBL33/34",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/daed7354-c4c4-4a8c-af20-2d64e4850dda.png",
+      "active": true
+    },
+    {
+      "id": 308,
+      "productId": 19,
+      "color": "ROSSO",
+      "size": "25/26",
+      "sku": "SEGNORO25/26",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png",
+      "active": true
+    },
+    {
+      "id": 309,
+      "productId": 19,
+      "color": "ROSSO",
+      "size": "27/28",
+      "sku": "SEGNORO27/28",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png",
+      "active": true
+    },
+    {
+      "id": 310,
+      "productId": 19,
+      "color": "ROSSO",
+      "size": "29/30",
+      "sku": "SEGNORO29/30",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png",
+      "active": true
+    },
+    {
+      "id": 311,
+      "productId": 19,
+      "color": "ROSSO",
+      "size": "31/32",
+      "sku": "SEGNORO31/32",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png",
+      "active": true
+    },
+    {
+      "id": 312,
+      "productId": 19,
+      "color": "ROSSO",
+      "size": "33/34",
+      "sku": "SEGNORO33/34",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/24165ef9-1743-4863-b7f4-259473e6575b.png",
+      "active": true
+    },
+    {
+      "id": 313,
+      "productId": 20,
+      "color": "BLU",
+      "size": "27/28",
+      "sku": "FACCIONEBL27/28",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png",
+      "active": true
+    },
+    {
+      "id": 314,
+      "productId": 20,
+      "color": "BLU",
+      "size": "29/30",
+      "sku": "FACCIONEBL29/30",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png",
+      "active": true
+    },
+    {
+      "id": 315,
+      "productId": 20,
+      "color": "BLU",
+      "size": "31/32",
+      "sku": "FACCIONEBL31/32",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png",
+      "active": true
+    },
+    {
+      "id": 316,
+      "productId": 20,
+      "color": "BLU",
+      "size": "33/34",
+      "sku": "FACCIONEBL33/34",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/66ddbb81-e568-46da-99d1-c88278328302.png",
+      "active": true
+    },
+    {
+      "id": 317,
+      "productId": 20,
+      "color": "ROSSO",
+      "size": "27/28",
+      "sku": "FACCIONERO27/28",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png",
+      "active": true
+    },
+    {
+      "id": 318,
+      "productId": 20,
+      "color": "ROSSO",
+      "size": "29/30",
+      "sku": "FACCIONERO29/30",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png",
+      "active": true
+    },
+    {
+      "id": 319,
+      "productId": 20,
+      "color": "ROSSO",
+      "size": "31/32",
+      "sku": "FACCIONERO31/32",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png",
+      "active": true
+    },
+    {
+      "id": 320,
+      "productId": 20,
+      "color": "ROSSO",
+      "size": "33/34",
+      "sku": "FACCIONERO33/34",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/4535ca59-9a9a-424e-93b5-ddca0174ff9f.png",
+      "active": true
+    },
+    {
+      "id": 321,
+      "productId": 21,
+      "color": "BLU",
+      "size": "28/29",
+      "sku": "BARIK572BL28/29",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png",
+      "active": true
+    },
+    {
+      "id": 322,
+      "productId": 21,
+      "color": "BLU",
+      "size": "30/31",
+      "sku": "BARIK572BL30/31",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png",
+      "active": true
+    },
+    {
+      "id": 323,
+      "productId": 21,
+      "color": "BLU",
+      "size": "32/33",
+      "sku": "BARIK572BL32/33",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png",
+      "active": true
+    },
+    {
+      "id": 324,
+      "productId": 21,
+      "color": "BLU",
+      "size": "34/35",
+      "sku": "BARIK572BL34/35",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png",
+      "active": true
+    },
+    {
+      "id": 325,
+      "productId": 21,
+      "color": "BLU",
+      "size": "36/37",
+      "sku": "BARIK572BL36/37",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/5a0fd1ef-fd16-4ef2-b59d-7ff401552b94.png",
+      "active": true
+    },
+    {
+      "id": 326,
+      "productId": 21,
+      "color": "ROSSO",
+      "size": "28/29",
+      "sku": "BARIK572RO28/29",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png",
+      "active": true
+    },
+    {
+      "id": 327,
+      "productId": 21,
+      "color": "ROSSO",
+      "size": "30/31",
+      "sku": "BARIK572RO30/31",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png",
+      "active": true
+    },
+    {
+      "id": 328,
+      "productId": 21,
+      "color": "ROSSO",
+      "size": "32/33",
+      "sku": "BARIK572RO32/33",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png",
+      "active": true
+    },
+    {
+      "id": 329,
+      "productId": 21,
+      "color": "ROSSO",
+      "size": "34/35",
+      "sku": "BARIK572RO34/35",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png",
+      "active": true
+    },
+    {
+      "id": 330,
+      "productId": 21,
+      "color": "ROSSO",
+      "size": "36/37",
+      "sku": "BARIK572RO36/37",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/47ca584f-49a8-4237-9995-756338225410.png",
+      "active": true
+    },
+    {
+      "id": 331,
+      "productId": 22,
+      "color": "LILLA",
+      "size": "25/26",
+      "sku": "NETTALI25/26",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png",
+      "active": true
+    },
+    {
+      "id": 332,
+      "productId": 22,
+      "color": "LILLA",
+      "size": "27/28",
+      "sku": "NETTALI27/28",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png",
+      "active": true
+    },
+    {
+      "id": 333,
+      "productId": 22,
+      "color": "LILLA",
+      "size": "29/30",
+      "sku": "NETTALI29/30",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png",
+      "active": true
+    },
+    {
+      "id": 334,
+      "productId": 22,
+      "color": "LILLA",
+      "size": "31/32",
+      "sku": "NETTALI31/32",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png",
+      "active": true
+    },
+    {
+      "id": 335,
+      "productId": 22,
+      "color": "LILLA",
+      "size": "33/34",
+      "sku": "NETTALI33/34",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/8837552d-4873-4621-bca8-5b015cdd183a.png",
+      "active": true
+    },
+    {
+      "id": 336,
+      "productId": 22,
+      "color": "ROSA",
+      "size": "25/26",
+      "sku": "NETTARO25/26",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png",
+      "active": true
+    },
+    {
+      "id": 337,
+      "productId": 22,
+      "color": "ROSA",
+      "size": "27/28",
+      "sku": "NETTARO27/28",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png",
+      "active": true
+    },
+    {
+      "id": 338,
+      "productId": 22,
+      "color": "ROSA",
+      "size": "29/30",
+      "sku": "NETTARO29/30",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png",
+      "active": true
+    },
+    {
+      "id": 339,
+      "productId": 22,
+      "color": "ROSA",
+      "size": "31/32",
+      "sku": "NETTARO31/32",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png",
+      "active": true
+    },
+    {
+      "id": 340,
+      "productId": 22,
+      "color": "ROSA",
+      "size": "33/34",
+      "sku": "NETTARO33/34",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/127a3e26-49c9-45aa-a7d7-9e7b39874c16.png",
+      "active": true
+    },
+    {
+      "id": 341,
+      "productId": 23,
+      "color": "BLU",
+      "size": "35/36",
+      "sku": "BARITOPW318BL35/36",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/53415ae0-59f2-4da3-b917-5a5cd1bd0444.png",
+      "active": true
+    },
+    {
+      "id": 342,
+      "productId": 23,
+      "color": "BLU",
+      "size": "37/38",
+      "sku": "BARITOPW318BL37/38",
+      "stockQty": 5,
+      "priceCents": null,
+      "imageUrl": "/uploads/53415ae0-59f2-4da3-b917-5a5cd1bd0444.png",
+      "active": true
+    },
+    {
+      "id": 343,
+      "productId": 23,
+      "color": "BLU",
+      "size": "39/40",
+      "sku": "BARITOPW318BL39/40",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/53415ae0-59f2-4da3-b917-5a5cd1bd0444.png",
+      "active": true
+    },
+    {
+      "id": 344,
+      "productId": 23,
+      "color": "VIOLA",
+      "size": "35/36",
+      "sku": "BARITOPW318VI35/36",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/642868f4-bf35-420b-86ed-496e3952a68a.png",
+      "active": true
+    },
+    {
+      "id": 345,
+      "productId": 23,
+      "color": "VIOLA",
+      "size": "37/38",
+      "sku": "BARITOPW318VI37/38",
+      "stockQty": 6,
+      "priceCents": null,
+      "imageUrl": "/uploads/642868f4-bf35-420b-86ed-496e3952a68a.png",
+      "active": true
+    },
+    {
+      "id": 346,
+      "productId": 23,
+      "color": "VIOLA",
+      "size": "39/40",
+      "sku": "BARITOPW318VI39/40",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/642868f4-bf35-420b-86ed-496e3952a68a.png",
+      "active": true
+    },
+    {
+      "id": 347,
+      "productId": 24,
+      "color": "ROSA - VERDE",
+      "size": "28/29",
+      "sku": "FV116123CROCSRO28/29",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png",
+      "active": true
+    },
+    {
+      "id": 348,
+      "productId": 24,
+      "color": "ROSA - VERDE",
+      "size": "30/31",
+      "sku": "FV116123CROCSRO30/31",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png",
+      "active": true
+    },
+    {
+      "id": 349,
+      "productId": 24,
+      "color": "ROSA - VERDE",
+      "size": "32/33",
+      "sku": "FV116123CROCSRO32/33",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png",
+      "active": true
+    },
+    {
+      "id": 350,
+      "productId": 24,
+      "color": "ROSA - VERDE",
+      "size": "34/35",
+      "sku": "FV116123CROCSRO34/35",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/51dfc1f5-b87a-4213-aa54-d3d4a41f2ceb.png",
+      "active": true
+    },
+    {
+      "id": 351,
+      "productId": 25,
+      "color": "BLU",
+      "size": "41",
+      "sku": "26PVBL41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png",
+      "active": true
+    },
+    {
+      "id": 352,
+      "productId": 25,
+      "color": "BLU",
+      "size": "42",
+      "sku": "26PVBL42",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png",
+      "active": true
+    },
+    {
+      "id": 353,
+      "productId": 25,
+      "color": "BLU",
+      "size": "43",
+      "sku": "26PVBL43",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png",
+      "active": true
+    },
+    {
+      "id": 354,
+      "productId": 25,
+      "color": "BLU",
+      "size": "44",
+      "sku": "26PVBL44",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png",
+      "active": true
+    },
+    {
+      "id": 355,
+      "productId": 25,
+      "color": "BLU",
+      "size": "26PVBL45",
+      "sku": "26PVBL45",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png",
+      "active": true
+    },
+    {
+      "id": 356,
+      "productId": 25,
+      "color": "BLU",
+      "size": "46",
+      "sku": "26PVBL46",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/ac31e206-4097-45ba-8b5c-b3de25099cf1.png",
+      "active": true
+    },
+    {
+      "id": 357,
+      "productId": 26,
+      "color": "GRIGIO",
+      "size": "40",
+      "sku": "24PVGR40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png",
+      "active": true
+    },
+    {
+      "id": 358,
+      "productId": 26,
+      "color": "GRIGIO",
+      "size": "41",
+      "sku": "24PVGR41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png",
+      "active": true
+    },
+    {
+      "id": 359,
+      "productId": 26,
+      "color": "GRIGIO",
+      "size": "42",
+      "sku": "24PVGR42",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png",
+      "active": true
+    },
+    {
+      "id": 360,
+      "productId": 26,
+      "color": "GRIGIO",
+      "size": "43",
+      "sku": "24PVGR43",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png",
+      "active": true
+    },
+    {
+      "id": 361,
+      "productId": 26,
+      "color": "GRIGIO",
+      "size": "44",
+      "sku": "24PVGR44",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png",
+      "active": true
+    },
+    {
+      "id": 362,
+      "productId": 26,
+      "color": "GRIGIO",
+      "size": "45",
+      "sku": "24PVGR45",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/154266d5-2153-4eda-92dd-eb72c765ada1.png",
+      "active": true
+    },
+    {
+      "id": 363,
+      "productId": 26,
+      "color": "BLU",
+      "size": "41",
+      "sku": "24PVBL41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png",
+      "active": true
+    },
+    {
+      "id": 364,
+      "productId": 26,
+      "color": "BLU",
+      "size": "42",
+      "sku": "24PVBL42",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png",
+      "active": true
+    },
+    {
+      "id": 365,
+      "productId": 26,
+      "color": "BLU",
+      "size": "43",
+      "sku": "24PVBL43",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png",
+      "active": true
+    },
+    {
+      "id": 366,
+      "productId": 26,
+      "color": "BLU",
+      "size": "44",
+      "sku": "24PVBL44",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png",
+      "active": true
+    },
+    {
+      "id": 367,
+      "productId": 26,
+      "color": "BLU",
+      "size": "45",
+      "sku": "24PVBL45",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png",
+      "active": true
+    },
+    {
+      "id": 368,
+      "productId": 26,
+      "color": "BLU",
+      "size": "46",
+      "sku": "24PVBL46",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/79c71c68-07f6-46fc-a971-b73ef9740000.png",
+      "active": true
+    },
+    {
+      "id": 369,
+      "productId": 27,
+      "color": "BLU",
+      "size": "28",
+      "sku": "LIPARIK43BL28",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 370,
+      "productId": 27,
+      "color": "BLU",
+      "size": "29",
+      "sku": "LIPARIK43BL29",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 371,
+      "productId": 27,
+      "color": "BLU",
+      "size": "30",
+      "sku": "LIPARIK43BL30",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 372,
+      "productId": 27,
+      "color": "BLU",
+      "size": "31",
+      "sku": "LIPARIK43BL31",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 373,
+      "productId": 27,
+      "color": "BLU",
+      "size": "32",
+      "sku": "LIPARIK43BL32",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 374,
+      "productId": 27,
+      "color": "BLU",
+      "size": "33",
+      "sku": "LIPARIK43BL33",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 375,
+      "productId": 27,
+      "color": "BLU",
+      "size": "34",
+      "sku": "LIPARIK43BL34",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 376,
+      "productId": 27,
+      "color": "BLU",
+      "size": "35",
+      "sku": "LIPARIK43BL35",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/6b90cbd6-8117-4321-9f19-a74eb5395380.png",
+      "active": true
+    },
+    {
+      "id": 377,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "28",
+      "sku": "WAVESGI65FX28",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 378,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "29",
+      "sku": "WAVESGI65FX29",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 379,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "30",
+      "sku": "WAVESGI65FX30",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 380,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "31",
+      "sku": "WAVESGI65FX31",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 381,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "32",
+      "sku": "WAVESGI65FX32",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 382,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "33",
+      "sku": "WAVESGI65FX33",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 383,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "34",
+      "sku": "WAVESGI65FX34",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 384,
+      "productId": 28,
+      "color": "FUCSIA",
+      "size": "35",
+      "sku": "WAVESGI65FX35",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/44029cc2-5628-487c-8568-3fc4c3e0e6f7.png",
+      "active": true
+    },
+    {
+      "id": 385,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "28",
+      "sku": "WAVESGI65RO28",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 386,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "29",
+      "sku": "WAVESGI65RO29",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 387,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "30",
+      "sku": "WAVESGI65RO30",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 388,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "31",
+      "sku": "WAVESGI65RO31",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 389,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "32",
+      "sku": "WAVESGI65RO32",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 390,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "33",
+      "sku": "WAVESGI65RO33",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 391,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "34",
+      "sku": "WAVESGI65RO34",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    },
+    {
+      "id": 392,
+      "productId": 28,
+      "color": "ROSA",
+      "size": "35",
+      "sku": "WAVESGI65RO35",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/b605e220-68f6-45e8-8a89-9b81b1f10f51.png",
+      "active": true
+    }
   ],
   "images": [
-    {"productId": 19, "imageUrl": "/uploads/bd05ac70-8e0c-4fb4-9d80-dde826ff0995.png", "sortOrder": 6},
-    {"productId": 19, "imageUrl": "/uploads/cb1e932c-e6b8-4add-b515-5e8e3041cd34.png", "sortOrder": 7},
-    {"productId": 19, "imageUrl": "/uploads/d56850a0-32fc-4746-9c14-35a601bf4fef.png", "sortOrder": 9},
-    {"productId": 19, "imageUrl": "/uploads/181615a7-5ce2-4349-9be1-9077f6a93f75.png", "sortOrder": 10},
-    {"productId": 19, "imageUrl": "/uploads/0f229388-3fb4-4bf1-93a9-db1cdfb69401.png", "sortOrder": 11},
-    {"productId": 19, "imageUrl": "/uploads/2c88840b-046a-409d-a2c8-3adbfdfec823.png", "sortOrder": 12},
-    {"productId": 20, "imageUrl": "/uploads/7f5d9035-93ec-453a-861e-54714a998f05.png", "sortOrder": 0},
-    {"productId": 20, "imageUrl": "/uploads/9f4d82fa-76ee-4fa2-8452-f3e779c7afd3.png", "sortOrder": 1},
-    {"productId": 20, "imageUrl": "/uploads/63a8eb3f-b222-4ae2-a327-ed823d41333e.png", "sortOrder": 2},
-    {"productId": 20, "imageUrl": "/uploads/788ad3c1-8e6f-4352-93d4-2eba511909c7.png", "sortOrder": 3},
-    {"productId": 20, "imageUrl": "/uploads/5851ebe2-56c5-42ba-8c7b-17de31e089f7.png", "sortOrder": 4},
-    {"productId": 20, "imageUrl": "/uploads/c36d21da-48b2-4734-ae3d-3b0b6233019c.png", "sortOrder": 5},
-    {"productId": 20, "imageUrl": "/uploads/fb4b5b48-b251-4a94-9cd9-729e1de968b8.png", "sortOrder": 6},
-    {"productId": 21, "imageUrl": "/uploads/1f95219f-66c6-477e-b95e-4994dbecb0e7.png", "sortOrder": 0},
-    {"productId": 21, "imageUrl": "/uploads/360a164e-da59-43cc-9756-b73d4dd9731b.png", "sortOrder": 1},
-    {"productId": 21, "imageUrl": "/uploads/4f016ce7-1e79-4ea5-8793-0dccae48b438.png", "sortOrder": 2},
-    {"productId": 21, "imageUrl": "/uploads/06fc2307-7b69-4dc8-abc7-be59b616118b.png", "sortOrder": 3},
-    {"productId": 21, "imageUrl": "/uploads/9f973ea2-1280-4d90-b8df-71ab5ff1b74a.png", "sortOrder": 4},
-    {"productId": 21, "imageUrl": "/uploads/5d50ab25-27fc-49d7-b2ff-df3a6fa47a74.png", "sortOrder": 5},
-    {"productId": 21, "imageUrl": "/uploads/0e2f43bf-6b78-4780-95d6-3661cb44fe35.png", "sortOrder": 6},
-    {"productId": 21, "imageUrl": "/uploads/cd91efd9-4cb3-47fb-a68f-253e1651d41b.png", "sortOrder": 7},
-    {"productId": 21, "imageUrl": "/uploads/c8c00037-6da2-49a2-866f-5d9008e1db28.png", "sortOrder": 8},
-    {"productId": 22, "imageUrl": "/uploads/86ede352-c211-4ee9-97a7-e1933668c55e.png", "sortOrder": 6},
-    {"productId": 22, "imageUrl": "/uploads/1de15d82-c82d-4acf-b08c-dafc886e6650.png", "sortOrder": 7},
-    {"productId": 22, "imageUrl": "/uploads/ccbd1a63-83fd-4ff1-8b77-e8b51935504c.png", "sortOrder": 8},
-    {"productId": 22, "imageUrl": "/uploads/49ed87b8-ba22-40b0-ac98-02f1ab749bf8.png", "sortOrder": 9},
-    {"productId": 22, "imageUrl": "/uploads/ee4d8dd6-a669-4ef1-a948-643cfaab9bd9.png", "sortOrder": 10},
-    {"productId": 22, "imageUrl": "/uploads/1ff6de17-fdd3-4c04-8b5f-4d2ac617d7cb.png", "sortOrder": 11},
-    {"productId": 22, "imageUrl": "/uploads/1a2b1364-8b06-4baa-b04b-2980833d7910.png", "sortOrder": 12},
-    {"productId": 22, "imageUrl": "/uploads/c17391c4-1bae-4cfc-9639-29375cda92ce.png", "sortOrder": 13},
-    {"productId": 22, "imageUrl": "/uploads/79c87cfd-1b49-483b-bfe8-f511b8953310.png", "sortOrder": 14},
-    {"productId": 23, "imageUrl": "/uploads/b4fc6265-a647-4a86-90b9-d61cc35d7f7e.png", "sortOrder": 0},
-    {"productId": 23, "imageUrl": "/uploads/5044c509-0231-42a4-8e0c-d4768607134a.png", "sortOrder": 1},
-    {"productId": 23, "imageUrl": "/uploads/7843eee7-5ecb-41ff-901d-7b7a79a87cd5.png", "sortOrder": 2},
-    {"productId": 23, "imageUrl": "/uploads/430c78e0-bff8-4777-9e31-57c611dfd38b.png", "sortOrder": 3},
-    {"productId": 23, "imageUrl": "/uploads/5927d805-d831-4730-9d8a-dd21f95c569b.png", "sortOrder": 5},
-    {"productId": 23, "imageUrl": "/uploads/f7a419c8-c396-4a5f-a5a2-8c3f88206880.png", "sortOrder": 6},
-    {"productId": 23, "imageUrl": "/uploads/a01ad321-507d-4608-9738-07e78f1c473b.png", "sortOrder": 7},
-    {"productId": 23, "imageUrl": "/uploads/ad13c47a-2607-4823-af97-5f2ed92728a0.png", "sortOrder": 8},
-    {"productId": 23, "imageUrl": "/uploads/28ae2f95-6aa1-421e-92b5-769c55084620.png", "sortOrder": 9},
-    {"productId": 23, "imageUrl": "/uploads/753137ab-932f-4788-847f-25307385038c.png", "sortOrder": 10},
-    {"productId": 24, "imageUrl": "/uploads/08368bbd-6940-4012-95f7-3eaedd40908f.png", "sortOrder": 0},
-    {"productId": 24, "imageUrl": "/uploads/01951343-4276-45c8-bc5c-9ffe3402e909.png", "sortOrder": 1},
-    {"productId": 24, "imageUrl": "/uploads/34ae82f2-5b97-48db-8ce5-f1804f9c1f5d.png", "sortOrder": 2},
-    {"productId": 24, "imageUrl": "/uploads/5f4b384b-9458-40fe-8637-3cb0a2d40961.png", "sortOrder": 3},
-    {"productId": 25, "imageUrl": "/uploads/ca83a231-e93c-4556-997e-41502d01f5f6.png", "sortOrder": 0},
-    {"productId": 25, "imageUrl": "/uploads/3688f352-92e2-44d8-8fa4-6c9739dfdf1d.png", "sortOrder": 1},
-    {"productId": 25, "imageUrl": "/uploads/eda80e73-3fe3-45d0-84dd-907acfc8112b.png", "sortOrder": 2},
-    {"productId": 25, "imageUrl": "/uploads/52124868-2115-4d8b-b907-6ce0813e5602.png", "sortOrder": 5},
-    {"productId": 26, "imageUrl": "/uploads/2aa306d7-5b86-4799-95b6-58df0ee44131.png", "sortOrder": 0},
-    {"productId": 26, "imageUrl": "/uploads/57825ceb-7e7f-4c56-b171-a566ef9173fa.png", "sortOrder": 1},
-    {"productId": 26, "imageUrl": "/uploads/8a0e896a-36c1-4794-8e37-020fb072ee2f.png", "sortOrder": 2},
-    {"productId": 26, "imageUrl": "/uploads/159b1f9c-5e30-4e75-b7bc-818207bbf4ec.png", "sortOrder": 3},
-    {"productId": 26, "imageUrl": "/uploads/d2140977-2988-4479-a8b5-509435fe7118.png", "sortOrder": 4},
-    {"productId": 26, "imageUrl": "/uploads/b6b06f6f-77eb-4234-855f-b70fe8e74a6a.png", "sortOrder": 5},
-    {"productId": 26, "imageUrl": "/uploads/946d5fd5-45df-4b6f-8d48-1184ff65e209.png", "sortOrder": 6},
-    {"productId": 27, "imageUrl": "/uploads/4f4d8883-7eb6-43f8-a74e-8296d2359fd9.png", "sortOrder": 0},
-    {"productId": 27, "imageUrl": "/uploads/6f492d44-1715-4081-b705-9e2ff9bfb2e2.png", "sortOrder": 1},
-    {"productId": 27, "imageUrl": "/uploads/018da4e0-66bd-4f85-a139-198a8a0c1225.png", "sortOrder": 2},
-    {"productId": 27, "imageUrl": "/uploads/1b83be43-8c6f-4564-a28d-66e82a237374.png", "sortOrder": 3},
-    {"productId": 28, "imageUrl": "/uploads/729506ac-9110-4c32-86f2-10df5a2a717d.png", "sortOrder": 0},
-    {"productId": 28, "imageUrl": "/uploads/d5b12934-3c1a-4c96-9366-732b53a4a29b.png", "sortOrder": 1},
-    {"productId": 28, "imageUrl": "/uploads/aad64075-e33d-4de6-bdb7-8e46da976c82.png", "sortOrder": 2},
-    {"productId": 28, "imageUrl": "/uploads/360de164-29bd-484d-8a90-3a36f2fa6f35.png", "sortOrder": 3},
-    {"productId": 28, "imageUrl": "/uploads/4cc9e6b0-95de-4e25-bd93-b7114ab66563.png", "sortOrder": 4},
-    {"productId": 28, "imageUrl": "/uploads/7ecd80ce-187b-4dfa-be01-1b1a66c05556.png", "sortOrder": 5},
-    {"productId": 28, "imageUrl": "/uploads/8545fd66-0d83-4935-aa9c-f6e11166ee3c.png", "sortOrder": 6},
-    {"productId": 28, "imageUrl": "/uploads/4c738bfc-5b8a-48b4-b6f0-0db5a24bd4ad.png", "sortOrder": 7}
+    {
+      "id": 121,
+      "productId": 3,
+      "imageUrl": "/uploads/f7442b64-97b7-4e24-a04c-f4950d9a4328.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 122,
+      "productId": 3,
+      "imageUrl": "/uploads/0eedac0c-a768-434e-a337-13beebb0a7c3.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 123,
+      "productId": 3,
+      "imageUrl": "/uploads/bbcbef7d-4fd9-4978-8155-23eff7d3fe22.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 124,
+      "productId": 3,
+      "imageUrl": "/uploads/758a5c65-5075-40f0-b255-821592d985af.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 125,
+      "productId": 3,
+      "imageUrl": "/uploads/460be1fd-7a75-41c6-88cc-2ab61602ac0f.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 126,
+      "productId": 3,
+      "imageUrl": "/uploads/79bc0c8b-1a18-4524-9bf1-490c9039b732.jpg",
+      "sortOrder": 5
+    },
+    {
+      "id": 127,
+      "productId": 3,
+      "imageUrl": "/uploads/bf2c595c-4b14-4c25-97bb-c0f04645eef2.jpg",
+      "sortOrder": 6
+    },
+    {
+      "id": 128,
+      "productId": 3,
+      "imageUrl": "/uploads/4b5e4666-19c5-4f96-8aa7-678cb52d47fe.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 129,
+      "productId": 3,
+      "imageUrl": "/uploads/c118011c-8640-482b-8290-a1a5c341f4e6.jpg",
+      "sortOrder": 8
+    },
+    {
+      "id": 55,
+      "productId": 4,
+      "imageUrl": "/uploads/be147ad0-c966-4524-be44-a91de98f8742.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 175,
+      "productId": 4,
+      "imageUrl": "/uploads/e0a8edb4-783e-46d8-aba4-68f8bd653195.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 176,
+      "productId": 4,
+      "imageUrl": "/uploads/8476de31-63a4-4474-98b3-d3967d16ebfd.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 177,
+      "productId": 4,
+      "imageUrl": "/uploads/b9529a9c-76bf-4ff1-9593-f2ee47c523e8.jpg",
+      "sortOrder": 4
+    },
+    {
+      "id": 178,
+      "productId": 4,
+      "imageUrl": "/uploads/ef394a7a-a264-497d-9776-a29a491470fa.jpg",
+      "sortOrder": 5
+    },
+    {
+      "id": 179,
+      "productId": 4,
+      "imageUrl": "/uploads/e4567a5e-6ed9-413c-ac90-f6e8fdfee250.jpg",
+      "sortOrder": 6
+    },
+    {
+      "id": 180,
+      "productId": 4,
+      "imageUrl": "/uploads/5b80be8c-2319-4cbb-8cec-9320bcc1c7c3.jpg",
+      "sortOrder": 7
+    },
+    {
+      "id": 189,
+      "productId": 5,
+      "imageUrl": "/uploads/49890c31-f873-42ef-ab6d-e8d739bc5dc3.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 190,
+      "productId": 5,
+      "imageUrl": "/uploads/da1a033c-af71-471d-aa30-407e4685ad8f.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 191,
+      "productId": 5,
+      "imageUrl": "/uploads/50b8bc1e-5c78-4258-a2fa-8bd24d6e5088.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 195,
+      "productId": 5,
+      "imageUrl": "/uploads/df2f61b9-62ab-4a68-86c8-d2351bcf9b03.jpg",
+      "sortOrder": 6
+    },
+    {
+      "id": 196,
+      "productId": 5,
+      "imageUrl": "/uploads/4e3558d0-f6f3-4209-987a-c44ed0747c3b.jpg",
+      "sortOrder": 7
+    },
+    {
+      "id": 197,
+      "productId": 5,
+      "imageUrl": "/uploads/994d52c9-3085-43de-8fcb-461273ba679f.jpg",
+      "sortOrder": 8
+    },
+    {
+      "id": 181,
+      "productId": 6,
+      "imageUrl": "/uploads/9fe736dd-2133-4bfa-8729-732d94f40857.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 182,
+      "productId": 6,
+      "imageUrl": "/uploads/bb5ac2c5-5dd1-4f8f-abd0-39c7ab8dcd93.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 183,
+      "productId": 6,
+      "imageUrl": "/uploads/409921cf-b6fe-4545-a103-7fd015d88936.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 184,
+      "productId": 6,
+      "imageUrl": "/uploads/f4d14a30-f2b9-418c-aebb-aa6d7ba84186.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 185,
+      "productId": 6,
+      "imageUrl": "/uploads/1f244258-262b-4ecb-a74f-47ba78dc40c9.jpg",
+      "sortOrder": 4
+    },
+    {
+      "id": 186,
+      "productId": 6,
+      "imageUrl": "/uploads/251f1730-1efb-46f5-a6fb-35096b681fe3.jpg",
+      "sortOrder": 5
+    },
+    {
+      "id": 187,
+      "productId": 6,
+      "imageUrl": "/uploads/589dd6d2-12c1-41be-aea8-b5380b9bc7da.jpg",
+      "sortOrder": 6
+    },
+    {
+      "id": 188,
+      "productId": 6,
+      "imageUrl": "/uploads/23c54cc5-0d69-4abb-99cb-1f1f63525b78.jpg",
+      "sortOrder": 7
+    },
+    {
+      "id": 64,
+      "productId": 7,
+      "imageUrl": "/uploads/8d3e424b-bb36-4357-a933-dc31bad7b31a.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 65,
+      "productId": 7,
+      "imageUrl": "/uploads/2536b869-31b0-482a-ac66-08ba03b316ff.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 66,
+      "productId": 7,
+      "imageUrl": "/uploads/ba679dfd-09f8-4ea9-b863-4d3e709fe96a.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 105,
+      "productId": 8,
+      "imageUrl": "/uploads/d3a0cdcb-143a-47f6-b52a-4b89e4f1645c.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 106,
+      "productId": 8,
+      "imageUrl": "/uploads/53ca2ddf-a507-406c-8bcf-b0adacab6550.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 109,
+      "productId": 8,
+      "imageUrl": "/uploads/b5087e1a-1934-4dc9-b3b5-d52bd0b9d28d.jpg",
+      "sortOrder": 4
+    },
+    {
+      "id": 110,
+      "productId": 8,
+      "imageUrl": "/uploads/2b6e2f12-514c-4525-b81e-55b98e568bb8.jpg",
+      "sortOrder": 5
+    },
+    {
+      "id": 111,
+      "productId": 8,
+      "imageUrl": "/uploads/a5344d0e-d2f0-4b2c-bb98-7ac0d08c63ae.jpg",
+      "sortOrder": 6
+    },
+    {
+      "id": 112,
+      "productId": 8,
+      "imageUrl": "/uploads/90a001b2-4c3a-4b6b-8c29-a28ce02aa493.jpg",
+      "sortOrder": 7
+    },
+    {
+      "id": 101,
+      "productId": 9,
+      "imageUrl": "/uploads/5d7df069-df46-42b3-886b-bf3088d42c30.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 102,
+      "productId": 9,
+      "imageUrl": "/uploads/c6766100-eaca-447a-91db-dbcbd5a03956.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 104,
+      "productId": 9,
+      "imageUrl": "/uploads/37697a22-417e-4d15-a94a-a3f91c25ade4.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 97,
+      "productId": 10,
+      "imageUrl": "/uploads/1caa84d0-ef65-4b87-a7aa-d727f01997a4.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 98,
+      "productId": 10,
+      "imageUrl": "/uploads/d9535ce5-45e8-4ed3-a6be-a2d6d24ebd7f.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 99,
+      "productId": 10,
+      "imageUrl": "/uploads/d5e2bd14-00a0-4cde-814f-2555993b8da2.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 100,
+      "productId": 10,
+      "imageUrl": "/uploads/53f09372-e1a3-4bc8-b386-7de372cf31c7.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 198,
+      "productId": 11,
+      "imageUrl": "/uploads/6350c673-8085-4cc2-895a-d74d6e82366f.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 201,
+      "productId": 11,
+      "imageUrl": "/uploads/88bc3477-2de9-4a53-85d8-e94a1211ee01.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 202,
+      "productId": 11,
+      "imageUrl": "/uploads/426d0d8c-60b4-4631-8c1f-a2bd6b8ec738.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 203,
+      "productId": 11,
+      "imageUrl": "/uploads/b4d55855-fead-4b73-8707-d4f16728f264.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 204,
+      "productId": 11,
+      "imageUrl": "/uploads/73837807-9e58-483a-83a7-c4452a4c4738.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 205,
+      "productId": 11,
+      "imageUrl": "/uploads/088bf8c1-c1ab-470e-9fdf-f8d657f9cf26.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 206,
+      "productId": 11,
+      "imageUrl": "/uploads/ed37f54c-202c-4ed8-94d4-90e9a2365820.png",
+      "sortOrder": 8
+    },
+    {
+      "id": 207,
+      "productId": 11,
+      "imageUrl": "/uploads/dd2c7964-6807-4ee5-a41b-56f3112bb1c7.png",
+      "sortOrder": 9
+    },
+    {
+      "id": 208,
+      "productId": 11,
+      "imageUrl": "/uploads/d368068f-e84f-4fb3-b474-013d94a0d836.png",
+      "sortOrder": 10
+    },
+    {
+      "id": 209,
+      "productId": 11,
+      "imageUrl": "/uploads/e6530fee-9ed9-444e-880d-c29c389dbb66.png",
+      "sortOrder": 11
+    },
+    {
+      "id": 210,
+      "productId": 12,
+      "imageUrl": "/uploads/0c4acdb5-9c92-4233-8cab-4318d3b8441a.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 211,
+      "productId": 12,
+      "imageUrl": "/uploads/ceec8983-bbfd-476e-a6bc-006cdf3c9d0a.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 212,
+      "productId": 12,
+      "imageUrl": "/uploads/3ded8a8b-4082-4c34-ae86-9957c34dda53.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 213,
+      "productId": 12,
+      "imageUrl": "/uploads/977b58cd-432e-4492-81a2-11c5fe254f53.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 214,
+      "productId": 12,
+      "imageUrl": "/uploads/d0d1f357-b81f-4f6a-980c-92f44a8ac17a.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 215,
+      "productId": 12,
+      "imageUrl": "/uploads/096469b6-8da0-4c4a-9db8-7da25ac02ccc.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 216,
+      "productId": 12,
+      "imageUrl": "/uploads/5ada8b7f-211e-498b-bb53-d64d76ee0f4c.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 217,
+      "productId": 12,
+      "imageUrl": "/uploads/5c3110b3-a311-4639-b7fb-9d0f9d74c1ba.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 218,
+      "productId": 12,
+      "imageUrl": "/uploads/ee6e8118-3cb1-4dd2-b404-b805f6359af5.png",
+      "sortOrder": 8
+    },
+    {
+      "id": 219,
+      "productId": 12,
+      "imageUrl": "/uploads/4ec4acb1-0576-4123-9f75-383a34065a79.png",
+      "sortOrder": 9
+    },
+    {
+      "id": 220,
+      "productId": 13,
+      "imageUrl": "/uploads/24e8ddb7-75c2-4a76-94c2-c0acec38e933.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 221,
+      "productId": 13,
+      "imageUrl": "/uploads/22a79a4c-ddf0-4ac1-bdb5-861f1f4f3feb.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 222,
+      "productId": 14,
+      "imageUrl": "/uploads/fba64be6-52d9-4e36-8537-af0c7533a3af.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 223,
+      "productId": 14,
+      "imageUrl": "/uploads/802633bd-2aaa-4871-8789-97b690658181.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 224,
+      "productId": 14,
+      "imageUrl": "/uploads/3bb5a19f-7627-4640-9b2d-a638d72bb26c.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 225,
+      "productId": 15,
+      "imageUrl": "/uploads/a810729a-0dd7-49a4-a371-3af6d00c523b.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 226,
+      "productId": 15,
+      "imageUrl": "/uploads/7e9f02de-1c7c-4851-a6d2-da76de3ab8d2.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 227,
+      "productId": 15,
+      "imageUrl": "/uploads/4ad88565-ff53-490b-a948-0733d90df428.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 228,
+      "productId": 15,
+      "imageUrl": "/uploads/3cc11c60-4191-4cbe-827b-dc364d21d12c.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 229,
+      "productId": 16,
+      "imageUrl": "/uploads/e62939f1-3218-45db-acdd-cf8a899140d2.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 230,
+      "productId": 16,
+      "imageUrl": "/uploads/6cd4bdd9-d1d6-4afa-ab81-865ca0a6f6ee.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 231,
+      "productId": 16,
+      "imageUrl": "/uploads/723d095c-4d73-4291-b848-e35706515a91.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 232,
+      "productId": 18,
+      "imageUrl": "/uploads/c1a027c4-624b-4942-a298-4f22de2986b7.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 233,
+      "productId": 18,
+      "imageUrl": "/uploads/5d1ca47e-8a6b-47d6-b62c-a9e0b39db691.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 234,
+      "productId": 18,
+      "imageUrl": "/uploads/50c81962-bc8a-4bfb-ba0a-c84d74fad8c7.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 235,
+      "productId": 18,
+      "imageUrl": "/uploads/91c0c0ba-6920-44a1-94a0-fd0397060555.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 242,
+      "productId": 19,
+      "imageUrl": "/uploads/bd05ac70-8e0c-4fb4-9d80-dde826ff0995.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 243,
+      "productId": 19,
+      "imageUrl": "/uploads/cb1e932c-e6b8-4add-b515-5e8e3041cd34.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 245,
+      "productId": 19,
+      "imageUrl": "/uploads/d56850a0-32fc-4746-9c14-35a601bf4fef.png",
+      "sortOrder": 9
+    },
+    {
+      "id": 246,
+      "productId": 19,
+      "imageUrl": "/uploads/181615a7-5ce2-4349-9be1-9077f6a93f75.png",
+      "sortOrder": 10
+    },
+    {
+      "id": 247,
+      "productId": 19,
+      "imageUrl": "/uploads/0f229388-3fb4-4bf1-93a9-db1cdfb69401.png",
+      "sortOrder": 11
+    },
+    {
+      "id": 248,
+      "productId": 19,
+      "imageUrl": "/uploads/2c88840b-046a-409d-a2c8-3adbfdfec823.png",
+      "sortOrder": 12
+    },
+    {
+      "id": 249,
+      "productId": 20,
+      "imageUrl": "/uploads/7f5d9035-93ec-453a-861e-54714a998f05.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 250,
+      "productId": 20,
+      "imageUrl": "/uploads/9f4d82fa-76ee-4fa2-8452-f3e779c7afd3.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 251,
+      "productId": 20,
+      "imageUrl": "/uploads/63a8eb3f-b222-4ae2-a327-ed823d41333e.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 252,
+      "productId": 20,
+      "imageUrl": "/uploads/788ad3c1-8e6f-4352-93d4-2eba511909c7.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 253,
+      "productId": 20,
+      "imageUrl": "/uploads/5851ebe2-56c5-42ba-8c7b-17de31e089f7.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 254,
+      "productId": 20,
+      "imageUrl": "/uploads/c36d21da-48b2-4734-ae3d-3b0b6233019c.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 255,
+      "productId": 20,
+      "imageUrl": "/uploads/fb4b5b48-b251-4a94-9cd9-729e1de968b8.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 256,
+      "productId": 21,
+      "imageUrl": "/uploads/1f95219f-66c6-477e-b95e-4994dbecb0e7.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 257,
+      "productId": 21,
+      "imageUrl": "/uploads/360a164e-da59-43cc-9756-b73d4dd9731b.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 258,
+      "productId": 21,
+      "imageUrl": "/uploads/4f016ce7-1e79-4ea5-8793-0dccae48b438.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 259,
+      "productId": 21,
+      "imageUrl": "/uploads/06fc2307-7b69-4dc8-abc7-be59b616118b.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 260,
+      "productId": 21,
+      "imageUrl": "/uploads/9f973ea2-1280-4d90-b8df-71ab5ff1b74a.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 261,
+      "productId": 21,
+      "imageUrl": "/uploads/5d50ab25-27fc-49d7-b2ff-df3a6fa47a74.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 262,
+      "productId": 21,
+      "imageUrl": "/uploads/0e2f43bf-6b78-4780-95d6-3661cb44fe35.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 263,
+      "productId": 21,
+      "imageUrl": "/uploads/cd91efd9-4cb3-47fb-a68f-253e1651d41b.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 264,
+      "productId": 21,
+      "imageUrl": "/uploads/c8c00037-6da2-49a2-866f-5d9008e1db28.png",
+      "sortOrder": 8
+    },
+    {
+      "id": 271,
+      "productId": 22,
+      "imageUrl": "/uploads/86ede352-c211-4ee9-97a7-e1933668c55e.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 272,
+      "productId": 22,
+      "imageUrl": "/uploads/1de15d82-c82d-4acf-b08c-dafc886e6650.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 273,
+      "productId": 22,
+      "imageUrl": "/uploads/ccbd1a63-83fd-4ff1-8b77-e8b51935504c.png",
+      "sortOrder": 8
+    },
+    {
+      "id": 274,
+      "productId": 22,
+      "imageUrl": "/uploads/49ed87b8-ba22-40b0-ac98-02f1ab749bf8.png",
+      "sortOrder": 9
+    },
+    {
+      "id": 275,
+      "productId": 22,
+      "imageUrl": "/uploads/ee4d8dd6-a669-4ef1-a948-643cfaab9bd9.png",
+      "sortOrder": 10
+    },
+    {
+      "id": 276,
+      "productId": 22,
+      "imageUrl": "/uploads/1ff6de17-fdd3-4c04-8b5f-4d2ac617d7cb.png",
+      "sortOrder": 11
+    },
+    {
+      "id": 277,
+      "productId": 22,
+      "imageUrl": "/uploads/1a2b1364-8b06-4baa-b04b-2980833d7910.png",
+      "sortOrder": 12
+    },
+    {
+      "id": 278,
+      "productId": 22,
+      "imageUrl": "/uploads/c17391c4-1bae-4cfc-9639-29375cda92ce.png",
+      "sortOrder": 13
+    },
+    {
+      "id": 279,
+      "productId": 22,
+      "imageUrl": "/uploads/79c87cfd-1b49-483b-bfe8-f511b8953310.png",
+      "sortOrder": 14
+    },
+    {
+      "id": 280,
+      "productId": 23,
+      "imageUrl": "/uploads/b4fc6265-a647-4a86-90b9-d61cc35d7f7e.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 281,
+      "productId": 23,
+      "imageUrl": "/uploads/5044c509-0231-42a4-8e0c-d4768607134a.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 282,
+      "productId": 23,
+      "imageUrl": "/uploads/7843eee7-5ecb-41ff-901d-7b7a79a87cd5.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 283,
+      "productId": 23,
+      "imageUrl": "/uploads/430c78e0-bff8-4777-9e31-57c611dfd38b.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 285,
+      "productId": 23,
+      "imageUrl": "/uploads/5927d805-d831-4730-9d8a-dd21f95c569b.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 286,
+      "productId": 23,
+      "imageUrl": "/uploads/f7a419c8-c396-4a5f-a5a2-8c3f88206880.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 287,
+      "productId": 23,
+      "imageUrl": "/uploads/a01ad321-507d-4608-9738-07e78f1c473b.png",
+      "sortOrder": 7
+    },
+    {
+      "id": 288,
+      "productId": 23,
+      "imageUrl": "/uploads/ad13c47a-2607-4823-af97-5f2ed92728a0.png",
+      "sortOrder": 8
+    },
+    {
+      "id": 289,
+      "productId": 23,
+      "imageUrl": "/uploads/28ae2f95-6aa1-421e-92b5-769c55084620.png",
+      "sortOrder": 9
+    },
+    {
+      "id": 290,
+      "productId": 23,
+      "imageUrl": "/uploads/753137ab-932f-4788-847f-25307385038c.png",
+      "sortOrder": 10
+    },
+    {
+      "id": 291,
+      "productId": 24,
+      "imageUrl": "/uploads/08368bbd-6940-4012-95f7-3eaedd40908f.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 292,
+      "productId": 24,
+      "imageUrl": "/uploads/01951343-4276-45c8-bc5c-9ffe3402e909.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 293,
+      "productId": 24,
+      "imageUrl": "/uploads/34ae82f2-5b97-48db-8ce5-f1804f9c1f5d.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 294,
+      "productId": 24,
+      "imageUrl": "/uploads/5f4b384b-9458-40fe-8637-3cb0a2d40961.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 295,
+      "productId": 25,
+      "imageUrl": "/uploads/ca83a231-e93c-4556-997e-41502d01f5f6.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 296,
+      "productId": 25,
+      "imageUrl": "/uploads/3688f352-92e2-44d8-8fa4-6c9739dfdf1d.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 297,
+      "productId": 25,
+      "imageUrl": "/uploads/eda80e73-3fe3-45d0-84dd-907acfc8112b.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 300,
+      "productId": 25,
+      "imageUrl": "/uploads/52124868-2115-4d8b-b907-6ce0813e5602.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 301,
+      "productId": 26,
+      "imageUrl": "/uploads/2aa306d7-5b86-4799-95b6-58df0ee44131.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 302,
+      "productId": 26,
+      "imageUrl": "/uploads/57825ceb-7e7f-4c56-b171-a566ef9173fa.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 303,
+      "productId": 26,
+      "imageUrl": "/uploads/8a0e896a-36c1-4794-8e37-020fb072ee2f.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 304,
+      "productId": 26,
+      "imageUrl": "/uploads/159b1f9c-5e30-4e75-b7bc-818207bbf4ec.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 305,
+      "productId": 26,
+      "imageUrl": "/uploads/d2140977-2988-4479-a8b5-509435fe7118.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 306,
+      "productId": 26,
+      "imageUrl": "/uploads/b6b06f6f-77eb-4234-855f-b70fe8e74a6a.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 307,
+      "productId": 26,
+      "imageUrl": "/uploads/946d5fd5-45df-4b6f-8d48-1184ff65e209.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 308,
+      "productId": 27,
+      "imageUrl": "/uploads/4f4d8883-7eb6-43f8-a74e-8296d2359fd9.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 309,
+      "productId": 27,
+      "imageUrl": "/uploads/6f492d44-1715-4081-b705-9e2ff9bfb2e2.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 310,
+      "productId": 27,
+      "imageUrl": "/uploads/018da4e0-66bd-4f85-a139-198a8a0c1225.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 311,
+      "productId": 27,
+      "imageUrl": "/uploads/1b83be43-8c6f-4564-a28d-66e82a237374.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 312,
+      "productId": 28,
+      "imageUrl": "/uploads/729506ac-9110-4c32-86f2-10df5a2a717d.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 313,
+      "productId": 28,
+      "imageUrl": "/uploads/d5b12934-3c1a-4c96-9366-732b53a4a29b.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 314,
+      "productId": 28,
+      "imageUrl": "/uploads/aad64075-e33d-4de6-bdb7-8e46da976c82.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 315,
+      "productId": 28,
+      "imageUrl": "/uploads/360de164-29bd-484d-8a90-3a36f2fa6f35.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 316,
+      "productId": 28,
+      "imageUrl": "/uploads/4cc9e6b0-95de-4e25-bd93-b7114ab66563.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 317,
+      "productId": 28,
+      "imageUrl": "/uploads/7ecd80ce-187b-4dfa-be01-1b1a66c05556.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 318,
+      "productId": 28,
+      "imageUrl": "/uploads/8545fd66-0d83-4935-aa9c-f6e11166ee3c.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 319,
+      "productId": 28,
+      "imageUrl": "/uploads/4c738bfc-5b8a-48b4-b6f0-0db5a24bd4ad.png",
+      "sortOrder": 7
+    }
+  ],
+  "collections": [
+    {
+      "id": 1,
+      "name": "Best Sellers",
+      "slug": "best-sellers",
+      "description": "I più venduti"
+    },
+    {
+      "id": 2,
+      "name": "Women",
+      "slug": "donna",
+      "description": "Collezione Donna"
+    },
+    {
+      "id": 3,
+      "name": "Men",
+      "slug": "uomo",
+      "description": "Collezione Uomo"
+    },
+    {
+      "id": 4,
+      "name": "Kids",
+      "slug": "bambino",
+      "description": "Collezione Bambino"
+    },
+    {
+      "id": 5,
+      "name": "Outlet",
+      "slug": "outlet",
+      "description": "Prodotti in saldo"
+    },
+    {
+      "id": 6,
+      "name": "New Season",
+      "slug": "new-season",
+      "description": "Nuova stagione"
+    }
   ],
   "productCollections": [
-    {"productId": 13, "collectionId": 5, "position": 0},
-    {"productId": 13, "collectionId": 2, "position": 1},
-    {"productId": 14, "collectionId": 5, "position": 0},
-    {"productId": 14, "collectionId": 2, "position": 1},
-    {"productId": 15, "collectionId": 5, "position": 0},
-    {"productId": 15, "collectionId": 2, "position": 1},
-    {"productId": 16, "collectionId": 5, "position": 0},
-    {"productId": 16, "collectionId": 2, "position": 1},
-    {"productId": 18, "collectionId": 5, "position": 0},
-    {"productId": 18, "collectionId": 2, "position": 1},
-    {"productId": 19, "collectionId": 4, "position": 1},
-    {"productId": 19, "collectionId": 6, "position": 0},
-    {"productId": 20, "collectionId": 4, "position": 1},
-    {"productId": 20, "collectionId": 6, "position": 0},
-    {"productId": 21, "collectionId": 6, "position": 0},
-    {"productId": 21, "collectionId": 4, "position": 1},
-    {"productId": 22, "collectionId": 6, "position": 0},
-    {"productId": 22, "collectionId": 4, "position": 1},
-    {"productId": 23, "collectionId": 5, "position": 0},
-    {"productId": 23, "collectionId": 2, "position": 1},
-    {"productId": 24, "collectionId": 4, "position": 1},
-    {"productId": 24, "collectionId": 5, "position": 0},
-    {"productId": 25, "collectionId": 5, "position": 0},
-    {"productId": 25, "collectionId": 3, "position": 1},
-    {"productId": 26, "collectionId": 3, "position": 1},
-    {"productId": 26, "collectionId": 5, "position": 0},
-    {"productId": 27, "collectionId": 4, "position": 1},
-    {"productId": 27, "collectionId": 5, "position": 0},
-    {"productId": 28, "collectionId": 5, "position": 0},
-    {"productId": 28, "collectionId": 4, "position": 1}
+    {
+      "productId": 6,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 13,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 9,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 14,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 8,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 15,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 4,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 16,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 5,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 18,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 11,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 3,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 23,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 25,
+      "collectionId": 3,
+      "position": 1
+    },
+    {
+      "productId": 10,
+      "collectionId": 3,
+      "position": 1
+    },
+    {
+      "productId": 7,
+      "collectionId": 3,
+      "position": 1
+    },
+    {
+      "productId": 12,
+      "collectionId": 3,
+      "position": 1
+    },
+    {
+      "productId": 26,
+      "collectionId": 3,
+      "position": 1
+    },
+    {
+      "productId": 27,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 20,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 28,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 22,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 24,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 21,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 19,
+      "collectionId": 4,
+      "position": 1
+    },
+    {
+      "productId": 27,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 28,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 18,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 23,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 16,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 15,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 14,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 24,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 25,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 13,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 26,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 19,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 20,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 21,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 22,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 11,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 3,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 12,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 5,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 4,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 8,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 9,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 10,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 6,
+      "collectionId": 6,
+      "position": 0
+    },
+    {
+      "productId": 7,
+      "collectionId": 6,
+      "position": 0
+    }
   ]
 }
