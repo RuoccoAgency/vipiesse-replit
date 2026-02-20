@@ -21,10 +21,10 @@ export interface HeroSlide {
 const SLIDES: HeroSlide[] = [
   {
     id: 1,
-    title: "NUOVA STAGIONE",
-    subtitle: "Scopri la nuova collezione Summer 26",
+    title: "I PIÙ VENDUTI",
+    subtitle: "Scopri le icone di stile amate da tutti",
     ctaLabel: "Acquista ora",
-    ctaHref: "/shop/new-season",
+    ctaHref: "/shop?filter=bestseller",
     imageUrl: bestSellerHero,
   },
   {
@@ -32,7 +32,7 @@ const SLIDES: HeroSlide[] = [
     title: "PREPARATI PER LA STAGIONE",
     subtitle: "La nuova collezione Summer 26 è arrivata",
     ctaLabel: "Acquista ora",
-    ctaHref: "/shop/new-season",
+    ctaHref: "/shop?filter=season",
     imageUrl: summerHero,
   },
   {
