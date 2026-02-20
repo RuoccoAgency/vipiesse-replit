@@ -24,7 +24,7 @@ const SLIDES: HeroSlide[] = [
     title: "I PIÙ VENDUTI",
     subtitle: "Scopri le icone di stile amate da tutti",
     ctaLabel: "Acquista ora",
-    ctaHref: "/shop?filter=bestseller",
+    ctaHref: "/shop/best-sellers",
     imageUrl: bestSellerHero,
   },
   {
@@ -32,7 +32,7 @@ const SLIDES: HeroSlide[] = [
     title: "PREPARATI PER LA STAGIONE",
     subtitle: "La nuova collezione Summer 26 è arrivata",
     ctaLabel: "Acquista ora",
-    ctaHref: "/shop?filter=season",
+    ctaHref: "/shop/new-season",
     imageUrl: summerHero,
   },
   {
