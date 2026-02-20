@@ -29,7 +29,7 @@ export function Outlet({ category }: OutletProps) {
   });
 
   const { data: categoryProducts = [], isLoading: isLoadingCategory } = useQuery({
-    queryKey: ['products', category],
+    queryKey: ['products', category, 'includeOutlet'],
     queryFn: () => fetchProductsByCollection(category!, true),
     enabled: !!category,
   });
