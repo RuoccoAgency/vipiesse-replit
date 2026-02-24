@@ -30,18 +30,23 @@ export async function runProductionSync() {
     const currentCount = Number(countResult.rows[0]?.cnt || 0);
     const expectedCount = syncData.products.length;
 
-    const sampleResult = await pool.query(
-      "SELECT compare_at_price_cents FROM products WHERE id = 13 LIMIT 1"
-    );
-    const hasComparePrice = sampleResult.rows[0]?.compare_at_price_cents != null;
+    const variantCountResult = await pool.query("SELECT COUNT(*) as cnt FROM product_variants");
+    const currentVariants = Number(variantCountResult.rows[0]?.cnt || 0);
+    const expectedVariants = syncData.variants?.length || 0;
 
-    if (currentCount >= expectedCount && hasComparePrice) {
-      console.log(`[ProductionSync] Data appears up-to-date (${currentCount} products, compareAtPrice set). Skipping sync.`);
+    const pcCountResult = await pool.query("SELECT COUNT(*) as cnt FROM product_collections");
+    const currentPCs = Number(pcCountResult.rows[0]?.cnt || 0);
+    const expectedPCs = syncData.productCollections?.length || 0;
+
+    const needsSync = currentCount < expectedCount || currentVariants < expectedVariants || currentPCs < expectedPCs;
+
+    if (!needsSync) {
+      console.log(`[ProductionSync] Data appears up-to-date (${currentCount} products, ${currentVariants} variants, ${currentPCs} collection assignments). Skipping sync.`);
       await pool.end();
       return;
     }
 
-    console.log(`[ProductionSync] Syncing data: current=${currentCount}, expected=${expectedCount}, hasComparePrice=${hasComparePrice}`);
+    console.log(`[ProductionSync] Syncing data: products=${currentCount}/${expectedCount}, variants=${currentVariants}/${expectedVariants}, collections=${currentPCs}/${expectedPCs}`);
 
     const results = {
       collections: 0,
