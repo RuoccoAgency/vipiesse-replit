@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import { insertProductSchema, insertProductVariantSchema, insertCollectionSchema, insertContactMessageSchema } from "@shared/schema";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShippingNotification, sendBankTransferOrderEmail, sendAdminBankTransferNotification, sendPaymentConfirmedEmail, sendDeliveredEmail, createDummyOrderData, sendB2bApprovalEmail, sendB2bRejectionEmail, type OrderEmailData } from "./emailService";
+import { scheduleSyncDataUpdate } from "./generate-sync";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -947,6 +948,7 @@ export async function registerRoutes(
       if (!updated) {
         return res.status(404).json({ error: "Prodotto non trovato" });
       }
+      scheduleSyncDataUpdate();
       res.json(updated);
     } catch (error) {
       console.error("Error updating B2B price:", error);
@@ -963,6 +965,7 @@ export async function registerRoutes(
       if (!updated) {
         return res.status(404).json({ error: "Prodotto non trovato" });
       }
+      scheduleSyncDataUpdate();
       res.json(updated);
     } catch (error) {
       console.error("Error updating compare price:", error);
@@ -1245,6 +1248,7 @@ export async function registerRoutes(
     try {
       const validated = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validated);
+      scheduleSyncDataUpdate();
       res.json(product);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Invalid product data" });
@@ -1257,6 +1261,7 @@ export async function registerRoutes(
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
+      scheduleSyncDataUpdate();
       res.json(product);
     } catch (error) {
       res.status(400).json({ error: "Failed to update product" });
@@ -1266,6 +1271,7 @@ export async function registerRoutes(
   app.delete("/api/admin/products/:id", isAdmin, async (req, res) => {
     try {
       await storage.deleteProduct(parseInt(req.params.id));
+      scheduleSyncDataUpdate();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete product" });
@@ -1293,6 +1299,7 @@ export async function registerRoutes(
         await storage.assignProductToCollection(productId, collectionIds[i], i);
       }
       
+      scheduleSyncDataUpdate();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to update collections" });
@@ -1323,6 +1330,7 @@ export async function registerRoutes(
       }
       
       const variant = await storage.createVariant(validated);
+      scheduleSyncDataUpdate();
       res.json(variant);
     } catch (error: any) {
       if (error.code === '23505') {
@@ -1348,6 +1356,7 @@ export async function registerRoutes(
       if (!variant) {
         return res.status(404).json({ error: "Variant not found" });
       }
+      scheduleSyncDataUpdate();
       res.json(variant);
     } catch (error: any) {
       if (error.code === '23505') {
@@ -1360,6 +1369,7 @@ export async function registerRoutes(
   app.delete("/api/admin/variants/:id", isAdmin, async (req, res) => {
     try {
       await storage.deleteVariant(parseInt(req.params.id));
+      scheduleSyncDataUpdate();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete variant" });
@@ -1397,6 +1407,7 @@ export async function registerRoutes(
         imageUrl,
         sortOrder: sortOrder || 0
       });
+      scheduleSyncDataUpdate();
       res.json(image);
     } catch (error) {
       res.status(400).json({ error: "Failed to add image" });
@@ -1406,6 +1417,7 @@ export async function registerRoutes(
   app.delete("/api/admin/product-images/:id", isAdmin, async (req, res) => {
     try {
       await storage.deleteProductImage(parseInt(req.params.id));
+      scheduleSyncDataUpdate();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete image" });
@@ -1429,6 +1441,7 @@ export async function registerRoutes(
       }
       
       const updatedImages = await storage.getImagesByProduct(productId);
+      scheduleSyncDataUpdate();
       res.json(updatedImages);
     } catch (error) {
       res.status(400).json({ error: "Failed to update images" });
@@ -1457,6 +1470,7 @@ export async function registerRoutes(
         imageUrl,
         sortOrder: sortOrder || 0
       });
+      scheduleSyncDataUpdate();
       res.json(image);
     } catch (error) {
       res.status(400).json({ error: "Failed to add variant image" });
@@ -1466,6 +1480,7 @@ export async function registerRoutes(
   app.delete("/api/admin/variant-images/:id", isAdmin, async (req, res) => {
     try {
       await storage.deleteVariantImage(parseInt(req.params.id));
+      scheduleSyncDataUpdate();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete variant image" });
@@ -1488,6 +1503,7 @@ export async function registerRoutes(
     try {
       const validated = insertCollectionSchema.parse(req.body);
       const collection = await storage.createCollection(validated);
+      scheduleSyncDataUpdate();
       res.json(collection);
     } catch (error) {
       res.status(400).json({ error: "Invalid collection data" });
@@ -1500,6 +1516,7 @@ export async function registerRoutes(
       if (!collection) {
         return res.status(404).json({ error: "Collection not found" });
       }
+      scheduleSyncDataUpdate();
       res.json(collection);
     } catch (error) {
       res.status(400).json({ error: "Failed to update collection" });
