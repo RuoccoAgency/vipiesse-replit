@@ -56,6 +56,8 @@ export async function runProductionSync() {
       productCollections: 0,
     };
 
+    await pool.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS season TEXT").catch(() => {});
+
     if (syncData.collections) {
       for (const c of syncData.collections) {
         await pool.query(
@@ -73,9 +75,9 @@ export async function runProductionSync() {
 
     for (const p of syncData.products) {
       await pool.query(
-        `INSERT INTO products (id, name, brand, description, base_price_cents, b2b_price_cents, compare_at_price_cents, active)
+        `INSERT INTO products (id, name, brand, description, base_price_cents, b2b_price_cents, compare_at_price_cents, season, active)
          OVERRIDING SYSTEM VALUE
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (id) DO UPDATE SET
            name = EXCLUDED.name,
            brand = EXCLUDED.brand,
@@ -83,8 +85,9 @@ export async function runProductionSync() {
            base_price_cents = EXCLUDED.base_price_cents,
            b2b_price_cents = EXCLUDED.b2b_price_cents,
            compare_at_price_cents = EXCLUDED.compare_at_price_cents,
+           season = EXCLUDED.season,
            active = EXCLUDED.active`,
-        [p.id, p.name, p.brand, p.description, p.basePriceCents, p.b2bPriceCents, p.compareAtPriceCents, p.active]
+        [p.id, p.name, p.brand, p.description, p.basePriceCents, p.b2bPriceCents, p.compareAtPriceCents, p.season || null, p.active]
       );
       results.products++;
     }

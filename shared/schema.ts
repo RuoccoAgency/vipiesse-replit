@@ -23,6 +23,7 @@ export const products = pgTable("products", {
   basePriceCents: integer("base_price_cents"), // Default price if variant doesn't have one
   b2bPriceCents: integer("b2b_price_cents"), // Discounted B2B price (nullable)
   compareAtPriceCents: integer("compare_at_price_cents"), // Original price before discount (for outlet)
+  season: text("season"), // "primavera-estate" or "autunno-inverno"
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

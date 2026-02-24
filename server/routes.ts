@@ -2699,6 +2699,14 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                   <option value="false" ${!product.active ? 'selected' : ''}>No</option>
                 </select>
               </div>
+              <div class="form-group">
+                <label>Stagione</label>
+                <select id="season">
+                  <option value="" ${!product.season ? 'selected' : ''}>-- Nessuna --</option>
+                  <option value="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}>Primavera / Estate</option>
+                  <option value="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}>Autunno / Inverno</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
               <label>Description</label>
@@ -2954,12 +2962,14 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
           
           const basePriceInput = document.getElementById('basePrice').value;
           const compareAtPriceInput = document.getElementById('compareAtPrice').value;
+          const seasonVal = document.getElementById('season').value;
           const data = {
             name: document.getElementById('name').value,
             brand: document.getElementById('brand').value || null,
             description: document.getElementById('description').value || null,
             basePriceCents: parsePrice(basePriceInput),
             compareAtPriceCents: parsePrice(compareAtPriceInput),
+            season: seasonVal || null,
             active: document.getElementById('active').value === 'true'
           };
           

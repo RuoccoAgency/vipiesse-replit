@@ -22,6 +22,7 @@ export function Shop({ collection }: ShopProps) {
   const [location] = useLocation();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedSeason, setSelectedSeason] = useState<string>("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
   const [sortBy, setSortBy] = useState<string>("newest");
 
@@ -61,6 +62,10 @@ export function Shop({ collection }: ShopProps) {
       });
     }
 
+    if (selectedSeason) {
+      result = result.filter((p: any) => p.season === selectedSeason);
+    }
+
     if (priceRange[0] > 0 || priceRange[1] < priceStats.max) {
       result = result.filter((p: any) => {
         const price = (p.basePriceCents || 0) / 100;
@@ -85,7 +90,7 @@ export function Shop({ collection }: ShopProps) {
     }
 
     return result;
-  }, [products, selectedBrands, priceRange, priceStats.max, sortBy]);
+  }, [products, selectedBrands, selectedSeason, priceRange, priceStats.max, sortBy]);
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => 
@@ -97,10 +102,11 @@ export function Shop({ collection }: ShopProps) {
 
   const clearFilters = () => {
     setSelectedBrands([]);
+    setSelectedSeason("");
     setPriceRange([0, priceStats.max]);
   };
 
-  const activeFiltersCount = selectedBrands.length + (priceRange[0] > 0 || priceRange[1] < priceStats.max ? 1 : 0);
+  const activeFiltersCount = selectedBrands.length + (selectedSeason ? 1 : 0) + (priceRange[0] > 0 || priceRange[1] < priceStats.max ? 1 : 0);
 
   const title = collection 
     ? collection.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
@@ -197,6 +203,42 @@ export function Shop({ collection }: ShopProps) {
                 )}
 
                 <div>
+                  <h3 className="font-bold text-sm uppercase tracking-wide mb-3">Stagione</h3>
+                  <div className="space-y-2">
+                    {[
+                      { value: "", label: "Tutte" },
+                      { value: "primavera-estate", label: "Primavera / Estate" },
+                      { value: "autunno-inverno", label: "Autunno / Inverno" },
+                    ].map((option) => (
+                      <label 
+                        key={option.value} 
+                        className="flex items-center gap-3 cursor-pointer group"
+                      >
+                        <div className={cn(
+                          "w-5 h-5 border-2 rounded-full flex items-center justify-center transition-colors",
+                          selectedSeason === option.value
+                            ? "bg-gray-900 border-gray-900" 
+                            : "border-gray-300 group-hover:border-gray-400"
+                        )}>
+                          {selectedSeason === option.value && (
+                            <div className="w-2 h-2 bg-white rounded-full" />
+                          )}
+                        </div>
+                        <span className="text-sm text-gray-700">{option.label}</span>
+                        <input
+                          type="radio"
+                          name="season"
+                          checked={selectedSeason === option.value}
+                          onChange={() => setSelectedSeason(option.value)}
+                          className="sr-only"
+                          data-testid={`filter-season-${option.value || 'all'}`}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
                   <h3 className="font-bold text-sm uppercase tracking-wide mb-3">Prezzo</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -263,6 +305,15 @@ export function Shop({ collection }: ShopProps) {
               <X className="w-3 h-3" />
             </button>
           ))}
+          {selectedSeason && (
+            <button
+              onClick={() => setSelectedSeason("")}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200 transition-colors"
+            >
+              {selectedSeason === 'primavera-estate' ? 'Primavera / Estate' : 'Autunno / Inverno'}
+              <X className="w-3 h-3" />
+            </button>
+          )}
           {(priceRange[0] > 0 || priceRange[1] < priceStats.max) && (
             <button
               onClick={() => setPriceRange([0, priceStats.max])}
