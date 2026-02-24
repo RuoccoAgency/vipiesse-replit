@@ -26,27 +26,7 @@ export async function runProductionSync() {
     const { Pool } = await import("pg");
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-    const countResult = await pool.query("SELECT COUNT(*) as cnt FROM products");
-    const currentCount = Number(countResult.rows[0]?.cnt || 0);
-    const expectedCount = syncData.products.length;
-
-    const variantCountResult = await pool.query("SELECT COUNT(*) as cnt FROM product_variants");
-    const currentVariants = Number(variantCountResult.rows[0]?.cnt || 0);
-    const expectedVariants = syncData.variants?.length || 0;
-
-    const pcCountResult = await pool.query("SELECT COUNT(*) as cnt FROM product_collections");
-    const currentPCs = Number(pcCountResult.rows[0]?.cnt || 0);
-    const expectedPCs = syncData.productCollections?.length || 0;
-
-    const needsSync = currentCount < expectedCount || currentVariants < expectedVariants || currentPCs < expectedPCs;
-
-    if (!needsSync) {
-      console.log(`[ProductionSync] Data appears up-to-date (${currentCount} products, ${currentVariants} variants, ${currentPCs} collection assignments). Skipping sync.`);
-      await pool.end();
-      return;
-    }
-
-    console.log(`[ProductionSync] Syncing data: products=${currentCount}/${expectedCount}, variants=${currentVariants}/${expectedVariants}, collections=${currentPCs}/${expectedPCs}`);
+    console.log(`[ProductionSync] Running full data sync (${syncData.products.length} products, ${syncData.variants?.length || 0} variants)...`);
 
     const results = {
       collections: 0,
@@ -94,17 +74,22 @@ export async function runProductionSync() {
     console.log(`[ProductionSync] Synced ${results.products} products`);
 
     for (const v of syncData.variants) {
-      const existing = await pool.query("SELECT id FROM product_variants WHERE sku = $1", [v.sku]);
-      if (existing.rows.length === 0) {
-        await pool.query(
-          `INSERT INTO product_variants (product_id, color, size, sku, stock_qty, price_cents, image_url, active)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [v.productId, v.color, v.size, v.sku, v.stockQty, v.priceCents, v.imageUrl, v.active !== false]
-        );
-        results.variants++;
-      }
+      await pool.query(
+        `INSERT INTO product_variants (product_id, color, size, sku, stock_qty, price_cents, image_url, active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (sku) DO UPDATE SET
+           product_id = EXCLUDED.product_id,
+           color = EXCLUDED.color,
+           size = EXCLUDED.size,
+           stock_qty = EXCLUDED.stock_qty,
+           price_cents = EXCLUDED.price_cents,
+           image_url = EXCLUDED.image_url,
+           active = EXCLUDED.active`,
+        [v.productId, v.color, v.size, v.sku, v.stockQty, v.priceCents, v.imageUrl, v.active !== false]
+      );
+      results.variants++;
     }
-    console.log(`[ProductionSync] Inserted ${results.variants} new variants`);
+    console.log(`[ProductionSync] Synced ${results.variants} variants`);
 
     for (const img of syncData.images) {
       const existing = await pool.query(

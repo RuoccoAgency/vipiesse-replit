@@ -8,6 +8,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -18,6 +19,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -28,6 +30,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -38,6 +41,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -48,6 +52,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -58,6 +63,7 @@
       "basePriceCents": 1750,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -68,6 +74,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -78,6 +85,7 @@
       "basePriceCents": 1990,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -88,6 +96,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -98,6 +107,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -108,6 +118,7 @@
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -118,6 +129,7 @@
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -128,6 +140,7 @@
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -138,6 +151,7 @@
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -148,6 +162,7 @@
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -158,6 +173,7 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -168,6 +184,7 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -178,6 +195,7 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -188,16 +206,18 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 23,
       "name": "Ciabatta punta aperta Donna De Fonseca",
-      "brand": "de fonseca",
+      "brand": "de fonseca (BARI TOP W318)",
       "description": "Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito",
       "basePriceCents": 750,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1500,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -208,6 +228,7 @@
       "basePriceCents": 774,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1290,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -218,16 +239,18 @@
       "basePriceCents": 954,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1590,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 26,
       "name": "Scarpe da uomo Le Soft",
-      "brand": "LE SOFT",
+      "brand": "LE SOFT (24 PV)",
       "description": "Suola GOMMA\nEsterno\tCANVAS\nSottopiede COTONE",
       "basePriceCents": 954,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1590,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -238,6 +261,7 @@
       "basePriceCents": 745,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1490,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -248,6 +272,7 @@
       "basePriceCents": 750,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1500,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -258,6 +283,7 @@
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -268,6 +294,7 @@
       "basePriceCents": 1990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -278,6 +305,7 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -288,6 +316,7 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
+      "season": "autunno-inverno",
       "active": true
     },
     {
@@ -298,6 +327,62 @@
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1650,
+      "season": "primavera-estate",
+      "active": true
+    },
+    {
+      "id": 34,
+      "name": "Pantofole Donna De Fonseca",
+      "brand": "de fonseca (RHO E W930)",
+      "description": "Suola TXT\nEsterno\tCanvas\nSottopiede Canvas imbottito\nTacco 2 cm\nPlateau\t1.5 cm",
+      "basePriceCents": 990,
+      "b2bPriceCents": null,
+      "compareAtPriceCents": null,
+      "season": "primavera-estate",
+      "active": true
+    },
+    {
+      "id": 35,
+      "name": "Pantofole Uomo De Fonseca",
+      "brand": "de fonseca (TRENTOP M20)",
+      "description": "Suola GOMMA\nEsterno\tTESSUTO\nINTERNO\tTEDDY",
+      "basePriceCents": 2090,
+      "b2bPriceCents": null,
+      "compareAtPriceCents": null,
+      "season": "autunno-inverno",
+      "active": true
+    },
+    {
+      "id": 36,
+      "name": "Pantofole Uomo De Fonseca\t",
+      "brand": "de fonseca (ROMA TOPP M11)",
+      "description": "Suola Gomma\nEsterno\tCotone\nSOTTOPIEDE COTONE IMBOTTITO",
+      "basePriceCents": 1430,
+      "b2bPriceCents": null,
+      "compareAtPriceCents": null,
+      "season": "primavera-estate",
+      "active": true
+    },
+    {
+      "id": 37,
+      "name": "Scarpa da donna Mares in gomma\t",
+      "brand": "mares (440599)",
+      "description": "Suola GOMMA\nEsterno\tGOMMA\nSottopiede GOMMA",
+      "basePriceCents": 750,
+      "b2bPriceCents": null,
+      "compareAtPriceCents": 1490,
+      "season": "primavera-estate",
+      "active": true
+    },
+    {
+      "id": 38,
+      "name": "infradito da uomo Fass in gomma",
+      "brand": "fass ",
+      "description": "Suola GOMMA\nEsterno\tGOMMA\nSottopiede GOMMA",
+      "basePriceCents": 595,
+      "b2bPriceCents": null,
+      "compareAtPriceCents": 1190,
+      "season": "primavera-estate",
       "active": true
     }
   ],
@@ -3623,6 +3708,589 @@
       "priceCents": null,
       "imageUrl": "/uploads/b31076cf-4c48-4ced-aad3-920aba72395b.png",
       "active": true
+    },
+    {
+      "id": 473,
+      "productId": 34,
+      "color": "BLU",
+      "size": "36/37",
+      "sku": "RHOEW930BL36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 474,
+      "productId": 34,
+      "color": "BLU",
+      "size": "38/39",
+      "sku": "RHOEW930BL38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 475,
+      "productId": 34,
+      "color": "BLU",
+      "size": "40/41",
+      "sku": "RHOEW930BL40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 476,
+      "productId": 34,
+      "color": "ROSA",
+      "size": "36/37",
+      "sku": "RHOEW930RO36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 477,
+      "productId": 34,
+      "color": "ROSA",
+      "size": "38/39",
+      "sku": "RHOEW930RO38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 478,
+      "productId": 34,
+      "color": "ROSA",
+      "size": "40/41",
+      "sku": "RHOEW930RO40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 479,
+      "productId": 34,
+      "color": "GRIGIO",
+      "size": "36/37",
+      "sku": "RHOEW930GR36/37",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 480,
+      "productId": 34,
+      "color": "GRIGIO",
+      "size": "38/39",
+      "sku": "RHOEW930GR38/39",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 481,
+      "productId": 34,
+      "color": "GRIGIO",
+      "size": "40/41",
+      "sku": "RHOEW930GR40/41",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": 482,
+      "productId": 35,
+      "color": "BLU",
+      "size": "40",
+      "sku": "TRENTOPM20BL40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/c8ee496a-2cb1-4e88-8709-5ff4463aeea5.jpg",
+      "active": true
+    },
+    {
+      "id": 483,
+      "productId": 35,
+      "color": "BLU",
+      "size": "41",
+      "sku": "TRENTOPM20BL41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/c8ee496a-2cb1-4e88-8709-5ff4463aeea5.jpg",
+      "active": true
+    },
+    {
+      "id": 484,
+      "productId": 35,
+      "color": "BLU",
+      "size": "42",
+      "sku": "TRENTOPM20BL42",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/c8ee496a-2cb1-4e88-8709-5ff4463aeea5.jpg",
+      "active": true
+    },
+    {
+      "id": 485,
+      "productId": 35,
+      "color": "BLU",
+      "size": "43",
+      "sku": "TRENTOPM20BL43",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/c8ee496a-2cb1-4e88-8709-5ff4463aeea5.jpg",
+      "active": true
+    },
+    {
+      "id": 486,
+      "productId": 35,
+      "color": "BLU",
+      "size": "44",
+      "sku": "TRENTOPM20BL44",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/c8ee496a-2cb1-4e88-8709-5ff4463aeea5.jpg",
+      "active": true
+    },
+    {
+      "id": 487,
+      "productId": 35,
+      "color": "BLU",
+      "size": "45",
+      "sku": "TRENTOPM20BL45",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/c8ee496a-2cb1-4e88-8709-5ff4463aeea5.jpg",
+      "active": true
+    },
+    {
+      "id": 488,
+      "productId": 35,
+      "color": "CAMMELLO",
+      "size": "41",
+      "sku": "TRENTOPM20CA41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/c198d6c9-e912-4330-95b8-0eb009b77d02.jpg",
+      "active": true
+    },
+    {
+      "id": 489,
+      "productId": 35,
+      "color": "CAMMELLO",
+      "size": "42",
+      "sku": "TRENTOPM20CA42",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/c198d6c9-e912-4330-95b8-0eb009b77d02.jpg",
+      "active": true
+    },
+    {
+      "id": 490,
+      "productId": 35,
+      "color": "CAMMELLO",
+      "size": "43",
+      "sku": "TRENTOPM20CA43",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/c198d6c9-e912-4330-95b8-0eb009b77d02.jpg",
+      "active": true
+    },
+    {
+      "id": 491,
+      "productId": 35,
+      "color": "CAMMELLO",
+      "size": "44",
+      "sku": "TRENTOPM20CA44",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/c198d6c9-e912-4330-95b8-0eb009b77d02.jpg",
+      "active": true
+    },
+    {
+      "id": 492,
+      "productId": 35,
+      "color": "GRIGIO",
+      "size": "40",
+      "sku": "TRENTOPM20GR40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f3d73d49-bfcd-43de-b2b9-3da4c740ccee.jpg",
+      "active": true
+    },
+    {
+      "id": 493,
+      "productId": 35,
+      "color": "GRIGIO",
+      "size": "41",
+      "sku": "TRENTOPM20GR41",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f3d73d49-bfcd-43de-b2b9-3da4c740ccee.jpg",
+      "active": true
+    },
+    {
+      "id": 494,
+      "productId": 35,
+      "color": "GRIGIO",
+      "size": "42",
+      "sku": "TRENTOPM20GR42",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f3d73d49-bfcd-43de-b2b9-3da4c740ccee.jpg",
+      "active": true
+    },
+    {
+      "id": 495,
+      "productId": 35,
+      "color": "GRIGIO",
+      "size": "43",
+      "sku": "TRENTOPM20GR43",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f3d73d49-bfcd-43de-b2b9-3da4c740ccee.jpg",
+      "active": true
+    },
+    {
+      "id": 496,
+      "productId": 35,
+      "color": "GRIGIO",
+      "size": "44",
+      "sku": "TRENTOPM20GR44",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f3d73d49-bfcd-43de-b2b9-3da4c740ccee.jpg",
+      "active": true
+    },
+    {
+      "id": 497,
+      "productId": 35,
+      "color": "GRIGIO",
+      "size": "45",
+      "sku": "TRENTOPM20GR45",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/f3d73d49-bfcd-43de-b2b9-3da4c740ccee.jpg",
+      "active": true
+    },
+    {
+      "id": 498,
+      "productId": 36,
+      "color": "BLU SCURO",
+      "size": "39/40",
+      "sku": "ROMATOPPM11BLS39/40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/a29ef7fa-6bb0-49d3-ae46-f1003f8d7a9d.jpg",
+      "active": true
+    },
+    {
+      "id": 499,
+      "productId": 36,
+      "color": "BLU SCURO",
+      "size": "41/42",
+      "sku": "ROMATOPPM11BLS41/42",
+      "stockQty": 5,
+      "priceCents": null,
+      "imageUrl": "/uploads/a29ef7fa-6bb0-49d3-ae46-f1003f8d7a9d.jpg",
+      "active": true
+    },
+    {
+      "id": 500,
+      "productId": 36,
+      "color": "BLU SCURO",
+      "size": "43/44",
+      "sku": "ROMATOPPM11BLS43/44",
+      "stockQty": 5,
+      "priceCents": null,
+      "imageUrl": "/uploads/a29ef7fa-6bb0-49d3-ae46-f1003f8d7a9d.jpg",
+      "active": true
+    },
+    {
+      "id": 501,
+      "productId": 36,
+      "color": "BLU SCURO",
+      "size": "45/46",
+      "sku": "ROMATOPPM11BLS45/46",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/a29ef7fa-6bb0-49d3-ae46-f1003f8d7a9d.jpg",
+      "active": true
+    },
+    {
+      "id": 502,
+      "productId": 36,
+      "color": "BLU",
+      "size": "39/40",
+      "sku": "ROMATOPPM11BL39/40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/0b89c7bc-b88e-4017-9ab0-fa152781bb57.jpg",
+      "active": true
+    },
+    {
+      "id": 503,
+      "productId": 36,
+      "color": "BLU",
+      "size": "41/42",
+      "sku": "ROMATOPPM11BL41/42",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/0b89c7bc-b88e-4017-9ab0-fa152781bb57.jpg",
+      "active": true
+    },
+    {
+      "id": 504,
+      "productId": 36,
+      "color": "BLU",
+      "size": "43/44",
+      "sku": "ROMATOPPM11BL43/44",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/0b89c7bc-b88e-4017-9ab0-fa152781bb57.jpg",
+      "active": true
+    },
+    {
+      "id": 505,
+      "productId": 36,
+      "color": "GRIGIO",
+      "size": "41/42",
+      "sku": "ROMATOPPM11GR41/42",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/d1faf647-3b61-420a-b9dd-ae40351ffee1.jpg",
+      "active": true
+    },
+    {
+      "id": 506,
+      "productId": 36,
+      "color": "GRIGIO",
+      "size": "43/44",
+      "sku": "ROMATOPPM11GR43/44",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/d1faf647-3b61-420a-b9dd-ae40351ffee1.jpg",
+      "active": true
+    },
+    {
+      "id": 507,
+      "productId": 36,
+      "color": "GRIGIO",
+      "size": "45/46",
+      "sku": "ROMATOPPM11GR45/46",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/d1faf647-3b61-420a-b9dd-ae40351ffee1.jpg",
+      "active": true
+    },
+    {
+      "id": 508,
+      "productId": 37,
+      "color": "BLU",
+      "size": "35",
+      "sku": "440599BL35",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/d728c362-3ea9-4484-b7e1-bf3ba11502a4.png",
+      "active": true
+    },
+    {
+      "id": 509,
+      "productId": 37,
+      "color": "BLU",
+      "size": "36",
+      "sku": "440599BL36",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/d728c362-3ea9-4484-b7e1-bf3ba11502a4.png",
+      "active": true
+    },
+    {
+      "id": 510,
+      "productId": 37,
+      "color": "BLU",
+      "size": "37",
+      "sku": "440599BL37",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/d728c362-3ea9-4484-b7e1-bf3ba11502a4.png",
+      "active": true
+    },
+    {
+      "id": 511,
+      "productId": 37,
+      "color": "BLU",
+      "size": "38",
+      "sku": "440599BL38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/d728c362-3ea9-4484-b7e1-bf3ba11502a4.png",
+      "active": true
+    },
+    {
+      "id": 512,
+      "productId": 37,
+      "color": "BLU",
+      "size": "39",
+      "sku": "440599BL39",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/d728c362-3ea9-4484-b7e1-bf3ba11502a4.png",
+      "active": true
+    },
+    {
+      "id": 513,
+      "productId": 37,
+      "color": "BLU",
+      "size": "40",
+      "sku": "440599BL40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/d728c362-3ea9-4484-b7e1-bf3ba11502a4.png",
+      "active": true
+    },
+    {
+      "id": 514,
+      "productId": 37,
+      "color": "NERO",
+      "size": "35",
+      "sku": "440599NE35",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/e054a9aa-dcde-4211-aaec-8d270ca4bc06.png",
+      "active": true
+    },
+    {
+      "id": 515,
+      "productId": 37,
+      "color": "NERO",
+      "size": "36",
+      "sku": "440599NE36",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/e054a9aa-dcde-4211-aaec-8d270ca4bc06.png",
+      "active": true
+    },
+    {
+      "id": 516,
+      "productId": 37,
+      "color": "NERO",
+      "size": "37",
+      "sku": "440599NE37",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/e054a9aa-dcde-4211-aaec-8d270ca4bc06.png",
+      "active": true
+    },
+    {
+      "id": 517,
+      "productId": 37,
+      "color": "NERO",
+      "size": "38",
+      "sku": "440599NE38",
+      "stockQty": 3,
+      "priceCents": null,
+      "imageUrl": "/uploads/e054a9aa-dcde-4211-aaec-8d270ca4bc06.png",
+      "active": true
+    },
+    {
+      "id": 518,
+      "productId": 37,
+      "color": "NERO",
+      "size": "39",
+      "sku": "440599NE39",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/e054a9aa-dcde-4211-aaec-8d270ca4bc06.png",
+      "active": true
+    },
+    {
+      "id": 519,
+      "productId": 37,
+      "color": "NERO",
+      "size": "40",
+      "sku": "440599NE40",
+      "stockQty": 1,
+      "priceCents": null,
+      "imageUrl": "/uploads/e054a9aa-dcde-4211-aaec-8d270ca4bc06.png",
+      "active": true
+    },
+    {
+      "id": 520,
+      "productId": 38,
+      "color": "BLU",
+      "size": "40",
+      "sku": "FAS1419BL40",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f41c74f0-2039-4486-a898-f6033b0f07e4.png",
+      "active": true
+    },
+    {
+      "id": 521,
+      "productId": 38,
+      "color": "BLU",
+      "size": "41",
+      "sku": "FAS1419BL41",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/f41c74f0-2039-4486-a898-f6033b0f07e4.png",
+      "active": true
+    },
+    {
+      "id": 522,
+      "productId": 38,
+      "color": "BLU",
+      "size": "42",
+      "sku": "FAS1419BL42",
+      "stockQty": 6,
+      "priceCents": null,
+      "imageUrl": "/uploads/f41c74f0-2039-4486-a898-f6033b0f07e4.png",
+      "active": true
+    },
+    {
+      "id": 523,
+      "productId": 38,
+      "color": "BLU",
+      "size": "43",
+      "sku": "FAS1419BL43",
+      "stockQty": 6,
+      "priceCents": null,
+      "imageUrl": "/uploads/f41c74f0-2039-4486-a898-f6033b0f07e4.png",
+      "active": true
+    },
+    {
+      "id": 524,
+      "productId": 38,
+      "color": "BLU",
+      "size": "44",
+      "sku": "FAS1419BL44",
+      "stockQty": 4,
+      "priceCents": null,
+      "imageUrl": "/uploads/f41c74f0-2039-4486-a898-f6033b0f07e4.png",
+      "active": true
+    },
+    {
+      "id": 525,
+      "productId": 38,
+      "color": "BLU",
+      "size": "45",
+      "sku": "FAS1419BL45",
+      "stockQty": 2,
+      "priceCents": null,
+      "imageUrl": "/uploads/f41c74f0-2039-4486-a898-f6033b0f07e4.png",
+      "active": true
     }
   ],
   "images": [
@@ -4807,6 +5475,192 @@
       "productId": 33,
       "imageUrl": "/uploads/3fbe306e-4b2f-4bf2-85d3-2f040c0e91d0.png",
       "sortOrder": 4
+    },
+    {
+      "id": 374,
+      "productId": 34,
+      "imageUrl": "/uploads/15ac2489-c7a8-4a16-b1dc-82d3247f228c.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 375,
+      "productId": 34,
+      "imageUrl": "/uploads/a02e427b-18fd-4a6f-af14-e157c0ffc634.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 376,
+      "productId": 34,
+      "imageUrl": "/uploads/ed1c88ab-a826-4023-b687-66b5aeef4bac.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 377,
+      "productId": 34,
+      "imageUrl": "/uploads/0f65a720-1d89-4d25-8c41-cd7e8e9e4dcd.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 378,
+      "productId": 34,
+      "imageUrl": "/uploads/1c5f135f-da3a-4c50-badf-4d4c1e794011.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 380,
+      "productId": 34,
+      "imageUrl": "/uploads/0424710c-39b3-4354-9726-98f9e4bc8b3c.png",
+      "sortOrder": 8
+    },
+    {
+      "id": 381,
+      "productId": 34,
+      "imageUrl": "/uploads/ecd60cda-01d7-4234-9b1f-b1045479b5a1.png",
+      "sortOrder": 9
+    },
+    {
+      "id": 382,
+      "productId": 34,
+      "imageUrl": "/uploads/d3bf36d3-78bf-4628-a918-94e74351254b.png",
+      "sortOrder": 10
+    },
+    {
+      "id": 383,
+      "productId": 35,
+      "imageUrl": "/uploads/607cccf0-2912-4bd2-ad9b-85ef29f3fe16.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 384,
+      "productId": 35,
+      "imageUrl": "/uploads/faa1b15d-fa4b-4921-b8a9-df49cddbcc27.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 385,
+      "productId": 35,
+      "imageUrl": "/uploads/49cf1f3f-a41e-4cb1-a3a7-e3f2dbbde5ef.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 386,
+      "productId": 35,
+      "imageUrl": "/uploads/2de87871-9413-46aa-9169-051f634adf75.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 387,
+      "productId": 35,
+      "imageUrl": "/uploads/76e8a4cc-19f7-494d-b3d0-2b27f0e03bd6.jpg",
+      "sortOrder": 4
+    },
+    {
+      "id": 388,
+      "productId": 35,
+      "imageUrl": "/uploads/6f08c30e-4a06-4043-ac6e-cc5124c93f07.jpg",
+      "sortOrder": 5
+    },
+    {
+      "id": 391,
+      "productId": 36,
+      "imageUrl": "/uploads/e0b07d44-4853-4066-bf8d-5e551eccd8f8.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 392,
+      "productId": 36,
+      "imageUrl": "/uploads/4e5e4dbf-e298-4868-bba3-f513c78356eb.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 393,
+      "productId": 36,
+      "imageUrl": "/uploads/a39f2542-6492-41d5-8618-65b3ccc1d544.jpg",
+      "sortOrder": 4
+    },
+    {
+      "id": 394,
+      "productId": 36,
+      "imageUrl": "/uploads/a8da47dc-1981-4894-bc66-008d90243ca1.jpg",
+      "sortOrder": 5
+    },
+    {
+      "id": 395,
+      "productId": 36,
+      "imageUrl": "/uploads/c68d0a1a-c00f-4d9e-9d4e-48d0dc09e3a1.jpg",
+      "sortOrder": 6
+    },
+    {
+      "id": 396,
+      "productId": 36,
+      "imageUrl": "/uploads/ecda3a5f-a45e-4e7f-a29c-a551a909936a.jpg",
+      "sortOrder": 7
+    },
+    {
+      "id": 397,
+      "productId": 36,
+      "imageUrl": "/uploads/7125ceca-a5f2-4437-a439-cef1b7cb4a6e.jpg",
+      "sortOrder": 8
+    },
+    {
+      "id": 399,
+      "productId": 37,
+      "imageUrl": "/uploads/c9b1093a-84d3-475e-8b8b-88547c8e4f2b.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 400,
+      "productId": 37,
+      "imageUrl": "/uploads/d32a1a0f-9e69-4d32-a307-8919d8e12914.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 401,
+      "productId": 37,
+      "imageUrl": "/uploads/381f5908-0c59-4f29-b963-e527540e24c8.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 402,
+      "productId": 37,
+      "imageUrl": "/uploads/4379a708-55af-4fa2-99a8-99a4cbbec556.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 403,
+      "productId": 37,
+      "imageUrl": "/uploads/4fcdc170-cdae-45a7-bce0-7289b95e147f.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 404,
+      "productId": 37,
+      "imageUrl": "/uploads/954dd885-c2a4-4add-a413-b40df95ef19a.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 405,
+      "productId": 38,
+      "imageUrl": "/uploads/e95a6851-3c1c-451b-8f56-acf96a311669.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 406,
+      "productId": 38,
+      "imageUrl": "/uploads/38033d99-eac0-4fdd-88d3-c7ef9bedc2ee.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 407,
+      "productId": 38,
+      "imageUrl": "/uploads/3e510bdd-366a-4734-91a9-61ee08dc2d02.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 408,
+      "productId": 38,
+      "imageUrl": "/uploads/d3919cbb-0d5d-4a7f-b078-f681c835691c.png",
+      "sortOrder": 3
     }
   ],
   "collections": [
@@ -5135,6 +5989,46 @@
     },
     {
       "productId": 33,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 34,
+      "collectionId": 2,
+      "position": 0
+    },
+    {
+      "productId": 35,
+      "collectionId": 3,
+      "position": 0
+    },
+    {
+      "productId": 36,
+      "collectionId": 1,
+      "position": 1
+    },
+    {
+      "productId": 36,
+      "collectionId": 3,
+      "position": 0
+    },
+    {
+      "productId": 37,
+      "collectionId": 2,
+      "position": 1
+    },
+    {
+      "productId": 37,
+      "collectionId": 5,
+      "position": 0
+    },
+    {
+      "productId": 38,
+      "collectionId": 3,
+      "position": 1
+    },
+    {
+      "productId": 38,
       "collectionId": 5,
       "position": 0
     }

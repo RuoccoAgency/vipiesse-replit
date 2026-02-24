@@ -65,6 +65,8 @@ Preferred communication style: Simple, everyday language.
 - **Dev Server**: Vite with HMR for frontend, tsx for backend
 - **Production Build**: esbuild bundles server, Vite builds client to `dist/`
 - **Static Serving**: Express serves built client from `dist/public`
+- **Auto Sync**: Build process (`script/build.ts`) automatically generates `server/sync-data.json` from the development database before building. This ensures all products added in the admin panel are included when publishing. No manual sync-data updates needed.
+- **Production Sync**: On startup in production, `server/production-sync.ts` reads `sync-data.json` and upserts all data into the production database (always runs full sync).
 
 ### Project Structure
 ```
