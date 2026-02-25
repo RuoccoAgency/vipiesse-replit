@@ -10,6 +10,7 @@ The application supports:
 - Admin panel for product and collection management
 - B2B business area for wholesale customers
 - Multi-collection product organization (products can belong to multiple collections)
+- Coupon code system (VIPIESSE1STORD: 20% off first order per user)
 
 ## User Preferences
 
@@ -45,8 +46,9 @@ Preferred communication style: Simple, everyday language.
   - `variant_images`: Images specific to a variant/color
   - `collections`: Product groupings (best sellers, outlet, seasonal, etc.)
   - `product_collections`: Many-to-many junction table with position ordering
-  - `orders`: Customer orders with status, contact info, shipping address
+  - `orders`: Customer orders with status, contact info, shipping address, coupon/discount fields
   - `order_items`: Order line items referencing variant_id with price snapshot
+  - `coupon_usages`: Tracks coupon usage per user (one-time use enforcement)
   - `sessions`: Admin authentication sessions
 
 ### Product/Variant Model (Shopify-style)

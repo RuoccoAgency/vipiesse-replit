@@ -25,6 +25,8 @@ interface OrderWithItems {
   totalCents: number;
   subtotalCents: number;
   shippingCents: number;
+  discountCents: number;
+  couponCode: string | null;
   createdAt: string;
   customerName: string;
   customerSurname?: string;
@@ -235,6 +237,12 @@ export function OrderDetail() {
               <span className="text-gray-500">Subtotale</span>
               <span>€{(order.subtotalCents / 100).toFixed(2)}</span>
             </div>
+            {order.discountCents > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>Sconto {order.couponCode ? `(${order.couponCode})` : ''}</span>
+                <span>-€{(order.discountCents / 100).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Spedizione</span>
               <span>{order.shippingCents === 0 ? 'Gratuita' : `€${(order.shippingCents / 100).toFixed(2)}`}</span>

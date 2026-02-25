@@ -9,7 +9,7 @@ import { useAuth } from "@/context/auth-context";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { Loader2, Building2, CreditCard, AlertCircle, User, LogIn } from "lucide-react";
+import { Loader2, Building2, CreditCard, AlertCircle, User, LogIn, Tag, Check, X } from "lucide-react";
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Nome richiesto"),
@@ -30,6 +30,45 @@ export function Checkout() {
   const [, navigate] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [couponInput, setCouponInput] = useState("");
+  const [couponValidating, setCouponValidating] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPercent: number } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const discountAmount = appliedCoupon ? subtotal * appliedCoupon.discountPercent / 100 : 0;
+  const finalTotal = total - discountAmount;
+
+  const validateCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponValidating(true);
+    setCouponError(null);
+    try {
+      const res = await fetch('/api/coupon/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code: couponInput.trim() }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setAppliedCoupon({ code: couponInput.trim().toUpperCase(), discountPercent: data.discountPercent });
+        setCouponError(null);
+      } else {
+        setCouponError(data.reason || "Coupon non valido");
+        setAppliedCoupon(null);
+      }
+    } catch {
+      setCouponError("Errore nella validazione del coupon");
+    } finally {
+      setCouponValidating(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  };
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
     resolver: zodResolver(checkoutSchema),
@@ -65,6 +104,7 @@ export function Checkout() {
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           items: stripeItems,
           customerEmail: values.email,
@@ -74,6 +114,7 @@ export function Checkout() {
           shippingAddress: values.address,
           shippingCity: values.city,
           shippingCap: values.zip,
+          couponCode: appliedCoupon?.code || null,
         }),
       });
 
@@ -110,6 +151,7 @@ export function Checkout() {
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           items: orderItems,
           customerEmail: values.email,
@@ -121,6 +163,7 @@ export function Checkout() {
           shippingCap: values.zip,
           status: "awaiting_bank",
           paymentMethod: "bank_transfer",
+          couponCode: appliedCoupon?.code || null,
         }),
       });
 
@@ -383,25 +426,80 @@ export function Checkout() {
                 ))}
               </div>
               
-              <div className="space-y-2 pt-4 border-t border-gray-200">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotale</span>
-                  <span>€{subtotal.toFixed(2)}</span>
+              <div className="pt-4 border-t border-gray-200">
+                <div className="mb-4">
+                  <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5" />
+                    Codice Coupon
+                  </label>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3 mt-1">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700">{appliedCoupon.code}</span>
+                        <span className="text-xs text-green-600">(-{appliedCoupon.discountPercent}%)</span>
+                      </div>
+                      <button onClick={removeCoupon} className="text-gray-400 hover:text-red-500 transition-colors" data-testid="button-remove-coupon">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 mt-1">
+                      <Input
+                        placeholder="Inserisci codice"
+                        value={couponInput}
+                        onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
+                        onKeyDown={(e) => e.key === 'Enter' && validateCoupon()}
+                        className="bg-white border-gray-300 focus:border-gray-900 h-9 text-sm uppercase"
+                        data-testid="input-coupon"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={validateCoupon}
+                        disabled={couponValidating || !couponInput.trim()}
+                        className="h-9 px-4 whitespace-nowrap"
+                        data-testid="button-apply-coupon"
+                      >
+                        {couponValidating ? <Loader2 className="w-3 h-3 animate-spin" /> : "Applica"}
+                      </Button>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {couponError}
+                    </p>
+                  )}
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Spedizione</span>
-                  <span className={shippingCost === 0 ? "text-green-600 font-medium" : ""}>
-                    {shippingCost === 0 ? "Gratis" : `€${shippingCost.toFixed(2)}`}
-                  </span>
-                </div>
-                {shippingCost > 0 && (
-                  <p className="text-xs text-gray-500">
-                    Spedizione gratuita per ordini sopra €50
-                  </p>
-                )}
-                <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-200">
-                  <span>Totale</span>
-                  <span>€{total.toFixed(2)}</span>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotale</span>
+                    <span>€{subtotal.toFixed(2)}</span>
+                  </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Sconto ({appliedCoupon.discountPercent}%)</span>
+                      <span>-€{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-gray-600">
+                    <span>Spedizione</span>
+                    <span className={shippingCost === 0 ? "text-green-600 font-medium" : ""}>
+                      {shippingCost === 0 ? "Gratis" : `€${shippingCost.toFixed(2)}`}
+                    </span>
+                  </div>
+                  {shippingCost > 0 && (
+                    <p className="text-xs text-gray-500">
+                      Spedizione gratuita per ordini sopra €50
+                    </p>
+                  )}
+                  <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-200">
+                    <span>Totale</span>
+                    <span>€{finalTotal.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -482,12 +580,12 @@ export function Checkout() {
                   ) : paymentMethod === 'card' ? (
                     <>
                       <CreditCard className="w-4 h-4 mr-2" />
-                      Paga con Carta - €{total.toFixed(2)}
+                      Paga con Carta - €{finalTotal.toFixed(2)}
                     </>
                   ) : (
                     <>
                       <Building2 className="w-4 h-4 mr-2" />
-                      Conferma Ordine - €{total.toFixed(2)}
+                      Conferma Ordine - €{finalTotal.toFixed(2)}
                     </>
                   )}
                 </Button>

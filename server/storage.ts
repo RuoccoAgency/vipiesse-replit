@@ -13,6 +13,7 @@ import {
   savedItems,
   businessRequests,
   productReviews,
+  couponUsages,
   type Product, 
   type InsertProduct,
   type ProductVariant,
@@ -36,7 +37,8 @@ import {
   type InsertProductReview,
   type User,
   type ContactMessage,
-  type SavedItem
+  type SavedItem,
+  type CouponUsage
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, inArray, desc, asc, gte, sql } from "drizzle-orm";
@@ -124,6 +126,8 @@ export interface IStorage {
       shippingCap?: string | null;
       subtotalCents: number;
       shippingCents: number;
+      discountCents?: number;
+      couponCode?: string | null;
       totalCents: number;
     },
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
@@ -145,6 +149,8 @@ export interface IStorage {
       shippingCap?: string | null;
       subtotalCents: number;
       shippingCents: number;
+      discountCents?: number;
+      couponCode?: string | null;
       totalCents: number;
     },
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
@@ -213,6 +219,11 @@ export interface IStorage {
   createProductReview(data: InsertProductReview): Promise<ProductReview>;
   getApprovedReviewsByProduct(productId: number): Promise<ProductReview[]>;
   getReviewSummary(productId: number): Promise<{ averageRating: number; totalReviews: number; ratingBreakdown: Record<number, number> }>;
+
+  // Coupon
+  hasCouponBeenUsed(userId: number, code: string): Promise<boolean>;
+  recordCouponUsage(userId: number, code: string, orderId: number): Promise<CouponUsage>;
+  getUserCompletedOrderCount(userId: number): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -586,6 +597,8 @@ export class DatabaseStorage implements IStorage {
       shippingCap?: string | null;
       subtotalCents: number;
       shippingCents: number;
+      discountCents?: number;
+      couponCode?: string | null;
       totalCents: number;
     },
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
@@ -624,8 +637,8 @@ export class DatabaseStorage implements IStorage {
       
       // Create the order with all new fields
       const orderResult = await client.query(
-        `INSERT INTO orders (order_number, user_id, status, payment_method, stripe_session_id, customer_email, customer_name, customer_surname, customer_phone, shipping_address, shipping_city, shipping_cap, subtotal_cents, shipping_cents, total_cents, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW()) RETURNING *`,
+        `INSERT INTO orders (order_number, user_id, status, payment_method, stripe_session_id, customer_email, customer_name, customer_surname, customer_phone, shipping_address, shipping_city, shipping_cap, subtotal_cents, shipping_cents, discount_cents, coupon_code, total_cents, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW(), NOW()) RETURNING *`,
         [
           orderData.orderNumber,
           orderData.userId || null,
@@ -641,6 +654,8 @@ export class DatabaseStorage implements IStorage {
           orderData.shippingCap || null,
           orderData.subtotalCents,
           orderData.shippingCents,
+          orderData.discountCents || 0,
+          orderData.couponCode || null,
           orderData.totalCents
         ]
       );
@@ -680,6 +695,8 @@ export class DatabaseStorage implements IStorage {
         notes: newOrder.notes,
         subtotalCents: newOrder.subtotal_cents,
         shippingCents: newOrder.shipping_cents,
+        discountCents: newOrder.discount_cents,
+        couponCode: newOrder.coupon_code,
         totalCents: newOrder.total_cents,
         carrier: newOrder.carrier,
         trackingNumber: newOrder.tracking_number,
@@ -718,6 +735,8 @@ export class DatabaseStorage implements IStorage {
       shippingCap?: string | null;
       subtotalCents: number;
       shippingCents: number;
+      discountCents?: number;
+      couponCode?: string | null;
       totalCents: number;
     },
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
@@ -738,6 +757,8 @@ export class DatabaseStorage implements IStorage {
         shippingCap: orderData.shippingCap || null,
         subtotalCents: orderData.subtotalCents,
         shippingCents: orderData.shippingCents,
+        discountCents: orderData.discountCents || 0,
+        couponCode: orderData.couponCode || null,
         totalCents: orderData.totalCents,
       })
       .returning();
@@ -1122,6 +1143,26 @@ export class DatabaseStorage implements IStorage {
       totalReviews,
       ratingBreakdown
     };
+  }
+
+  async hasCouponBeenUsed(userId: number, code: string): Promise<boolean> {
+    const result = await db.select().from(couponUsages)
+      .where(and(eq(couponUsages.userId, userId), eq(couponUsages.couponCode, code)))
+      .limit(1);
+    return result.length > 0;
+  }
+
+  async recordCouponUsage(userId: number, code: string, orderId: number): Promise<CouponUsage> {
+    const [usage] = await db.insert(couponUsages)
+      .values({ userId, couponCode: code, orderId })
+      .returning();
+    return usage;
+  }
+
+  async getUserCompletedOrderCount(userId: number): Promise<number> {
+    const result = await db.select().from(orders)
+      .where(eq(orders.userId, userId));
+    return result.length;
   }
 }
 

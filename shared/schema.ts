@@ -149,6 +149,8 @@ export const orders = pgTable("orders", {
   notes: text("notes"),
   subtotalCents: integer("subtotal_cents").notNull().default(0),
   shippingCents: integer("shipping_cents").notNull().default(0),
+  discountCents: integer("discount_cents").notNull().default(0),
+  couponCode: text("coupon_code"),
   totalCents: integer("total_cents").notNull().default(0),
   // Tracking fields
   carrier: text("carrier"),
@@ -246,6 +248,26 @@ export const savedItems = pgTable(
     ),
   })
 );
+
+// ================================
+// COUPON USAGES - Track coupon usage per user
+// ================================
+export const couponUsages = pgTable("coupon_usages", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  couponCode: text("coupon_code").notNull(),
+  orderId: integer("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  usedAt: timestamp("used_at").notNull().defaultNow(),
+}, (table) => ({
+  uniqueUserCoupon: uniqueIndex("unique_user_coupon").on(
+    table.userId,
+    table.couponCode
+  ),
+}));
 
 // ================================
 // PRODUCT REVIEWS
@@ -396,6 +418,8 @@ export type ContactMessage = typeof contactMessages.$inferSelect;
 
 export type InsertSavedItem = z.infer<typeof insertSavedItemSchema>;
 export type SavedItem = typeof savedItems.$inferSelect;
+
+export type CouponUsage = typeof couponUsages.$inferSelect;
 
 export type InsertBusinessRequest = z.infer<typeof insertBusinessRequestSchema>;
 export type BusinessRequest = typeof businessRequests.$inferSelect;

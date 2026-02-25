@@ -139,6 +139,48 @@ export async function registerRoutes(
   });
 
   // ================================
+  // COUPON VALIDATION API
+  // ================================
+  
+  const VALID_COUPON_CODE = "VIPIESSE1STORD";
+  const COUPON_DISCOUNT_PERCENT = 20;
+  
+  app.post("/api/coupon/validate", isUser, async (req, res) => {
+    try {
+      const { code } = req.body;
+      
+      if (!code || typeof code !== 'string') {
+        return res.status(400).json({ valid: false, reason: "Codice coupon non valido" });
+      }
+      
+      const normalizedCode = code.trim().toUpperCase();
+      
+      if (normalizedCode !== VALID_COUPON_CODE) {
+        return res.status(200).json({ valid: false, reason: "Codice coupon non riconosciuto" });
+      }
+      
+      if (!req.userId) {
+        return res.status(200).json({ valid: false, reason: "Devi effettuare l'accesso per utilizzare un coupon" });
+      }
+      
+      const alreadyUsed = await storage.hasCouponBeenUsed(req.userId, VALID_COUPON_CODE);
+      if (alreadyUsed) {
+        return res.status(200).json({ valid: false, reason: "Hai già utilizzato questo coupon" });
+      }
+      
+      const orderCount = await storage.getUserCompletedOrderCount(req.userId);
+      if (orderCount > 0) {
+        return res.status(200).json({ valid: false, reason: "Questo coupon è valido solo per il primo ordine" });
+      }
+      
+      return res.status(200).json({ valid: true, discountPercent: COUPON_DISCOUNT_PERCENT });
+    } catch (error) {
+      console.error("Coupon validation error:", error);
+      return res.status(500).json({ valid: false, reason: "Errore nella validazione del coupon" });
+    }
+  });
+
+  // ================================
   // STRIPE CHECKOUT API
   // ================================
   
@@ -148,7 +190,7 @@ export async function registerRoutes(
       const { getStripeClient } = await import("./stripeClient");
       const stripe = await getStripeClient();
       
-      const { items, customerEmail, customerName, customerSurname, customerPhone, shippingAddress, shippingCity, shippingCap } = req.body;
+      const { items, customerEmail, customerName, customerSurname, customerPhone, shippingAddress, shippingCity, shippingCap, couponCode } = req.body;
       
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "Carrello vuoto" });
@@ -213,9 +255,25 @@ export async function registerRoutes(
         });
       }
       
+      // Validate and apply coupon if provided
+      let discountCents = 0;
+      let validatedCoupon: string | null = null;
+      
+      if (couponCode && req.userId) {
+        const normalizedCoupon = couponCode.trim().toUpperCase();
+        if (normalizedCoupon === VALID_COUPON_CODE) {
+          const alreadyUsed = await storage.hasCouponBeenUsed(req.userId, VALID_COUPON_CODE);
+          const orderCount = await storage.getUserCompletedOrderCount(req.userId);
+          if (!alreadyUsed && orderCount === 0) {
+            discountCents = Math.round(subtotalCents * COUPON_DISCOUNT_PERCENT / 100);
+            validatedCoupon = VALID_COUPON_CODE;
+          }
+        }
+      }
+
       // Calculate shipping (free over €50)
       const shippingCents = subtotalCents >= 5000 ? 0 : 590;
-      const totalCents = subtotalCents + shippingCents;
+      const totalCents = subtotalCents - discountCents + shippingCents;
       
       if (shippingCents > 0) {
         lineItems.push({
@@ -246,12 +304,20 @@ export async function registerRoutes(
         shippingCap: shippingCap || null,
         subtotalCents,
         shippingCents,
+        discountCents,
+        couponCode: validatedCoupon,
         totalCents,
       }, orderItems);
 
+      if (validatedCoupon && req.userId) {
+        await storage.recordCouponUsage(req.userId, validatedCoupon, pendingOrder.id).catch(err => 
+          console.error('[Coupon] Failed to record usage on pending order:', err)
+        );
+      }
+
       const baseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host')}`;
       
-      const session = await stripe.checkout.sessions.create({
+      const sessionConfig: any = {
         payment_method_types: ['card'],
         line_items: lineItems,
         mode: 'payment',
@@ -262,7 +328,19 @@ export async function registerRoutes(
           orderId: String(pendingOrder.id),
           orderNumber: pendingOrder.orderNumber,
         },
-      });
+      };
+      
+      if (discountCents > 0) {
+        const stripeCoupon = await stripe.coupons.create({
+          amount_off: discountCents,
+          currency: 'eur',
+          duration: 'once',
+          name: `Sconto ${COUPON_DISCOUNT_PERCENT}% - ${VALID_COUPON_CODE}`,
+        });
+        sessionConfig.discounts = [{ coupon: stripeCoupon.id }];
+      }
+      
+      const session = await stripe.checkout.sessions.create(sessionConfig);
 
       // Update order with Stripe session ID
       await storage.updateOrderStripeSession(pendingOrder.id, session.id);
@@ -519,7 +597,7 @@ export async function registerRoutes(
         }
 
         console.log(`[Stripe Webhook] Order paid successfully: ${order.orderNumber}, paymentMethod=stripe`);
-        
+
         // Send confirmation emails with atomic idempotency guard
         const canSendConfirmation = await storage.claimConfirmationEmail(order.id);
         if (canSendConfirmation) {
@@ -1729,7 +1807,8 @@ export async function registerRoutes(
         shippingCity,
         shippingCap,
         status, 
-        paymentMethod 
+        paymentMethod,
+        couponCode 
       } = req.body;
       
       if (!items || !Array.isArray(items) || items.length === 0) {
@@ -1805,9 +1884,25 @@ export async function registerRoutes(
         });
       }
       
+      // Validate and apply coupon if provided
+      let discountCents = 0;
+      let validatedCoupon: string | null = null;
+      
+      if (couponCode && req.userId) {
+        const normalizedCoupon = couponCode.trim().toUpperCase();
+        if (normalizedCoupon === VALID_COUPON_CODE) {
+          const alreadyUsed = await storage.hasCouponBeenUsed(req.userId, VALID_COUPON_CODE);
+          const orderCount = await storage.getUserCompletedOrderCount(req.userId);
+          if (!alreadyUsed && orderCount === 0) {
+            discountCents = Math.round(subtotalCents * COUPON_DISCOUNT_PERCENT / 100);
+            validatedCoupon = VALID_COUPON_CODE;
+          }
+        }
+      }
+
       // Calculate shipping (free over 50€)
       const shippingCents = subtotalCents >= 5000 ? 0 : 590;
-      const totalCents = subtotalCents + shippingCents;
+      const totalCents = subtotalCents - discountCents + shippingCents;
       
       if (totalCents <= 0) {
         return res.status(400).json({ error: "Il totale dell'ordine non può essere zero" });
@@ -1842,6 +1937,8 @@ export async function registerRoutes(
           shippingCap: shippingCap || null,
           subtotalCents,
           shippingCents,
+          discountCents,
+          couponCode: validatedCoupon,
           totalCents
         },
         orderItems
@@ -1852,6 +1949,12 @@ export async function registerRoutes(
         return res.status(400).json({ error: result.error });
       }
       
+      if (validatedCoupon && userId) {
+        await storage.recordCouponUsage(userId, validatedCoupon, result.order.id).catch(err => 
+          console.error('[Coupon] Failed to record usage:', err)
+        );
+      }
+
       // Send bank transfer instruction email to customer and notify admin
       if (validatedPaymentMethod === 'bank_transfer') {
         const emailData: OrderEmailData = {
