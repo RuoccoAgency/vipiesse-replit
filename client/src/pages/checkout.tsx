@@ -50,7 +50,10 @@ export function Checkout() {
         body: JSON.stringify({ code: couponInput.trim() }),
       });
       const data = await res.json();
-      if (data.valid) {
+      if (!res.ok) {
+        setCouponError(data.error || data.reason || "Devi effettuare l'accesso per utilizzare un coupon");
+        setAppliedCoupon(null);
+      } else if (data.valid) {
         setAppliedCoupon({ code: couponInput.trim().toUpperCase(), discountPercent: data.discountPercent });
         setCouponError(null);
       } else {

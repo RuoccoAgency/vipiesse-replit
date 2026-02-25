@@ -145,12 +145,12 @@ export async function registerRoutes(
   const VALID_COUPON_CODE = "VIPIESSE1STORD";
   const COUPON_DISCOUNT_PERCENT = 20;
   
-  app.post("/api/coupon/validate", isUser, async (req, res) => {
+  app.post("/api/coupon/validate", async (req, res) => {
     try {
       const { code } = req.body;
       
       if (!code || typeof code !== 'string') {
-        return res.status(400).json({ valid: false, reason: "Codice coupon non valido" });
+        return res.status(200).json({ valid: false, reason: "Codice coupon non valido" });
       }
       
       const normalizedCode = code.trim().toUpperCase();
@@ -159,16 +159,25 @@ export async function registerRoutes(
         return res.status(200).json({ valid: false, reason: "Codice coupon non riconosciuto" });
       }
       
-      if (!req.userId) {
+      const sessionId = req.cookies.user_session;
+      let userId: number | null = null;
+      if (sessionId) {
+        const session = await storage.getSession(sessionId);
+        if (session && session.userId && session.expiresAt > new Date()) {
+          userId = session.userId;
+        }
+      }
+      
+      if (!userId) {
         return res.status(200).json({ valid: false, reason: "Devi effettuare l'accesso per utilizzare un coupon" });
       }
       
-      const alreadyUsed = await storage.hasCouponBeenUsed(req.userId, VALID_COUPON_CODE);
+      const alreadyUsed = await storage.hasCouponBeenUsed(userId, VALID_COUPON_CODE);
       if (alreadyUsed) {
         return res.status(200).json({ valid: false, reason: "Hai già utilizzato questo coupon" });
       }
       
-      const orderCount = await storage.getUserCompletedOrderCount(req.userId);
+      const orderCount = await storage.getUserCompletedOrderCount(userId);
       if (orderCount > 0) {
         return res.status(200).json({ valid: false, reason: "Questo coupon è valido solo per il primo ordine" });
       }
@@ -176,7 +185,7 @@ export async function registerRoutes(
       return res.status(200).json({ valid: true, discountPercent: COUPON_DISCOUNT_PERCENT });
     } catch (error) {
       console.error("Coupon validation error:", error);
-      return res.status(500).json({ valid: false, reason: "Errore nella validazione del coupon" });
+      return res.status(200).json({ valid: false, reason: "Errore nella validazione del coupon" });
     }
   });
 
