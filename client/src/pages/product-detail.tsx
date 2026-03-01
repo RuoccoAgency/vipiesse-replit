@@ -311,7 +311,7 @@ export function ProductDetail() {
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      Prezzo più basso degli ultimi 30 giorni: €{(product.compareAtPriceCents / 100).toFixed(2)}
+                      Prezzo più basso degli ultimi 30 giorni: €{displayPrice.toFixed(2)}
                     </p>
                   </div>
                 ) : (

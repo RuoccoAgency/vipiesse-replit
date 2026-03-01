@@ -154,6 +154,9 @@ export function ProductCard({ product, isOutlet }: ProductCardProps) {
                 <span className="text-red-600 font-semibold" data-testid={`text-outlet-price-${product.id}`}>
                   da €{displayPrice.toFixed(2)}
                 </span>
+                <span className="text-xs text-gray-400 line-through">
+                  €{(product.compareAtPriceCents! / 100).toFixed(2)}
+                </span>
               </>
             ) : (
               <span className="text-gray-900 font-medium">
@@ -171,7 +174,7 @@ export function ProductCard({ product, isOutlet }: ProductCardProps) {
           {hasDiscount && (
             <div className="mt-1 space-y-0.5">
               <p className="text-[11px] text-gray-500">
-                Prezzo più basso degli ultimi 30 giorni: <span className="line-through">€{(product.compareAtPriceCents! / 100).toFixed(2)}</span>
+                Prezzo più basso degli ultimi 30 giorni: €{displayPrice.toFixed(2)}
               </p>
               <p className="text-xs font-bold text-red-600">
                 Fino a -{discountPercent}%
