@@ -2353,13 +2353,13 @@ export async function registerRoutes(
         if (existing) {
           await storage.updateProduct(p.id, {
             name: p.name,
-            brand: p.brand,
+            brand: (p as any).brand,
             description: p.description,
             basePriceCents: p.basePriceCents,
             b2bPriceCents: p.b2bPriceCents,
             compareAtPriceCents: p.compareAtPriceCents,
             active: p.active,
-          });
+          } as any);
           results.productsUpdated++;
         } else {
           const { Pool } = await import('pg');
@@ -2394,7 +2394,8 @@ export async function registerRoutes(
             stockQty: v.stockQty,
             priceCents: v.priceCents,
             imageUrl: v.imageUrl,
-          });
+            active: true,
+          } as any);
           results.variantsInserted++;
         }
       }

@@ -45,6 +45,7 @@ interface ProductWithVariants {
   description: string | null;
   basePriceCents: number | null;
   b2bPriceCents?: number | null;
+  compareAtPriceCents: number | null;
   active: boolean;
   variants: ProductVariant[];
   images: ProductImage[];

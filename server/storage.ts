@@ -1,9 +1,9 @@
-import { 
-  products, 
+import {
+  products,
   productVariants,
   productImages,
   variantImages,
-  collections, 
+  collections,
   productCollections,
   orders,
   orderItems,
@@ -14,7 +14,7 @@ import {
   businessRequests,
   productReviews,
   couponUsages,
-  type Product, 
+  type Product,
   type InsertProduct,
   type ProductVariant,
   type InsertProductVariant,
@@ -55,7 +55,7 @@ export interface IStorage {
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<void>;
   getProductByName(name: string): Promise<Product | undefined>;
-  
+
   // Product Variants
   getVariantsByProduct(productId: number): Promise<ProductVariant[]>;
   getVariantById(id: number): Promise<ProductVariant | undefined>;
@@ -63,7 +63,7 @@ export interface IStorage {
   createVariant(variant: InsertProductVariant): Promise<ProductVariant>;
   updateVariant(id: number, variant: Partial<InsertProductVariant>): Promise<ProductVariant | undefined>;
   deleteVariant(id: number): Promise<void>;
-  
+
   // Product Images
   getImagesByProduct(productId: number): Promise<ProductImage[]>;
   getMaxImageSortOrder(productId: number): Promise<number>;
@@ -71,14 +71,14 @@ export interface IStorage {
   updateProductImage(id: number, image: Partial<InsertProductImage>): Promise<ProductImage | undefined>;
   deleteProductImage(id: number): Promise<void>;
   deleteAllProductImages(productId: number): Promise<void>;
-  
+
   // Variant Images
   getImagesByVariant(variantId: number): Promise<VariantImage[]>;
   createVariantImage(image: InsertVariantImage): Promise<VariantImage>;
   updateVariantImage(id: number, image: Partial<InsertVariantImage>): Promise<VariantImage | undefined>;
   deleteVariantImage(id: number): Promise<void>;
   deleteAllVariantImages(variantId: number): Promise<void>;
-  
+
   // Collections
   getAllCollections(): Promise<Collection[]>;
   getCollectionBySlug(slug: string): Promise<Collection | undefined>;
@@ -86,13 +86,13 @@ export interface IStorage {
   createCollection(collection: InsertCollection): Promise<Collection>;
   updateCollection(id: number, collection: Partial<InsertCollection>): Promise<Collection | undefined>;
   deleteCollection(id: number): Promise<void>;
-  
+
   // Product-Collection relationships
   assignProductToCollection(productId: number, collectionId: number, position?: number): Promise<void>;
   removeProductFromCollection(productId: number, collectionId: number): Promise<void>;
   getCollectionsByProduct(productId: number): Promise<Collection[]>;
   clearProductCollections(productId: number): Promise<void>;
-  
+
   // Orders
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderById(id: number): Promise<Order | undefined>;
@@ -102,14 +102,14 @@ export interface IStorage {
   updateOrderPaypalId(orderId: number, paypalOrderId: string): Promise<Order | undefined>;
   getOrderByPaypalId(paypalOrderId: string): Promise<Order | undefined>;
   getOrderByStripeSessionId(stripeSessionId: string): Promise<Order | undefined>;
-  
+
   // Order Items
   createOrderItem(item: InsertOrderItem): Promise<OrderItem>;
   getOrderItems(orderId: number): Promise<OrderItem[]>;
-  
+
   // Stock operations
   decrementStock(variantId: number, quantity: number): Promise<boolean>;
-  
+
   // Transactional order creation
   createOrderWithItems(
     orderData: {
@@ -133,7 +133,7 @@ export interface IStorage {
     },
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
   ): Promise<{ order: Order; items: OrderItem[] } | { error: string }>;
-  
+
   // Create pending order (before Stripe checkout)
   createPendingOrder(
     orderData: {
@@ -156,15 +156,15 @@ export interface IStorage {
     },
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
   ): Promise<Order>;
-  
+
   // Update order with Stripe session ID
   updateOrderStripeSession(orderId: number, stripeSessionId: string): Promise<Order | undefined>;
-  
+
   // Atomically claim the right to send confirmation email (returns true if this caller should send)
   claimConfirmationEmail(orderId: number): Promise<boolean>;
   // Atomically claim the right to send delivered email (returns true if this caller should send)
   claimDeliveredEmail(orderId: number): Promise<boolean>;
-  
+
   // Confirm order payment and decrement stock (transactional)
   confirmOrderPayment(
     orderId: number,
@@ -175,29 +175,29 @@ export interface IStorage {
       estimatedDeliveryDate?: Date;
     }
   ): Promise<{ order: Order } | { error: string }>;
-  
+
   // Sessions
   createSession(email: string, expiresAt: Date, userId?: number, isAdmin?: boolean): Promise<Session>;
   getSession(id: string): Promise<Session | undefined>;
   deleteSession(id: string): Promise<void>;
   deleteExpiredSessions(): Promise<void>;
-  
+
   // Users
   createUser(email: string, passwordHash: string, name: string, surname: string, phone?: string): Promise<User>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getUserById(id: number): Promise<User | undefined>;
-  
+
   // User Orders
   getOrdersByUserId(userId: number): Promise<Order[]>;
   getOrdersByEmail(email: string): Promise<Order[]>;
   getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
   updateOrder(id: number, data: Partial<Order>): Promise<Order | undefined>;
-  
+
   // Contact Messages
   createContactMessage(name: string, email: string, message: string): Promise<ContactMessage>;
   getAllContactMessages(): Promise<ContactMessage[]>;
   updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
-  
+
   // Saved Items (Wishlist)
   getSavedItemsByUser(userId: number): Promise<SavedItem[]>;
   getSavedItemsWithProducts(userId: number): Promise<ProductWithVariants[]>;
@@ -259,14 +259,14 @@ export class DatabaseStorage implements IStorage {
   async getAllProductsWithVariants(): Promise<ProductWithVariants[]> {
     const allProducts = await this.getAllProducts();
     const result: ProductWithVariants[] = [];
-    
+
     for (const product of allProducts) {
       const [variants, images, productCols] = await Promise.all([
         this.getVariantsByProduct(product.id),
         this.getImagesByProduct(product.id),
         this.getCollectionsByProduct(product.id)
       ]);
-      
+
       result.push({
         ...product,
         variants,
@@ -274,18 +274,18 @@ export class DatabaseStorage implements IStorage {
         collections: productCols
       });
     }
-    
+
     return result;
   }
 
   async getProductsByCollection(collectionSlug: string, includeOutlet: boolean = false): Promise<ProductWithVariants[]> {
     const collection = await this.getCollectionBySlug(collectionSlug);
     if (!collection) return [];
-    
+
     const productIds = await db.select({ productId: productCollections.productId })
       .from(productCollections)
       .where(eq(productCollections.collectionId, collection.id));
-    
+
     if (productIds.length === 0) return [];
 
     let excludeIds: number[] = [];
@@ -302,15 +302,15 @@ export class DatabaseStorage implements IStorage {
     const filteredIds = productIds
       .map(p => p.productId)
       .filter(id => !excludeIds.includes(id));
-    
+
     if (filteredIds.length === 0) return [];
-    
+
     const collectionProducts = await db.select().from(products)
       .where(and(
         inArray(products.id, filteredIds),
         eq(products.active, true)
       ));
-    
+
     const result: ProductWithVariants[] = [];
     for (const product of collectionProducts) {
       const [variants, images, productCols] = await Promise.all([
@@ -318,7 +318,7 @@ export class DatabaseStorage implements IStorage {
         this.getImagesByProduct(product.id),
         this.getCollectionsByProduct(product.id)
       ]);
-      
+
       result.push({
         ...product,
         variants,
@@ -326,7 +326,7 @@ export class DatabaseStorage implements IStorage {
         collections: productCols
       });
     }
-    
+
     return result;
   }
 
@@ -503,9 +503,9 @@ export class DatabaseStorage implements IStorage {
     const collectionIds = await db.select({ collectionId: productCollections.collectionId })
       .from(productCollections)
       .where(eq(productCollections.productId, productId));
-    
+
     if (collectionIds.length === 0) return [];
-    
+
     return await db.select().from(collections)
       .where(inArray(collections.id, collectionIds.map(c => c.collectionId)));
   }
@@ -528,7 +528,7 @@ export class DatabaseStorage implements IStorage {
   async getOrderWithItems(id: number): Promise<OrderWithItems | undefined> {
     const order = await this.getOrderById(id);
     if (!order) return undefined;
-    
+
     const items = await this.getOrderItems(id);
     return { ...order, items };
   }
@@ -582,7 +582,7 @@ export class DatabaseStorage implements IStorage {
         gte(productVariants.stockQty, quantity)
       ))
       .returning();
-    
+
     return result.length > 0;
   }
 
@@ -610,29 +610,29 @@ export class DatabaseStorage implements IStorage {
     items: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[]
   ): Promise<{ order: Order; items: OrderItem[] } | { error: string }> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       // Lock and validate all variants with SELECT FOR UPDATE to prevent race conditions
       for (const item of items) {
         const lockResult = await client.query(
           'SELECT id, stock_qty FROM product_variants WHERE id = $1 FOR UPDATE',
           [item.variantId]
         );
-        
+
         if (lockResult.rows.length === 0) {
           await client.query('ROLLBACK');
           return { error: `Variant not found: ${item.variantSku}` };
         }
-        
+
         const currentStock = lockResult.rows[0].stock_qty;
         if (currentStock < item.quantity) {
           await client.query('ROLLBACK');
           return { error: `Insufficient stock for SKU: ${item.variantSku}. Available: ${currentStock}` };
         }
       }
-      
+
       // Decrement stock for all variants (rows are now locked)
       for (const item of items) {
         await client.query(
@@ -640,7 +640,7 @@ export class DatabaseStorage implements IStorage {
           [item.quantity, item.variantId]
         );
       }
-      
+
       // Create the order with all new fields
       const orderResult = await client.query(
         `INSERT INTO orders (order_number, user_id, status, payment_method, stripe_session_id, customer_email, customer_name, customer_surname, customer_phone, shipping_address, shipping_city, shipping_cap, subtotal_cents, shipping_cents, discount_cents, coupon_code, total_cents, created_at, updated_at)
@@ -666,7 +666,7 @@ export class DatabaseStorage implements IStorage {
         ]
       );
       const newOrder = orderResult.rows[0];
-      
+
       // Create order items with image_url
       const createdItems: OrderItem[] = [];
       for (const item of items) {
@@ -677,9 +677,9 @@ export class DatabaseStorage implements IStorage {
         );
         createdItems.push(itemResult.rows[0]);
       }
-      
+
       await client.query('COMMIT');
-      
+
       // Map the raw SQL result to our Order type
       const order: Order = {
         id: newOrder.id,
@@ -715,7 +715,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: newOrder.created_at,
         updatedAt: newOrder.updated_at
       };
-      
+
       return { order, items: createdItems };
     } catch (error) {
       await client.query('ROLLBACK');
@@ -768,7 +768,7 @@ export class DatabaseStorage implements IStorage {
         totalCents: orderData.totalCents,
       })
       .returning();
-    
+
     // Create order items
     for (const item of items) {
       await db.insert(orderItems).values({
@@ -783,7 +783,7 @@ export class DatabaseStorage implements IStorage {
         imageUrl: item.imageUrl || null,
       });
     }
-    
+
     return order;
   }
 
@@ -807,35 +807,35 @@ export class DatabaseStorage implements IStorage {
     }
   ): Promise<{ order: Order } | { error: string }> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
-      
+
       // Get order items
       const orderItemsResult = await client.query(
         'SELECT variant_id, quantity FROM order_items WHERE order_id = $1',
         [orderId]
       );
-      
+
       // Lock and validate all variants with SELECT FOR UPDATE
       for (const item of orderItemsResult.rows) {
         const lockResult = await client.query(
           'SELECT id, stock_qty, sku FROM product_variants WHERE id = $1 FOR UPDATE',
           [item.variant_id]
         );
-        
+
         if (lockResult.rows.length === 0) {
           await client.query('ROLLBACK');
           return { error: `Variant not found: ${item.variant_id}` };
         }
-        
+
         const currentStock = lockResult.rows[0].stock_qty;
         if (currentStock < item.quantity) {
           await client.query('ROLLBACK');
           return { error: `Insufficient stock for SKU: ${lockResult.rows[0].sku}. Available: ${currentStock}` };
         }
       }
-      
+
       // Decrement stock for all variants
       for (const item of orderItemsResult.rows) {
         await client.query(
@@ -843,26 +843,26 @@ export class DatabaseStorage implements IStorage {
           [item.quantity, item.variant_id]
         );
       }
-      
+
       // Update order status and payment method
       const updateFields = ['status = $1', 'stripe_payment_intent_id = $2', 'estimated_delivery_date = $3', 'updated_at = NOW()'];
       const updateParams: any[] = [data.status, data.stripePaymentIntentId || null, data.estimatedDeliveryDate || null];
-      
+
       if (data.paymentMethod) {
         updateFields.push(`payment_method = $${updateParams.length + 1}`);
         updateParams.push(data.paymentMethod);
       }
-      
+
       updateParams.push(orderId);
       const updateResult = await client.query(
         `UPDATE orders SET ${updateFields.join(', ')} WHERE id = $${updateParams.length} RETURNING *`,
         updateParams
       );
-      
+
       await client.query('COMMIT');
-      
+
       const row = updateResult.rows[0];
-      const order: Order = {
+      const order: any = {
         id: row.id,
         orderNumber: row.order_number,
         userId: row.user_id,
@@ -894,7 +894,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: row.created_at,
         updatedAt: row.updated_at
       };
-      
+
       return { order };
     } catch (error) {
       await client.query('ROLLBACK');
@@ -1029,7 +1029,7 @@ export class DatabaseStorage implements IStorage {
   async getSavedItemsWithProducts(userId: number): Promise<ProductWithVariants[]> {
     const items = await this.getSavedItemsByUser(userId);
     if (items.length === 0) return [];
-    
+
     const result: ProductWithVariants[] = [];
     for (const item of items) {
       const productWithVariants = await this.getProductWithVariants(item.productId);
@@ -1045,7 +1045,7 @@ export class DatabaseStorage implements IStorage {
       .values({ userId, productId })
       .onConflictDoNothing()
       .returning();
-    
+
     if (!item) {
       const [existing] = await db.select().from(savedItems)
         .where(and(eq(savedItems.userId, userId), eq(savedItems.productId, productId)));
@@ -1131,19 +1131,19 @@ export class DatabaseStorage implements IStorage {
   async getReviewSummary(productId: number): Promise<{ averageRating: number; totalReviews: number; ratingBreakdown: Record<number, number> }> {
     const reviews = await this.getApprovedReviewsByProduct(productId);
     const totalReviews = reviews.length;
-    
+
     if (totalReviews === 0) {
       return { averageRating: 0, totalReviews: 0, ratingBreakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } };
     }
-    
+
     const ratingBreakdown: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let sum = 0;
-    
+
     for (const review of reviews) {
       sum += review.rating;
       ratingBreakdown[review.rating] = (ratingBreakdown[review.rating] || 0) + 1;
     }
-    
+
     return {
       averageRating: Math.round((sum / totalReviews) * 10) / 10,
       totalReviews,

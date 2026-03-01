@@ -287,99 +287,115 @@ export const productReviews = pgTable("product_reviews", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// ================================
-// INSERT SCHEMAS
-// ================================
-export const insertProductSchema = createInsertSchema(products)
-  .omit({ id: true, createdAt: true, updatedAt: true })
-  .extend({
-    name: z.string().min(1, "Product name is required"),
-  });
-
-export const insertProductVariantSchema = createInsertSchema(productVariants)
-  .omit({ id: true, createdAt: true })
-  .extend({
-    productId: z.number().int().positive(),
-    color: z.string().min(1, "Color is required"),
-    size: z.string().min(1, "Size is required"),
-    sku: z.string().min(1, "SKU is required"),
-    stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
-    priceCents: z.number().int().min(0).nullable().optional(),
-    imageUrl: z.string().nullable().optional(),
-  });
-
-export const insertProductImageSchema = createInsertSchema(productImages)
-  .omit({ id: true })
-  .extend({
-    productId: z.number().int().positive(),
-    imageUrl: z.string().min(1, "Image URL is required"),
-    sortOrder: z.number().int().default(0),
-  });
-
-export const insertVariantImageSchema = createInsertSchema(variantImages)
-  .omit({ id: true })
-  .extend({
-    variantId: z.number().int().positive(),
-    imageUrl: z.string().min(1, "Image URL is required"),
-    sortOrder: z.number().int().default(0),
-  });
-
-export const insertCollectionSchema = createInsertSchema(collections).omit({
-  id: true,
-  createdAt: true,
+export const insertProductSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  brand: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  basePriceCents: z.number().int().nullable().optional(),
+  b2bPriceCents: z.number().int().nullable().optional(),
+  compareAtPriceCents: z.number().int().nullable().optional(),
+  season: z.string().nullable().optional(),
+  active: z.boolean().optional().default(true),
 });
 
-export const insertProductCollectionSchema = createInsertSchema(productCollections);
-
-export const insertOrderSchema = createInsertSchema(orders).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertProductVariantSchema = z.object({
+  productId: z.number().int().positive(),
+  color: z.string().min(1, "Color is required"),
+  size: z.string().min(1, "Size is required"),
+  sku: z.string().min(1, "SKU is required"),
+  stockQty: z.number().int().min(0, "Stock must be 0 or greater").default(0),
+  priceCents: z.number().int().min(0).nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+  active: z.boolean().optional().default(true),
 });
 
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
-  id: true,
+export const insertProductImageSchema = z.object({
+  productId: z.number().int().positive(),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  sortOrder: z.number().int().default(0),
 });
 
-export const insertUserSchema = createInsertSchema(users)
-  .omit({ id: true, createdAt: true, passwordHash: true })
-  .extend({
-    email: z.string().email("Email non valida"),
-    password: z.string().min(6, "La password deve avere almeno 6 caratteri"),
-    name: z.string().min(1, "Nome richiesto"),
-    surname: z.string().min(1, "Cognome richiesto"),
-  });
-
-export const insertContactMessageSchema = createInsertSchema(contactMessages)
-  .omit({ id: true, createdAt: true, status: true })
-  .extend({
-    name: z.string().min(1, "Nome richiesto"),
-    email: z.string().email("Email non valida"),
-    message: z.string().min(10, "Il messaggio deve avere almeno 10 caratteri"),
-  });
-
-export const insertSavedItemSchema = createInsertSchema(savedItems).omit({
-  id: true,
-  createdAt: true,
+export const insertVariantImageSchema = z.object({
+  variantId: z.number().int().positive(),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  sortOrder: z.number().int().default(0),
 });
 
-export const insertBusinessRequestSchema = createInsertSchema(businessRequests)
-  .omit({ id: true, createdAt: true, status: true })
-  .extend({
-    companyName: z.string().min(2, "Ragione sociale richiesta"),
-    vatNumber: z.string().min(11, "Partita IVA non valida"),
-    email: z.string().email("Email non valida"),
-  });
+export const insertCollectionSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  description: z.string().nullable().optional(),
+});
 
-export const insertProductReviewSchema = createInsertSchema(productReviews)
-  .omit({ id: true, createdAt: true, status: true, userId: true, orderId: true })
-  .extend({
-    productId: z.number().int().positive(),
-    rating: z.number().int().min(1, "Valutazione minima 1 stella").max(5, "Valutazione massima 5 stelle"),
-    name: z.string().optional(),
-    title: z.string().optional(),
-    comment: z.string().min(10, "Il commento deve avere almeno 10 caratteri").max(1000, "Il commento non può superare 1000 caratteri"),
-  });
+export const insertProductCollectionSchema = z.object({
+  productId: z.number().int().positive(),
+  collectionId: z.number().int().positive(),
+  position: z.number().int().default(0),
+});
+
+export const insertOrderSchema = z.object({
+  orderNumber: z.string().min(1),
+  customerEmail: z.string().email(),
+  customerName: z.string().min(1),
+  customerSurname: z.string().min(1),
+  customerPhone: z.string().nullable().optional(),
+  shippingAddress: z.string().min(1),
+  shippingCity: z.string().min(1),
+  shippingProvince: z.string().nullable().optional(),
+  shippingCap: z.string().nullable().optional(),
+  subtotalCents: z.number().int().min(0),
+  shippingCents: z.number().int().min(0),
+  totalCents: z.number().int().min(0),
+  paymentMethod: z.string().min(1),
+  paypalOrderId: z.string().nullable().optional(),
+  stripePaymentIntentId: z.string().nullable().optional(),
+  status: z.string().default("pending_payment"),
+});
+
+export const insertOrderItemSchema = z.object({
+  orderId: z.number().int().positive(),
+  variantId: z.number().int().positive(),
+  quantity: z.number().int().min(1),
+  priceCents: z.number().int().min(0),
+});
+
+export const insertUserSchema = z.object({
+  username: z.string().min(1, "Username richiesto"),
+  password: z.string().min(6, "Password minima 6 caratteri"),
+  name: z.string().min(1, "Nome richiesto"),
+  surname: z.string().min(1, "Cognome richiesto"),
+});
+
+export const insertContactMessageSchema = z.object({
+  name: z.string().min(1, "Nome richiesto"),
+  email: z.string().email("Email non valida"),
+  phone: z.string().nullable().optional(),
+  message: z.string().min(10, "Il messaggio deve avere almeno 10 caratteri"),
+  status: z.string().default("new"),
+});
+
+export const insertSavedItemSchema = z.object({
+  userId: z.number().int().positive(),
+  variantId: z.number().int().positive(),
+});
+
+export const insertBusinessRequestSchema = z.object({
+  companyName: z.string().min(2, "Ragione sociale richiesta"),
+  vatNumber: z.string().min(11, "Partita IVA non valida"),
+  email: z.string().email("Email non valida"),
+  phone: z.string().nullable().optional(),
+  message: z.string().nullable().optional(),
+  status: z.string().default("new"),
+});
+
+export const insertProductReviewSchema = z.object({
+  productId: z.number().int().positive(),
+  rating: z.number().int().min(1).max(5),
+  name: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  comment: z.string().min(10).max(1000),
+  status: z.string().default("approved"),
+});
 
 // ================================
 // TYPES

@@ -46,7 +46,7 @@ export function SavedItems() {
   const handleRemove = async (productId: number) => {
     setRemovingId(productId);
     try {
-      const res = await fetch(`/api/my/saved/${productId}`, { 
+      const res = await fetch(`/api/my/saved/${productId}`, {
         method: "DELETE",
         credentials: 'include',
       });
@@ -83,14 +83,15 @@ export function SavedItems() {
     const price = variant.priceCents ? variant.priceCents / 100 : (product.basePriceCents || 0) / 100;
 
     addToCart({
-      id: product.id,
+      id: product.id.toString(),
       variantId: variant.id,
       name: product.name,
       brand: product.brand || "",
       price,
       color: variant.color,
+      size: variant.size,
       image,
-    }, variant.size, 1);
+    }, variant.size);
 
     toast({
       title: "Aggiunto al carrello",
@@ -154,21 +155,21 @@ export function SavedItems() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {savedItems.map((product) => (
-              <div 
-                key={product.id} 
+              <div
+                key={product.id}
                 className="group relative"
                 data-testid={`saved-item-${product.id}`}
               >
                 <Link href={`/product/${product.id}`}>
                   <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4">
-                    <img 
-                      src={getProductImage(product)} 
+                    <img
+                      src={getProductImage(product)}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                 </Link>
-                
+
                 <button
                   onClick={() => handleRemove(product.id)}
                   disabled={removingId === product.id}
@@ -181,7 +182,7 @@ export function SavedItems() {
                     <Trash2 className="w-5 h-5 text-red-500" />
                   )}
                 </button>
-                
+
                 <div className="space-y-2">
                   <Link href={`/product/${product.id}`}>
                     <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 hover:underline">
