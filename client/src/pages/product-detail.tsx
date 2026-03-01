@@ -102,11 +102,14 @@ export function ProductDetail() {
       .map(img => img.imageUrl);
   }, [product?.images]);
 
+  const hasOutletDiscount = product?.compareAtPriceCents && product.compareAtPriceCents > (product.basePriceCents || 0);
+
   const displayPrice = useMemo(() => {
+    if (hasOutletDiscount && product?.basePriceCents) return product.basePriceCents / 100;
     if (selectedVariant?.priceCents) return selectedVariant.priceCents / 100;
     if (product?.basePriceCents) return product.basePriceCents / 100;
     return 0;
-  }, [selectedVariant, product?.basePriceCents]);
+  }, [selectedVariant, product?.basePriceCents, hasOutletDiscount]);
 
   const cartPrice = useMemo(() => {
     if (user?.isB2b && product?.b2bPriceCents) return product.b2bPriceCents / 100;

@@ -2998,196 +2998,205 @@ input, select, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd;
         .back-link:hover { color: #000; }
 </style>
   </head>
-  <body>
-    <div class="header">
-      <h1>VIPIESSE Admin Panel</h1>
-      <button class="logout" onclick="logout()">Logout</button>
-    </div>
-    <div class="nav">
-      <a href="/admin/products" class="active">Products</a>
-      <a href="/admin/collections">Collections</a>
-      <a href="/admin/orders">Orders</a>
-      <a href="/admin/contacts">Contacts</a>
-      <a href="/admin/business-requests">Business Requests</a>
-      <a href="/admin/b2b-products">B2B Products</a>
-    </div>
-    <div class="container">
-      <a href="/admin/products" class="back-link">← Back to Products</a>
-
-      <div class="section">
-        <h3>Product Details</h3>
-        <form id="productForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Name / Articolo *</label>
-              <input type="text" id="name" value="${product.name}" required>
-            </div>
-            <div class="form-group">
-              <label>Brand</label>
-              <input type="text" id="brand" value="${product.brand || ''}">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Base Price(€)</label>
-              <input type="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
-            </div>
-            <div class="form-group">
-              <label>Prezzo Pre-Sconto / Outlet(€)</label>
-              <input type="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
-              <small style="color:#666;font-size:0.75rem;">Se compilato, nella sezione Outlet verrà mostrato come prezzo barrato con la % di sconto</small>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Active</label>
-              <select id="active">
-                <option value="true" ${product.active ? 'selected' : ''}>Yes</option>
-                <option value="false" ${!product.active ? 'selected' : ''}>No</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Stagione</label>
-              <select id="season">
-                <option value="" ${!product.season ? 'selected' : ''}>--Nessuna--</option>
-                <option value="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}>Primavera / Estate</option>
-                <option value="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}>Autunno / Inverno</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Description</label>
-            <textarea id="description" rows="3">${product.description || ''}</textarea>
-          </div>
-          <div class="form-group">
-            <label>Collections</label>
-            <div class="checkbox-group">
-              ${collections.map(c => `
-                <label>
-                  <input type="checkbox" name="collection" value="${c.id}" ${productCollectionIds.includes(c.id) ? 'checked' : ''}>
-                  ${c.name}
-                </label>
-              `).join('')}
-            </div>
-          </div>
-          <button type="submit" class="btn">Save Product</button>
-        </form>
-      </div>
-
-      <div class="section">
-        <h3>Product Images</h3>
-        <div id="imagesList" class="image-grid">
-          ${product.images?.map((img: any) => `
-            <div class="image-card" data-id="${img.id}">
-              <img src="${img.imageUrl}" alt="Product image" onerror="this.src='https://via.placeholder.com/150?text=Error'">
-              <button class="image-delete-btn" onclick="deleteImage(${img.id})">×</button>
-            </div>
-          `).join('') || '<p style="color: #666; grid-column: 1/-1;">No images yet. Upload images below.</p>'}
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
         </div>
+       <divclass="nav">
+          <a href="/admin/products" class="active"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <a href="/admin/products" class="back-link">← Back to Products </a>
 
-        <div id="dropZone" class="drop-zone">
-          <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
-          <div class="drop-zone-content">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            <p>Trascina le immagini qui o <span class="browse-link">clicca per selezionare</span></p>
-            <p class="drop-hint">Formati supportati: JPG, PNG, WebP (max 10MB)</p>
-          </div>
-        </div>
-        <div id="uploadProgress" class="upload-progress" style="display: none;">
-          <div class="progress-bar"><div class="progress-fill"></div></div>
-          <span class="progress-text">Caricamento...</span>
-        </div>
-      </div>
-
-      <div class="section" id="colorImagesSection">
-        <h3>Color Images</h3>
-        <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;">Assign an image to each color. All sizes of the same color share this image. On the storefront, the product image updates when a customer selects a color.</p>
-        <div id="colorImagesList"></div>
-      </div>
-
-      <div class="section">
-        <h3>Variants (Color + Size Combinations)</h3>
-        <button class="btn" onclick="showVariantModal()">+ Add Variant</button>
-        <table style="margin-top: 1rem;">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Color</th>
-              <th>Size</th>
-              <th>SKU</th>
-              <th>Stock</th>
-              <th>Price</th>
-              <th>Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="variantsList">
-            ${product.variants?.map((v: any) => `
-              <tr data-id="${v.id}">
-                <td>${v.imageUrl ? '<img src="' + v.imageUrl + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" onerror="this.style.display=\'none\'">' : '<span style="color:#ccc;">—</span>'}</td>
-                <td>${v.color}</td>
-                <td>${v.size}</td>
-                <td>${v.sku}</td>
-                <td>${v.stockQty}</td>
-                <td>${v.priceCents ? '€' + (v.priceCents / 100).toFixed(2) : '-'}</td>
-                <td><span class="active-badge ${v.active ? 'yes' : 'no'}">${v.active ? 'Yes' : 'No'}</span></td>
-                <td>
-                  <button class="btn btn-small" onclick="editVariant(${v.id})">Edit</button>
-                  <button class="btn btn-small btn-danger" onclick="deleteVariant(${v.id})">Delete</button>
-                </td>
-              </tr>
-            `).join('') || '<tr><td colspan="8" style="color: #666;">No variants yet. Add color/size combinations.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
+                          <!--Product Details Section-->
+                            <div class="section">
+                              <h3>Product Details </h3>
+                               <formid="productForm">
+                                  <div class="form-row">
+                                    <div class="form-group">
+                                      <label>Name / Articolo * </label>
+                                     <inputtype="text" id="name" value="${product.name}" required>
+                                        </div>
+                                       <divclass="form-group">
+                                          <label>Brand </label>
+                                         <inputtype="text" id="brand" value="${product.brand || ''}">
+                                            </div>
+                                            </div>
+                                           <divclass="form-row">
+                                              <div class="form-group">
+                                                <label>Base Price(€) </label>
+                                                 <inputtype="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
+                                                    </div>
+                                                   <divclass="form-group">
+                                                      <label>Prezzo Pre-Sconto / Outlet(€) </label>
+                                                       <inputtype="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
+                                                          <small style="color:#666;font-size:0.75rem;"> Se compilato, nella sezione Outlet verrà mostrato come prezzo barrato con la % di sconto </small>
+                                                            </div>
+                                                            </div>
+                                                           <divclass="form-row">
+                                                              <div class="form-group">
+                                                                <label>Active </label>
+                                                               <selectid="active">
+                                                                  <option value="true" ${product.active ? 'selected' : ''}> Yes </option>
+                                                                   <optionvalue="false" ${!product.active ? 'selected' : ''}> No </option>
+                                                                      </select>
+                                                                      </div>
+                                                                     <divclass="form-group">
+                                                                        <label>Stagione </label>
+                                                                       <selectid="season">
+                                                                          <option value="" ${!product.season ? 'selected' : ''}> --Nessuna --</option>
+                                                                           <optionvalue="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}> Primavera / Estate </option>
+                                                                             <optionvalue="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}> Autunno / Inverno </option>
+                                                                                </select>
+                                                                                </div>
+                                                                                </div>
+                                                                               <divclass="form-group">
+                                                                                  <label>Description </label>
+                                                                                 <textareaid="description" rows="3"> ${product.description || ''} </textarea>
+                                                                                    </div>
+                                                                                   <divclass="form-group">
+                                                                                      <label>Collections </label>
+                                                                                     <divclass="checkbox-group">
+                                                                                        ${collections.map(c => `
+                  <label>
+                    <input type="checkbox" name="collection" value="${c.id}" ${productCollectionIds.includes(c.id) ? 'checked' : ''}>
+                    ${c.name}
+                  </label>
+                `).join('')
+    }
+</div>
+  </div>
+ <buttontype="submit" class="btn"> Save Product </button>
+    </form>
     </div>
 
+    <!--Product Images Section-->
+      <div class="section">
+        <h3>Product Images </h3>
+         <divid="imagesList" class="image-grid">
+            ${product.images?.map((img: any) => `
+              <div class="image-card" data-id="${img.id}">
+                <img src="${img.imageUrl}" alt="Product image" onerror="this.src='https://via.placeholder.com/150?text=Error'">
+                <button class="image-delete-btn" onclick="deleteImage(${img.id})">×</button>
+              </div>
+            `).join('') || '<p style="color: #666; grid-column: 1/-1;">No images yet. Upload images below.</p>'
+    }
+</div>
+
+  <!--Drag & Drop Upload Area-->
+    <div id="dropZone" class="drop-zone">
+      <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+        <div class="drop-zone-content">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"> </path>
+             <polylinepoints="17 8 12 3 7 8"> </polyline>
+               <linex1="12" y1="3" x2="12" y2="15"> </line>
+                  </svg>
+                 <p> Trascina le immagini qui o<spanclass="browse-link"> clicca per selezionare</span></p>
+                    <p class="drop-hint"> Formati supportati: JPG, PNG, WebP(max 10MB) </p>
+                      </div>
+                      </div>
+                     <divid="uploadProgress" class="upload-progress" style="display: none;">
+                        <div class="progress-bar"> <div class="progress-fill"> </div></div>
+                          <span class="progress-text"> Caricamento...</span>
+                            </div>
+                            </div>
+
+                            <!--Color Images Section-->
+                              <div class="section" id="colorImagesSection">
+                                <h3>Color Images </h3>
+                                 <pstyle="color: #666; font-size: 0.85rem; margin-bottom: 1rem;"> Assign an image to each color.All sizes of the same color share this image.On the storefront, the product image updates when a customer selects a color.</p>
+                                   <divid="colorImagesList"> </div>
+                                      </div>
+
+                                      <!--Variants Section-->
+                                        <div class="section">
+                                          <h3>Variants(Color + Size Combinations) </h3>
+                                         <buttonclass="btn" onclick="showVariantModal()"> + Add Variant </button>
+                                           <tablestyle="margin-top: 1rem;">
+                                              <thead>
+                                              <tr>
+                                              <th>Image </th>
+                                             <th> Color </th>
+                                             <th> Size </th>
+                                             <th> SKU </th>
+                                             <th> Stock </th>
+                                             <th> Price </th>
+                                             <th> Active </th>
+                                             <th> Actions </th>
+                                              </tr>
+                                              </thead>
+                                             <tbodyid="variantsList">
+                                                ${product.variants?.map((v: any) => `
+                <tr data-id="${v.id}">
+                  <td>${v.imageUrl ? '<img src="' + v.imageUrl + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" onerror="this.style.display=\'none\'">' : '<span style="color:#ccc;">—</span>'}</td>
+                  <td>${v.color}</td>
+                  <td>${v.size}</td>
+                  <td>${v.sku}</td>
+                  <td>${v.stockQty}</td>
+                  <td>${v.priceCents ? '€' + (v.priceCents / 100).toFixed(2) : '-'}</td>
+                  <td><span class="active-badge ${v.active ? 'yes' : 'no'}">${v.active ? 'Yes' : 'No'}</span></td>
+                  <td>
+                    <button class="btn btn-small" onclick="editVariant(${v.id})">Edit</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteVariant(${v.id})">Delete</button>
+                  </td>
+                </tr>
+              `).join('') || '<tr><td colspan="8" style="color: #666;">No variants yet. Add color/size combinations.</td></tr>'
+    }
+</tbody>
+  </table>
+  </div>
+  </div>
+
+  <!--Variant Modal-->
     <div id="variantModal" class="modal">
       <div class="modal-content">
-        <h2 id="variantModalTitle">Add Variant</h2>
-        <form id="variantForm">
-          <input type="hidden" id="variantId">
-          <div class="error-msg" id="variantError"></div>
-          <div class="form-group">
-            <label>Color *</label>
-            <input type="text" id="variantColor" required placeholder="e.g. BORDEAUX">
-          </div>
-          <div class="form-group">
-            <label>Size *</label>
-            <input type="text" id="variantSize" required placeholder="e.g. 36/37">
-          </div>
-          <div class="form-group">
-            <label>SKU * (unique)</label>
-            <input type="text" id="variantSku" required placeholder="e.g. ROMATOPIWA20BO36">
-          </div>
-          <div class="form-group">
-            <label>Stock Quantity</label>
-            <input type="number" id="variantStock" min="0" value="0">
-          </div>
-          <div class="form-group">
-            <label>Price(€) - leave empty to use base price</label>
-            <input type="text" id="variantPrice" placeholder="e.g. 14,90">
-          </div>
-          <div class="form-group">
-            <label>Active</label>
-            <select id="variantActive">
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
-          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-            <button type="submit" class="btn">Save Variant</button>
-            <button type="button" class="btn btn-secondary" onclick="closeVariantModal()">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <h2 id="variantModalTitle"> Add Variant </h2>
+         <formid="variantForm">
+            <input type="hidden" id="variantId">
+              <div class="error-msg" id="variantError"> </div>
+               <divclass="form-group">
+                  <label>Color * </label>
+                 <inputtype="text" id="variantColor" required placeholder="e.g. BORDEAUX">
+                    </div>
+                   <divclass="form-group">
+                      <label>Size * </label>
+                     <inputtype="text" id="variantSize" required placeholder="e.g. 36/37">
+                        </div>
+                       <divclass="form-group">
+                          <label>SKU * (unique) </label>
+                         <inputtype="text" id="variantSku" required placeholder="e.g. ROMATOPIWA20BO36">
+                            </div>
+                           <divclass="form-group">
+                              <label>Stock Quantity </label>
+                               <inputtype="number" id="variantStock" min="0" value="0">
+                                  </div>
+                                 <divclass="form-group">
+                                    <label>Price(€) - leave empty to use base price </label>
+                                     <inputtype="text" id="variantPrice" placeholder="e.g. 14,90">
+                                        </div>
+                                       <divclass="form-group">
+                                          <label>Active </label>
+                                         <selectid="variantActive">
+                                            <option value="true"> Yes </option>
+                                             <optionvalue="false"> No </option>
+                                                </select>
+                                                </div>
+                                               <divstyle="display: flex; gap: 1rem; margin-top: 1rem;">
+                                                  <button type="submit" class="btn"> Save Variant </button>
+                                                   <buttontype="button" class="btn btn-secondary" onclick="closeVariantModal()"> Cancel </button>
+                                                      </div>
+                                                      </form>
+                                                      </div>
+                                                      </div>
 
-    <script>
+                                                      <script>
 const productId = ${product.id};
 const variants = ${JSON.stringify(product.variants || [])};
 
@@ -3557,6 +3566,7 @@ document.getElementById('variantForm').addEventListener('submit', async (e) => {
   </html>
     `;
 }
+
 
 function getAdminCollectionsPage(collections: any[]): string {
   return `

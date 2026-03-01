@@ -53,7 +53,12 @@ export function ProductCard({ product, isOutlet }: ProductCardProps) {
     return NO_IMAGE_PLACEHOLDER;
   }, [product.images]);
 
+  const hasDiscount = isOutlet && product.compareAtPriceCents && product.compareAtPriceCents > (product.basePriceCents || 0);
+
   const displayPrice = useMemo(() => {
+    if (hasDiscount) {
+      return (product.basePriceCents ?? 0) / 100;
+    }
     if (product.variants && product.variants.length > 0) {
       const prices = product.variants
         .filter(v => v.active && v.stockQty > 0)
@@ -63,9 +68,7 @@ export function ProductCard({ product, isOutlet }: ProductCardProps) {
       if (prices.length > 0) return Math.min(...prices) / 100;
     }
     return (product.basePriceCents ?? 0) / 100;
-  }, [product.variants, product.basePriceCents]);
-
-  const hasDiscount = isOutlet && product.compareAtPriceCents && product.compareAtPriceCents > (product.basePriceCents || 0);
+  }, [product.variants, product.basePriceCents, hasDiscount]);
   const discountPercent = hasDiscount
     ? Math.round((1 - (product.basePriceCents || 0) / product.compareAtPriceCents!) * 100)
     : 0;
