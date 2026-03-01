@@ -47,6 +47,21 @@ const upload = multer({
   }
 });
 
+const csvUpload = multer({
+  storage: multerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+    const allowedExts = ['.csv'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo file non supportato. Usa un file .csv'));
+    }
+  }
+});
+
 declare global {
   namespace Express {
     interface Request {
@@ -1622,7 +1637,7 @@ export async function registerRoutes(
   // ================================
   // ADMIN API-Data Importer (CSV)
   // ================================
-  app.post("/api/admin/products/import", isAdmin, upload.single("csvFile"), async (req, res) => {
+  app.post("/api/admin/products/import", isAdmin, csvUpload.single("csvFile"), async (req, res) => {
     let csvContent = "";
     if (req.file) {
       csvContent = fs.readFileSync(req.file.path, "utf-8");
