@@ -54,6 +54,7 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<void>;
+  getProductByName(name: string): Promise<Product | undefined>;
   
   // Product Variants
   getVariantsByProduct(productId: number): Promise<ProductVariant[]>;
@@ -344,6 +345,11 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: number): Promise<void> {
     await db.delete(products).where(eq(products.id, id));
+  }
+
+  async getProductByName(name: string): Promise<Product | undefined> {
+    const [product] = await db.select().from(products).where(eq(products.name, name));
+    return product || undefined;
   }
 
   // Product Variants

@@ -71,13 +71,13 @@ function generateOrderNumber(): string {
 // User authentication middleware
 async function isUser(req: Request, res: Response, next: NextFunction) {
   const sessionId = req.cookies.user_session;
-  
+
   if (!sessionId) {
     return res.status(401).json({ error: "Non autenticato" });
   }
 
   const session = await storage.getSession(sessionId);
-  
+
   if (!session || session.expiresAt < new Date()) {
     res.clearCookie("user_session");
     return res.status(401).json({ error: "Sessione scaduta" });
@@ -91,13 +91,13 @@ async function isUser(req: Request, res: Response, next: NextFunction) {
 
 async function isAdmin(req: Request, res: Response, next: NextFunction) {
   const sessionId = req.cookies.admin_session;
-  
+
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const session = await storage.getSession(sessionId);
-  
+
   if (!session || session.expiresAt < new Date()) {
     res.clearCookie("admin_session");
     return res.status(401).json({ error: "Session expired" });
@@ -113,13 +113,13 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   app.use(cookieParser());
-  
+
   // Serve uploaded images statically
   app.use('/uploads', express.static(uploadsDir));
-  
+
   // Register object storage routes for image uploads
   registerObjectStorageRoutes(app);
-  
+
   // Bank info endpoint for checkout
   app.get("/api/bank-info", (req, res) => {
     res.json({
@@ -141,24 +141,24 @@ export async function registerRoutes(
   // ================================
   // COUPON VALIDATION API
   // ================================
-  
+
   const VALID_COUPON_CODE = "VIPIESSE1STORD";
   const COUPON_DISCOUNT_PERCENT = 20;
-  
+
   app.post("/api/coupon/validate", async (req, res) => {
     try {
       const { code } = req.body;
-      
+
       if (!code || typeof code !== 'string') {
         return res.status(200).json({ valid: false, reason: "Codice coupon non valido" });
       }
-      
+
       const normalizedCode = code.trim().toUpperCase();
-      
+
       if (normalizedCode !== VALID_COUPON_CODE) {
         return res.status(200).json({ valid: false, reason: "Codice coupon non riconosciuto" });
       }
-      
+
       const sessionId = req.cookies.user_session;
       let userId: number | null = null;
       if (sessionId) {
@@ -167,21 +167,21 @@ export async function registerRoutes(
           userId = session.userId;
         }
       }
-      
+
       if (!userId) {
         return res.status(200).json({ valid: false, reason: "Devi effettuare l'accesso per utilizzare un coupon" });
       }
-      
+
       const alreadyUsed = await storage.hasCouponBeenUsed(userId, VALID_COUPON_CODE);
       if (alreadyUsed) {
         return res.status(200).json({ valid: false, reason: "Hai già utilizzato questo coupon" });
       }
-      
+
       const orderCount = await storage.getUserCompletedOrderCount(userId);
       if (orderCount > 0) {
         return res.status(200).json({ valid: false, reason: "Questo coupon è valido solo per il primo ordine" });
       }
-      
+
       return res.status(200).json({ valid: true, discountPercent: COUPON_DISCOUNT_PERCENT });
     } catch (error) {
       console.error("Coupon validation error:", error);
@@ -192,19 +192,19 @@ export async function registerRoutes(
   // ================================
   // STRIPE CHECKOUT API
   // ================================
-  
+
   // Create Stripe Checkout Session for one-time payment (requires authentication)
   app.post("/api/stripe/create-checkout-session", isUser, async (req, res) => {
     try {
       const { getStripeClient } = await import("./stripeClient");
       const stripe = await getStripeClient();
-      
+
       const { items, customerEmail, customerName, customerSurname, customerPhone, shippingAddress, shippingCity, shippingCap, couponCode } = req.body;
-      
+
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "Carrello vuoto" });
       }
-      
+
       if (!customerEmail || !shippingAddress) {
         return res.status(400).json({ error: "Dati di spedizione mancanti" });
       }
@@ -213,33 +213,33 @@ export async function registerRoutes(
       const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
       let subtotalCents = 0;
       const lineItems: any[] = [];
-      
+
       for (const item of items) {
         if (!item.variantId || !item.quantity || !item.name || item.priceCents === undefined) {
           return res.status(400).json({ error: "Dati prodotto non validi" });
         }
-        
+
         // Fetch variant details
         const variant = await storage.getVariantById(item.variantId);
         if (!variant) {
           return res.status(400).json({ error: `Variante non trovata: ${item.variantId}` });
         }
-        
+
         // Check stock
         if (variant.stockQty < item.quantity) {
           return res.status(400).json({ error: `Stock insufficiente per ${item.name}` });
         }
-        
+
         const product = await storage.getProductById(variant.productId);
         const images = await storage.getImagesByProduct(variant.productId);
         const variantImages = await storage.getImagesByVariant(variant.id);
-        
+
         const isB2bUser = req.userId ? (await storage.getUserById(req.userId))?.isB2b : false;
         const basePriceCents = variant.priceCents || product?.basePriceCents || item.priceCents;
         const priceCents = (isB2bUser && product?.b2bPriceCents) ? product.b2bPriceCents : basePriceCents;
         const itemTotal = priceCents * item.quantity;
         subtotalCents += itemTotal;
-        
+
         orderItems.push({
           variantId: variant.id,
           productName: product?.name || item.name,
@@ -250,7 +250,7 @@ export async function registerRoutes(
           priceCents,
           imageUrl: variantImages[0]?.imageUrl || images[0]?.imageUrl || undefined
         });
-        
+
         lineItems.push({
           price_data: {
             currency: 'eur',
@@ -263,11 +263,11 @@ export async function registerRoutes(
           quantity: item.quantity,
         });
       }
-      
+
       // Validate and apply coupon if provided
       let discountCents = 0;
       let validatedCoupon: string | null = null;
-      
+
       if (couponCode && req.userId) {
         const normalizedCoupon = couponCode.trim().toUpperCase();
         if (normalizedCoupon === VALID_COUPON_CODE) {
@@ -283,7 +283,7 @@ export async function registerRoutes(
       // Calculate shipping (free over €50)
       const shippingCents = subtotalCents >= 5000 ? 0 : 590;
       const totalCents = subtotalCents - discountCents + shippingCents;
-      
+
       if (shippingCents > 0) {
         lineItems.push({
           price_data: {
@@ -319,13 +319,13 @@ export async function registerRoutes(
       }, orderItems);
 
       if (validatedCoupon && req.userId) {
-        await storage.recordCouponUsage(req.userId, validatedCoupon, pendingOrder.id).catch(err => 
+        await storage.recordCouponUsage(req.userId, validatedCoupon, pendingOrder.id).catch(err =>
           console.error('[Coupon] Failed to record usage on pending order:', err)
         );
       }
 
       const baseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host')}`;
-      
+
       const sessionConfig: any = {
         payment_method_types: ['card'],
         line_items: lineItems,
@@ -338,7 +338,7 @@ export async function registerRoutes(
           orderNumber: pendingOrder.orderNumber,
         },
       };
-      
+
       if (discountCents > 0) {
         const stripeCoupon = await stripe.coupons.create({
           amount_off: discountCents,
@@ -348,7 +348,7 @@ export async function registerRoutes(
         });
         sessionConfig.discounts = [{ coupon: stripeCoupon.id }];
       }
-      
+
       const session = await stripe.checkout.sessions.create(sessionConfig);
 
       // Update order with Stripe session ID
@@ -368,9 +368,9 @@ export async function registerRoutes(
     try {
       const { getStripeClient } = await import("./stripeClient");
       const stripe = await getStripeClient();
-      
+
       const session = await stripe.checkout.sessions.retrieve(req.params.id);
-      
+
       res.json({
         payment_status: session.payment_status,
         amount_total: session.amount_total,
@@ -388,22 +388,22 @@ export async function registerRoutes(
     try {
       const { getStripeClient } = await import("./stripeClient");
       const stripe = await getStripeClient();
-      
+
       const { sessionId } = req.body;
-      
+
       if (!sessionId) {
         return res.status(400).json({ error: "Session ID mancante" });
       }
-      
+
       console.log(`[Stripe Confirm] Confirming order for session: ${sessionId}`);
-      
+
       const session = await stripe.checkout.sessions.retrieve(sessionId);
-      
+
       if (session.payment_status !== 'paid') {
         console.log(`[Stripe Confirm] Payment not completed, status: ${session.payment_status}`);
         return res.status(400).json({ error: "Pagamento non completato" });
       }
-      
+
       // Find the order by stripe session ID or metadata
       let order = await storage.getOrderByStripeSessionId(sessionId);
       if (!order && session.metadata?.orderId) {
@@ -418,11 +418,11 @@ export async function registerRoutes(
           order = await storage.getOrderById(parseInt(session.metadata.orderId));
         }
       }
-      
+
       if (!order) {
         console.error(`[Stripe Confirm] Order not found for session: ${sessionId}`);
-        return res.status(202).json({ 
-          success: false, 
+        return res.status(202).json({
+          success: false,
           message: "Ordine in elaborazione. Riceverai una conferma via email."
         });
       }
@@ -430,8 +430,8 @@ export async function registerRoutes(
       // If order already paid, return success
       if (order.status === 'paid' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered') {
         console.log(`[Stripe Confirm] Order already confirmed: ${order.orderNumber} (status: ${order.status})`);
-        return res.json({ 
-          success: true, 
+        return res.json({
+          success: true,
           orderNumber: order.orderNumber,
           message: "Ordine confermato"
         });
@@ -440,7 +440,7 @@ export async function registerRoutes(
       // FALLBACK: If webhook hasn't processed yet, confirm payment here
       if (order.status === 'pending_payment') {
         console.log(`[Stripe Confirm] Webhook hasn't processed yet, confirming payment for order: ${order.orderNumber}`);
-        
+
         const now = new Date();
         const eta = new Date(now);
         eta.setDate(eta.getDate() + 2);
@@ -483,7 +483,7 @@ export async function registerRoutes(
                 priceCents: item.priceCents,
               })),
             };
-            
+
             // Send customer email first (with retries), then admin with delay
             const sent = await sendOrderConfirmationEmail(emailData);
             if (sent) {
@@ -500,15 +500,15 @@ export async function registerRoutes(
           console.log(`[Stripe Confirm] Confirmation email already sent for order: ${order?.orderNumber}, skipping`);
         }
 
-        return res.json({ 
-          success: true, 
+        return res.json({
+          success: true,
           orderNumber: order.orderNumber,
           message: "Ordine confermato"
         });
       }
-      
-      return res.json({ 
-        success: true, 
+
+      return res.json({
+        success: true,
         orderNumber: order.orderNumber,
         message: "Ordine confermato"
       });
@@ -521,29 +521,29 @@ export async function registerRoutes(
   // Stripe Webhook endpoint - updates order after payment confirmation
   app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    
+
     if (!webhookSecret) {
       console.error("STRIPE_WEBHOOK_SECRET not configured");
       return res.status(500).json({ error: "Webhook not configured" });
     }
 
     const sig = req.headers['stripe-signature'] as string;
-    
+
     if (!sig) {
       console.error("No Stripe signature in request");
       return res.status(400).json({ error: "No signature" });
     }
 
     let event;
-    
+
     try {
       const { getStripeClient } = await import("./stripeClient");
       const stripe = await getStripeClient();
-      
+
       // Use rawBody for signature verification
       const rawBody = (req as any).rawBody || req.body;
       event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-      
+
       console.log(`[Stripe Webhook] Received event: ${event.type}`);
     } catch (err: any) {
       console.error(`[Stripe Webhook] Signature verification failed:`, err.message);
@@ -553,9 +553,9 @@ export async function registerRoutes(
     // Handle checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as any;
-      
+
       console.log(`[Stripe Webhook] Processing checkout.session.completed for session: ${session.id}`);
-      
+
       try {
         const metadata = session.metadata || {};
         const orderId = metadata.orderId ? parseInt(metadata.orderId) : null;
@@ -629,7 +629,7 @@ export async function registerRoutes(
                 priceCents: item.priceCents,
               })),
             };
-            
+
             // Send customer email first (with retries), then admin with delay
             const sent = await sendOrderConfirmationEmail(emailData);
             if (sent) {
@@ -645,7 +645,7 @@ export async function registerRoutes(
         } else {
           console.log(`[Stripe Webhook] Confirmation email already sent for order: ${order.orderNumber}, skipping`);
         }
-        
+
         return res.json({ received: true, orderNumber: order.orderNumber });
       } catch (error: any) {
         console.error(`[Stripe Webhook] Error processing checkout session:`, error);
@@ -656,9 +656,9 @@ export async function registerRoutes(
     // Handle checkout.session.expired event
     if (event.type === 'checkout.session.expired') {
       const session = event.data.object as any;
-      
+
       console.log(`[Stripe Webhook] Processing checkout.session.expired for session: ${session.id}`);
-      
+
       try {
         const metadata = session.metadata || {};
         const orderId = metadata.orderId ? parseInt(metadata.orderId) : null;
@@ -688,93 +688,93 @@ export async function registerRoutes(
   // ================================
   // USER AUTHENTICATION API
   // ================================
-  
+
   // Register new user
   app.post("/api/auth/register", async (req, res) => {
     try {
       const { email, password, name, surname, phone } = req.body;
-      
+
       if (!email || !password || !name || !surname) {
         return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
       }
-      
+
       if (password.length < 6) {
         return res.status(400).json({ error: "La password deve avere almeno 6 caratteri" });
       }
-      
+
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ error: "Email già registrata" });
       }
-      
+
       const passwordHash = await bcrypt.hash(password, 10);
       const user = await storage.createUser(email, passwordHash, name, surname, phone);
-      
+
       const approvedRequest = await storage.getApprovedBusinessRequestByEmail(email);
       if (approvedRequest) {
         await storage.setUserB2b(user.id, true);
         user.isB2b = true;
       }
-      
+
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       const session = await storage.createSession(email, expiresAt, user.id, false);
-      
+
       res.cookie("user_session", session.id, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
       });
-      
-      res.json({ 
-        success: true, 
-        user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b } 
+
+      res.json({
+        success: true,
+        user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b }
       });
     } catch (error) {
       console.error("Registration error:", error);
       res.status(500).json({ error: "Errore durante la registrazione" });
     }
   });
-  
+
   // Login
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = req.body;
-      
+
       if (!email || !password) {
         return res.status(400).json({ error: "Email e password sono obbligatori" });
       }
-      
+
       const user = await storage.getUserByEmail(email);
       if (!user) {
         return res.status(401).json({ error: "Credenziali non valide" });
       }
-      
+
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
         return res.status(401).json({ error: "Credenziali non valide" });
       }
-      
+
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       const session = await storage.createSession(email, expiresAt, user.id, false);
-      
+
       res.cookie("user_session", session.id, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
       });
-      
-      res.json({ 
-        success: true, 
-        user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b } 
+
+      res.json({
+        success: true,
+        user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b }
       });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Errore durante il login" });
     }
   });
-  
+
   // Logout
   app.post("/api/auth/logout", async (req, res) => {
     const sessionId = req.cookies.user_session;
@@ -784,46 +784,46 @@ export async function registerRoutes(
     res.clearCookie("user_session");
     res.json({ success: true });
   });
-  
+
   // Get current user
   app.get("/api/auth/me", async (req, res) => {
     const sessionId = req.cookies.user_session;
     if (!sessionId) {
       return res.json({ user: null });
     }
-    
+
     const session = await storage.getSession(sessionId);
     if (!session || session.expiresAt < new Date()) {
       res.clearCookie("user_session");
       return res.json({ user: null });
     }
-    
+
     if (session.userId) {
       const user = await storage.getUserById(session.userId);
       if (user) {
-        return res.json({ 
-          user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b } 
+        return res.json({
+          user: { id: user.id, email: user.email, name: user.name, surname: user.surname, isB2b: user.isB2b }
         });
       }
     }
-    
+
     res.json({ user: null });
   });
-  
+
   // Get user's orders (by userId OR email to catch all orders)
   app.get("/api/my/orders", isUser, async (req, res) => {
     try {
       const ordersByUserId = req.userId ? await storage.getOrdersByUserId(req.userId) : [];
       const ordersByEmail = req.userEmail ? await storage.getOrdersByEmail(req.userEmail) : [];
-      
+
       // Merge and deduplicate
       const orderMap = new Map<number, any>();
       for (const o of ordersByUserId) orderMap.set(o.id, o);
       for (const o of ordersByEmail) orderMap.set(o.id, o);
-      
+
       const allOrders = Array.from(orderMap.values())
         .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      
+
       res.json(allOrders);
     } catch (error) {
       res.status(500).json({ error: "Errore nel recupero degli ordini" });
@@ -835,18 +835,18 @@ export async function registerRoutes(
     try {
       const { orderNumber } = req.params;
       const order = await storage.getOrderByNumber(orderNumber);
-      
+
       if (!order) {
         return res.status(404).json({ error: "Ordine non trovato" });
       }
-      
+
       // Verify user owns this order (allow if userId matches OR email matches)
       const userIdMatches = req.userId && order.userId === req.userId;
       const emailMatches = req.userEmail && order.customerEmail === req.userEmail;
       if (!userIdMatches && !emailMatches) {
         return res.status(403).json({ error: "Non autorizzato" });
       }
-      
+
       const items = await storage.getOrderItems(order.id);
       res.json({ ...order, items });
     } catch (error) {
@@ -857,7 +857,7 @@ export async function registerRoutes(
   // ================================
   // SAVED ITEMS (WISHLIST) API
   // ================================
-  
+
   // Get user's saved items
   app.get("/api/my/saved", isUser, async (req, res) => {
     try {
@@ -870,7 +870,7 @@ export async function registerRoutes(
       res.status(500).json({ error: "Errore nel recupero dei preferiti" });
     }
   });
-  
+
   // Check if a product is saved
   app.get("/api/my/saved/:productId", isUser, async (req, res) => {
     try {
@@ -884,7 +884,7 @@ export async function registerRoutes(
       res.status(500).json({ error: "Errore" });
     }
   });
-  
+
   // Add product to saved items
   app.post("/api/my/saved/:productId", isUser, async (req, res) => {
     try {
@@ -892,20 +892,20 @@ export async function registerRoutes(
         return res.status(401).json({ error: "Devi essere loggato" });
       }
       const productId = parseInt(req.params.productId);
-      
+
       // Verify product exists
       const product = await storage.getProductById(productId);
       if (!product) {
         return res.status(404).json({ error: "Prodotto non trovato" });
       }
-      
+
       await storage.addSavedItem(req.userId, productId);
       res.json({ success: true, saved: true });
     } catch (error) {
       res.status(500).json({ error: "Errore nel salvataggio" });
     }
   });
-  
+
   // Remove product from saved items
   app.delete("/api/my/saved/:productId", isUser, async (req, res) => {
     try {
@@ -923,19 +923,19 @@ export async function registerRoutes(
   // ================================
   // USER DASHBOARD API
   // ================================
-  
+
   // Get dashboard summary data
   app.get("/api/my/dashboard", isUser, async (req, res) => {
     try {
       if (!req.userId) {
         return res.json({ orders: [], savedItems: [], orderCount: 0, savedCount: 0 });
       }
-      
+
       const [orders, savedProducts] = await Promise.all([
         storage.getOrdersByUserId(req.userId),
         storage.getSavedItemsWithProducts(req.userId)
       ]);
-      
+
       res.json({
         orders: orders.slice(0, 5), // Last 5 orders
         savedItems: savedProducts.slice(0, 4), // First 4 saved items
@@ -950,17 +950,17 @@ export async function registerRoutes(
   // ================================
   // CONTACT FORM API
   // ================================
-  
+
   app.post("/api/contact", async (req, res) => {
     try {
       const result = insertContactMessageSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: result.error.errors[0].message });
       }
-      
+
       const { name, email, message } = result.data;
       const contactMessage = await storage.createContactMessage(name, email, message);
-      
+
       res.json({ success: true, id: contactMessage.id });
     } catch (error) {
       console.error("Contact form error:", error);
@@ -976,7 +976,7 @@ export async function registerRoutes(
       if (!result.success) {
         return res.status(400).json({ error: result.error.errors[0].message });
       }
-      
+
       const request = await storage.createBusinessRequest(result.data);
       res.json({ success: true, id: request.id });
     } catch (error) {
@@ -1042,7 +1042,7 @@ export async function registerRoutes(
       res.status(500).json({ error: "Errore nell'aggiornamento del prezzo B2B" });
     }
   });
-  
+
   // Admin: Update compare-at price (outlet)
   app.patch("/api/admin/products/:id/compare-price", isAdmin, async (req, res) => {
     try {
@@ -1069,7 +1069,7 @@ export async function registerRoutes(
       res.status(500).json({ error: "Errore nel recupero dei messaggi" });
     }
   });
-  
+
   // Admin: Update contact message status
   app.patch("/api/admin/contacts/:id/status", isAdmin, async (req, res) => {
     try {
@@ -1093,20 +1093,20 @@ export async function registerRoutes(
       if (!files || files.length === 0) {
         return res.status(400).json({ error: "Nessun file caricato" });
       }
-      
+
       const uploadedFiles = files.map(file => ({
         filename: file.filename,
         url: `/uploads/${file.filename}`,
         originalName: file.originalname,
         size: file.size
       }));
-      
+
       res.json({ success: true, files: uploadedFiles });
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Errore durante il caricamento" });
     }
   });
-  
+
   // Error handler for multer
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof multer.MulterError) {
@@ -1212,7 +1212,7 @@ export async function registerRoutes(
       const ip = req.ip || req.socket.remoteAddress || "unknown";
       const now = Date.now();
       const hourMs = 60 * 60 * 1000;
-      
+
       const rateData = reviewRateLimits.get(ip);
       if (rateData) {
         if (now < rateData.resetAt) {
@@ -1272,7 +1272,7 @@ export async function registerRoutes(
       if (isFormSubmit) return res.redirect('/login?error=1');
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    
+
     console.log("[LOGIN] SUCCESS for:", email);
 
     await storage.deleteExpiredSessions();
@@ -1379,13 +1379,13 @@ export async function registerRoutes(
     try {
       const productId = parseInt(req.params.id);
       const { collectionIds } = req.body;
-      
+
       await storage.clearProductCollections(productId);
-      
+
       for (let i = 0; i < collectionIds.length; i++) {
         await storage.assignProductToCollection(productId, collectionIds[i], i);
       }
-      
+
       scheduleSyncDataUpdate();
       res.json({ success: true });
     } catch (error) {
@@ -1409,13 +1409,13 @@ export async function registerRoutes(
     try {
       const productId = parseInt(req.params.productId);
       const validated = insertProductVariantSchema.parse({ ...req.body, productId });
-      
+
       // Check SKU uniqueness
       const existingVariant = await storage.getVariantBySku(validated.sku);
       if (existingVariant) {
         return res.status(400).json({ error: "SKU already exists" });
       }
-      
+
       const variant = await storage.createVariant(validated);
       scheduleSyncDataUpdate();
       res.json(variant);
@@ -1430,7 +1430,7 @@ export async function registerRoutes(
   app.patch("/api/admin/variants/:id", isAdmin, async (req, res) => {
     try {
       const variantId = parseInt(req.params.id);
-      
+
       // Check SKU uniqueness if updating SKU
       if (req.body.sku) {
         const existingVariant = await storage.getVariantBySku(req.body.sku);
@@ -1438,7 +1438,7 @@ export async function registerRoutes(
           return res.status(400).json({ error: "SKU already exists" });
         }
       }
-      
+
       const variant = await storage.updateVariant(variantId, req.body);
       if (!variant) {
         return res.status(404).json({ error: "Variant not found" });
@@ -1488,7 +1488,7 @@ export async function registerRoutes(
     try {
       const productId = parseInt(req.params.productId);
       const { imageUrl, sortOrder } = req.body;
-      
+
       const image = await storage.createProductImage({
         productId,
         imageUrl,
@@ -1516,9 +1516,9 @@ export async function registerRoutes(
     try {
       const productId = parseInt(req.params.productId);
       const { images } = req.body; // Array of { imageUrl, sortOrder }
-      
+
       await storage.deleteAllProductImages(productId);
-      
+
       for (const img of images) {
         await storage.createProductImage({
           productId,
@@ -1526,7 +1526,7 @@ export async function registerRoutes(
           sortOrder: img.sortOrder || 0
         });
       }
-      
+
       const updatedImages = await storage.getImagesByProduct(productId);
       scheduleSyncDataUpdate();
       res.json(updatedImages);
@@ -1551,7 +1551,7 @@ export async function registerRoutes(
     try {
       const variantId = parseInt(req.params.variantId);
       const { imageUrl, sortOrder } = req.body;
-      
+
       const image = await storage.createVariantImage({
         variantId,
         imageUrl,
@@ -1620,19 +1620,114 @@ export async function registerRoutes(
   });
 
   // ================================
+  // ADMIN API - Data Importer (CSV)
+  // ================================
+  app.post("/api/admin/products/import", isAdmin, async (req, res) => {
+    const { csvContent } = req.body;
+    if (!csvContent) {
+      return res.status(400).json({ error: "CSV content missing" });
+    }
+
+    try {
+      const lines = csvContent.split(/\r?\n/);
+      let currentArticolo = '';
+      let currentColore = '';
+      let currentPrezzoCents = 0;
+      let importedCount = 0;
+      let updatedCount = 0;
+      let productsCache = new Map<string, number>();
+
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        // Skip empty lines or lines with only commas
+        if (!line || line.replace(/,/g, '').trim() === '') continue;
+
+        // Split by comma while respecting quotes (handles "BM, 72" and "13,9")
+        const parts = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(p => p.trim().replace(/^"|"$/g, ''));
+        if (parts.length < 7) continue;
+
+        const [, articolo, colore, sku, taglia, quantita, prezzo] = parts;
+
+        if (articolo && articolo.trim()) currentArticolo = articolo.trim();
+        if (colore && colore.trim()) currentColore = colore.trim();
+        if (prezzo && prezzo.trim()) {
+          const normalizedPrezzo = prezzo.trim().replace(',', '.');
+          currentPrezzoCents = Math.round(parseFloat(normalizedPrezzo) * 100);
+        }
+
+        if (!sku || sku.trim() === '') continue;
+        const cleanSku = sku.trim();
+
+        // 1. Resolve product ID (use cache to avoid many lookups for the same articolo name)
+        let productId = productsCache.get(currentArticolo);
+        if (productId === undefined) {
+          let product = await storage.getProductByName(currentArticolo);
+          if (!product) {
+            product = await storage.createProduct({
+              name: currentArticolo,
+              basePriceCents: currentPrezzoCents,
+              active: true
+            });
+          }
+          productId = product.id;
+          productsCache.set(currentArticolo, productId);
+        }
+
+        // 2. Check if variant exists by SKU for upsert
+        const existingVariant = await storage.getVariantBySku(cleanSku);
+        const qty = parseInt(quantita) || 0;
+
+        if (existingVariant) {
+          await storage.updateVariant(existingVariant.id, {
+            productId: productId,
+            color: currentColore,
+            size: taglia.trim(),
+            stockQty: qty,
+            priceCents: currentPrezzoCents
+          });
+          updatedCount++;
+        } else {
+          await storage.createVariant({
+            productId: productId,
+            color: currentColore,
+            size: taglia.trim(),
+            sku: cleanSku,
+            stockQty: qty,
+            priceCents: currentPrezzoCents,
+            active: true
+          });
+          importedCount++;
+        }
+      }
+
+      scheduleSyncDataUpdate();
+      res.json({
+        success: true,
+        message: `Importazione completata: ${importedCount} nuovi, ${updatedCount} aggiornati`,
+        imported: importedCount,
+        updated: updatedCount
+      });
+
+    } catch (error: any) {
+      console.error("[CSV Import] Error:", error);
+      res.status(500).json({ error: error.message || "Errore durante l'importazione" });
+    }
+  });
+
+  // ================================
   // HTML ADMIN PAGES
   // ================================
-  
+
   // Admin HTML middleware
   async function isAdminHTML(req: Request, res: Response, next: NextFunction) {
     const sessionId = req.cookies.admin_session;
-    
+
     if (!sessionId) {
       return res.redirect('/login');
     }
 
     const session = await storage.getSession(sessionId);
-    
+
     if (!session || session.expiresAt < new Date()) {
       res.clearCookie("admin_session");
       return res.redirect('/login');
@@ -1723,6 +1818,7 @@ export async function registerRoutes(
           <a href="/admin/contacts">Contacts</a>
           <a href="/admin/business-requests">Business Requests</a>
           <a href="/admin/b2b-products">B2B Products</a>
+          <a href="/admin/import">Import CSV</a>
         </div>
         <div class="container">
           <h2>Welcome, ${req.adminEmail}</h2>
@@ -1743,7 +1839,7 @@ export async function registerRoutes(
   app.get("/admin/products", isAdminHTML, async (req, res) => {
     const products = await storage.getAllProductsWithVariants();
     const collections = await storage.getAllCollections();
-    
+
     res.send(getAdminProductsPage(products, collections));
   });
 
@@ -1751,18 +1847,18 @@ export async function registerRoutes(
   app.get("/admin/products/:id", isAdminHTML, async (req, res) => {
     const product = await storage.getProductWithVariants(parseInt(req.params.id));
     const collections = await storage.getAllCollections();
-    
+
     if (!product) {
       return res.redirect('/admin/products');
     }
-    
+
     res.send(getAdminProductEditPage(product, collections));
   });
 
   // Admin Collections page
   app.get("/admin/collections", isAdminHTML, async (req, res) => {
     const collections = await storage.getAllCollections();
-    
+
     res.send(getAdminCollectionsPage(collections));
   });
 
@@ -1799,46 +1895,51 @@ export async function registerRoutes(
     res.send(getAdminB2bProductsPage(allProducts));
   });
 
+  // Admin CSV Import page
+  app.get("/admin/import", isAdminHTML, async (req, res) => {
+    res.send(getAdminImportPage());
+  });
+
   // ================================
   // PUBLIC API - Orders (Checkout)
   // ================================
-  
+
   // Create order with stock validation and decrement (transactional) - requires authentication
   app.post("/api/orders", isUser, async (req, res) => {
     try {
-      const { 
-        items, 
-        customerEmail, 
-        customerName, 
+      const {
+        items,
+        customerEmail,
+        customerName,
         customerSurname,
-        customerPhone, 
-        shippingAddress, 
+        customerPhone,
+        shippingAddress,
         shippingCity,
         shippingCap,
-        status, 
+        status,
         paymentMethod,
-        couponCode 
+        couponCode
       } = req.body;
-      
+
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "Il carrello è vuoto" });
       }
-      
+
       if (!customerEmail || !customerName) {
         return res.status(400).json({ error: "Email e nome sono obbligatori" });
       }
-      
+
       if (!shippingAddress) {
         return res.status(400).json({ error: "Indirizzo di spedizione obbligatorio" });
       }
-      
+
       // Validate status and paymentMethod to prevent client-side manipulation
       const allowedStatuses = ['pending_payment', 'awaiting_bank'];
       const allowedPaymentMethods = ['bank_transfer'];
-      
+
       const validatedStatus = status && allowedStatuses.includes(status) ? status : 'pending_payment';
       const validatedPaymentMethod = paymentMethod && allowedPaymentMethods.includes(paymentMethod) ? paymentMethod : 'bank_transfer';
-      
+
       // Validate all items have required fields
       for (const item of items) {
         if (!item.variantId || typeof item.variantId !== 'number') {
@@ -1848,11 +1949,11 @@ export async function registerRoutes(
           return res.status(400).json({ error: "Invalid quantity in cart item" });
         }
       }
-      
+
       // Pre-validate stock and gather item details
       const orderItems: { variantId: number; productName: string; variantSku: string; variantColor: string; variantSize: string; quantity: number; priceCents: number; imageUrl?: string }[] = [];
       let subtotalCents = 0;
-      
+
       for (const item of items) {
         const variant = await storage.getVariantById(item.variantId);
         if (!variant) {
@@ -1862,25 +1963,25 @@ export async function registerRoutes(
           return res.status(400).json({ error: `Prodotto ${variant.sku} non disponibile` });
         }
         if (variant.stockQty < item.quantity) {
-          return res.status(400).json({ 
-            error: `Stock insufficiente per ${variant.sku}. Disponibili: ${variant.stockQty}` 
+          return res.status(400).json({
+            error: `Stock insufficiente per ${variant.sku}. Disponibili: ${variant.stockQty}`
           });
         }
-        
+
         const product = await storage.getProductById(variant.productId);
         if (!product || !product.active) {
           return res.status(400).json({ error: `Prodotto non disponibile` });
         }
-        
+
         // Get product image
         const images = await storage.getImagesByProduct(product.id);
         const imageUrl = images.length > 0 ? images[0].imageUrl : undefined;
-        
+
         const isB2bUser = req.userId ? (await storage.getUserById(req.userId))?.isB2b : false;
         const basePriceCents = variant.priceCents || product.basePriceCents || 0;
         const priceCents = (isB2bUser && product.b2bPriceCents) ? product.b2bPriceCents : basePriceCents;
         subtotalCents += priceCents * item.quantity;
-        
+
         orderItems.push({
           variantId: item.variantId,
           productName: product.name,
@@ -1892,11 +1993,11 @@ export async function registerRoutes(
           imageUrl
         });
       }
-      
+
       // Validate and apply coupon if provided
       let discountCents = 0;
       let validatedCoupon: string | null = null;
-      
+
       if (couponCode && req.userId) {
         const normalizedCoupon = couponCode.trim().toUpperCase();
         if (normalizedCoupon === VALID_COUPON_CODE) {
@@ -1912,14 +2013,14 @@ export async function registerRoutes(
       // Calculate shipping (free over 50€)
       const shippingCents = subtotalCents >= 5000 ? 0 : 590;
       const totalCents = subtotalCents - discountCents + shippingCents;
-      
+
       if (totalCents <= 0) {
         return res.status(400).json({ error: "Il totale dell'ordine non può essere zero" });
       }
-      
+
       // Generate unique order number
       const orderNumber = generateOrderNumber();
-      
+
       // Get user ID from session if logged in
       const sessionId = req.cookies.user_session;
       let userId: number | null = null;
@@ -1929,7 +2030,7 @@ export async function registerRoutes(
           userId = session.userId;
         }
       }
-      
+
       // Create order with items in a single transaction (stock decrement included)
       const result = await storage.createOrderWithItems(
         {
@@ -1952,14 +2053,14 @@ export async function registerRoutes(
         },
         orderItems
       );
-      
+
       // Check for stock error (transaction rolled back)
       if ('error' in result) {
         return res.status(400).json({ error: result.error });
       }
-      
+
       if (validatedCoupon && userId) {
-        await storage.recordCouponUsage(userId, validatedCoupon, result.order.id).catch(err => 
+        await storage.recordCouponUsage(userId, validatedCoupon, result.order.id).catch(err =>
           console.error('[Coupon] Failed to record usage:', err)
         );
       }
@@ -1982,25 +2083,25 @@ export async function registerRoutes(
             priceCents: item.priceCents,
           })),
         };
-        
+
         sendBankTransferOrderEmail(emailData).catch(err => console.error('[Email] Bank transfer instruction error:', err));
         sendAdminBankTransferNotification(emailData).catch(err => console.error('[Email] Admin bank transfer notification error:', err));
       }
-      
-      res.status(201).json({ 
-        success: true, 
+
+      res.status(201).json({
+        success: true,
         orderId: result.order.id,
         orderNumber: result.order.orderNumber,
         totalCents: result.order.totalCents,
         order: result.order,
-        message: 'Ordine creato con successo' 
+        message: 'Ordine creato con successo'
       });
     } catch (error) {
       console.error('Order creation error:', error);
       res.status(500).json({ error: "Errore durante la creazione dell'ordine" });
     }
   });
-  
+
   // Get order by order number (for order confirmation pages)
   app.get("/api/orders/by-number/:orderNumber", async (req, res) => {
     try {
@@ -2027,11 +2128,11 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch order" });
     }
   });
-  
+
   // ================================
   // ADMIN API - Orders
   // ================================
-  
+
   app.get("/api/admin/orders", isAdmin, async (req, res) => {
     try {
       const orders = await storage.getAllOrders();
@@ -2040,7 +2141,7 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch orders" });
     }
   });
-  
+
   app.get("/api/admin/orders/:id", isAdmin, async (req, res) => {
     try {
       const order = await storage.getOrderWithItems(parseInt(req.params.id));
@@ -2052,7 +2153,7 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch order" });
     }
   });
-  
+
   app.patch("/api/admin/orders/:id/status", isAdmin, async (req, res) => {
     try {
       const { status } = req.body;
@@ -2060,22 +2161,22 @@ export async function registerRoutes(
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
-      
+
       const previousOrder = await storage.getOrderById(parseInt(req.params.id));
       const order = await storage.updateOrderStatus(parseInt(req.params.id), status);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-      
+
       // Send payment confirmation email when bank transfer order is marked as paid
-      if (status === 'paid' && previousOrder && 
-          (previousOrder.status === 'awaiting_bank' || previousOrder.status === 'pending_payment') &&
-          previousOrder.paymentMethod === 'bank_transfer') {
+      if (status === 'paid' && previousOrder &&
+        (previousOrder.status === 'awaiting_bank' || previousOrder.status === 'pending_payment') &&
+        previousOrder.paymentMethod === 'bank_transfer') {
         // Set 2-day delivery estimate for bank transfer orders
         const eta = new Date();
         eta.setDate(eta.getDate() + 2);
         await storage.updateOrder(order.id, { estimatedDeliveryDate: eta });
-        
+
         // Send confirmation email with atomic idempotency guard
         const canSendConfirmation = await storage.claimConfirmationEmail(order.id);
         if (canSendConfirmation) {
@@ -2111,7 +2212,7 @@ export async function registerRoutes(
           }
         }
       }
-      
+
       res.json(order);
     } catch (error) {
       res.status(500).json({ error: "Failed to update order status" });
@@ -2131,30 +2232,30 @@ export async function registerRoutes(
   app.patch("/api/admin/orders/:id/tracking", isAdmin, async (req, res) => {
     try {
       const orderId = parseInt(req.params.id);
-      
+
       const parseResult = trackingUpdateSchema.safeParse(req.body);
       if (!parseResult.success) {
         return res.status(400).json({ error: "Invalid input", details: parseResult.error.errors });
       }
-      
+
       const { carrier, trackingNumber, trackingUrl, estimatedDeliveryDate, status } = parseResult.data;
-      
+
       const order = await storage.getOrderById(orderId);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-      
+
       const updateData: Partial<typeof order> & { updatedAt: Date } = {
         updatedAt: new Date(),
       };
-      
+
       if (carrier !== undefined) updateData.carrier = carrier || null;
       if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber || null;
       if (trackingUrl !== undefined) updateData.trackingUrl = trackingUrl || null;
       if (estimatedDeliveryDate !== undefined) {
         updateData.estimatedDeliveryDate = estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : null;
       }
-      
+
       // Handle status changes with automatic timestamp updates
       if (status) {
         updateData.status = status;
@@ -2165,12 +2266,12 @@ export async function registerRoutes(
           updateData.deliveredAt = new Date();
         }
       }
-      
+
       const updatedOrder = await storage.updateOrder(orderId, updateData as any);
       if (!updatedOrder) {
         return res.status(404).json({ error: "Failed to update order" });
       }
-      
+
       // Send delivered email if status changed to delivered (atomic guard)
       if (status === 'delivered') {
         const canSendDelivered = await storage.claimDeliveredEmail(orderId);
@@ -2200,7 +2301,7 @@ export async function registerRoutes(
           }
         }
       }
-      
+
       res.json(updatedOrder);
     } catch (error) {
       console.error("Error updating order tracking:", error);
@@ -2228,9 +2329,9 @@ export async function registerRoutes(
       const syncDataPath = path.join(process.cwd(), 'server', 'sync-data.json');
       const rawData = fs.readFileSync(syncDataPath, 'utf-8');
       const syncData = JSON.parse(rawData);
-      
+
       const results = { productsUpdated: 0, productsInserted: 0, variantsInserted: 0, imagesInserted: 0, collectionsAssigned: 0 };
-      
+
       for (const p of syncData.products) {
         const existing = await storage.getProductById(p.id);
         if (existing) {
@@ -2265,7 +2366,7 @@ export async function registerRoutes(
           results.productsInserted++;
         }
       }
-      
+
       for (const v of syncData.variants) {
         const existingVariant = await storage.getVariantBySku(v.sku);
         if (!existingVariant) {
@@ -2281,7 +2382,7 @@ export async function registerRoutes(
           results.variantsInserted++;
         }
       }
-      
+
       for (const img of syncData.images) {
         const existingImages = await storage.getImagesByProduct(img.productId);
         const alreadyExists = existingImages.some((ei: any) => ei.imageUrl === img.imageUrl);
@@ -2294,16 +2395,16 @@ export async function registerRoutes(
           results.imagesInserted++;
         }
       }
-      
+
       for (const pc of syncData.productCollections) {
         await storage.assignProductToCollection(pc.productId, pc.collectionId, pc.position);
         results.collectionsAssigned++;
       }
-      
+
       const maxIdResult = await db.execute(sql`SELECT MAX(id) as max_id FROM products`);
       const maxId = (maxIdResult as any).rows?.[0]?.max_id || 30;
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('products', 'id'), ${Number(maxId) + 1}, false)`);
-      
+
       console.log('[Sync] Data sync complete:', results);
       res.json({ ok: true, results });
     } catch (error: any) {
@@ -2316,22 +2417,22 @@ export async function registerRoutes(
   app.post("/api/admin/test-email", isAdminToken, async (req, res) => {
     try {
       console.log('[Email Test] Starting test email send...');
-      
+
       // Use provided order data or create dummy data
       const orderData = req.body?.orderData || createDummyOrderData();
-      
+
       // Send test emails
       const customerResult = await sendOrderConfirmationEmail(orderData);
       const adminResult = await sendAdminOrderNotification(orderData);
-      
+
       const results = {
         customer: customerResult,
         admin: adminResult,
       };
-      
+
       console.log('[Email Test] Results:', results);
-      
-      res.json({ 
+
+      res.json({
         ok: customerResult || adminResult,
         results,
         orderData: {
@@ -2357,23 +2458,23 @@ export async function registerRoutes(
   app.post("/api/admin/orders/:id/ship", isAdmin, async (req, res) => {
     try {
       const orderId = parseInt(req.params.id);
-      
+
       const parseResult = shipOrderSchema.safeParse(req.body);
       if (!parseResult.success) {
         return res.status(400).json({ error: "Invalid input", details: parseResult.error.errors });
       }
-      
+
       const { carrier, trackingNumber, trackingUrl, estimatedDeliveryDate } = parseResult.data;
-      
+
       const order = await storage.getOrderById(orderId);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-      
+
       if (!['paid', 'processing'].includes(order.status)) {
         return res.status(400).json({ error: "Order must be paid or processing to ship" });
       }
-      
+
       // Calculate ETA if not provided (2-5 business days from now)
       let eta: Date | null = estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : null;
       if (!eta) {
@@ -2388,7 +2489,7 @@ export async function registerRoutes(
           }
         }
       }
-      
+
       const updatedOrder = await storage.updateOrder(orderId, {
         status: 'shipped',
         carrier: carrier || 'BRT',
@@ -2398,7 +2499,7 @@ export async function registerRoutes(
         shippedAt: new Date(),
         updatedAt: new Date(),
       });
-      
+
       // Send shipping notification email to customer
       const orderWithItems = await storage.getOrderWithItems(orderId);
       if (orderWithItems) {
@@ -2422,10 +2523,10 @@ export async function registerRoutes(
             priceCents: item.priceCents,
           })),
         };
-        
+
         sendShippingNotification(emailData).catch(err => console.error('[Email] Shipping error:', err));
       }
-      
+
       res.json(updatedOrder);
     } catch (error) {
       console.error("Error shipping order:", error);
@@ -2437,26 +2538,26 @@ export async function registerRoutes(
   app.post("/api/admin/orders/:id/deliver", isAdmin, async (req, res) => {
     try {
       const orderId = parseInt(req.params.id);
-      
+
       const order = await storage.getOrderById(orderId);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-      
+
       if (order.status !== 'shipped') {
         return res.status(400).json({ error: "Order must be shipped to mark as delivered" });
       }
-      
+
       const deliveredAt = req.body?.deliveredAt ? new Date(req.body.deliveredAt) : new Date();
-      
+
       const updatedOrder = await storage.updateOrder(orderId, {
         status: 'delivered',
         deliveredAt,
         updatedAt: new Date(),
       });
-      
+
       console.log(`[Deliver] Order ${order.orderNumber} marked as delivered`);
-      
+
       // Send delivered email with atomic idempotency guard
       const canSendDelivered = await storage.claimDeliveredEmail(orderId);
       if (canSendDelivered) {
@@ -2486,7 +2587,7 @@ export async function registerRoutes(
       } else {
         console.log(`[Deliver] Delivered email already sent for order: ${order.orderNumber}, skipping`);
       }
-      
+
       res.json(updatedOrder);
     } catch (error) {
       console.error("Error marking order delivered:", error);
@@ -2716,7 +2817,7 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
 
 function getAdminProductEditPage(product: any, collections: any[]): string {
   const productCollectionIds = product.collections?.map((c: any) => c.id) || [];
-  
+
   return `
     <!DOCTYPE html>
     <html>
@@ -3580,9 +3681,9 @@ function getAdminOrdersPage(orders: any[]): string {
           </thead>
           <tbody>
             ${orders.length === 0 ? '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No orders yet</td></tr>' : orders.map(o => {
-              const status = statusLabels[o.status] || { label: o.status, color: "#666" };
-              const date = new Date(o.createdAt).toLocaleDateString('it-IT');
-              return `
+    const status = statusLabels[o.status] || { label: o.status, color: "#666" };
+    const date = new Date(o.createdAt).toLocaleDateString('it-IT');
+    return `
                 <tr>
                   <td><a href="/admin/orders/${o.id}"><strong>${o.orderNumber}</strong></a></td>
                   <td>${date}</td>
@@ -3604,7 +3705,7 @@ function getAdminOrdersPage(orders: any[]): string {
                   </td>
                 </tr>
               `;
-            }).join('')}
+  }).join('')}
           </tbody>
         </table>
       </div>
@@ -3638,10 +3739,10 @@ function getAdminOrderDetailPage(order: any): string {
     completed: { label: "Completato", color: "#6c757d" },
     cancelled: { label: "Annullato", color: "#dc3545" },
   };
-  
+
   const status = statusLabels[order.status] || { label: order.status, color: "#666" };
-  const date = new Date(order.createdAt).toLocaleDateString('it-IT', { 
-    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+  const date = new Date(order.createdAt).toLocaleDateString('it-IT', {
+    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
   });
 
   return `
@@ -4027,11 +4128,11 @@ function getAdminContactsPage(contacts: any[]): string {
         <h2 style="margin-bottom: 1.5rem;">Contact Messages (${contacts.length})</h2>
         
         ${contacts.length === 0 ? '<div class="empty">No contact messages yet</div>' : contacts.map(c => {
-          const date = new Date(c.createdAt).toLocaleDateString('it-IT', { 
-            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-          });
-          const statusClass = c.status === 'new' ? 'status-new' : c.status === 'replied' ? 'status-replied' : 'status-read';
-          return `
+    const date = new Date(c.createdAt).toLocaleDateString('it-IT', {
+      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    const statusClass = c.status === 'new' ? 'status-new' : c.status === 'replied' ? 'status-replied' : 'status-read';
+    return `
             <div class="contact-card">
               <div class="contact-header">
                 <div class="contact-info">
@@ -4050,7 +4151,7 @@ function getAdminContactsPage(contacts: any[]): string {
               <div class="contact-message">${c.message}</div>
             </div>
           `;
-        }).join('')}
+  }).join('')}
       </div>
       <script>
         async function logout() {
@@ -4088,7 +4189,7 @@ function getAdminBusinessRequestsPage(requests: any[]): string {
     const statusLabel = r.status === 'approved' ? 'Approvata' : r.status === 'rejected' ? 'Rifiutata' : 'In attesa';
     const actions = r.status === 'pending'
       ? '<button class="btn btn-approve" onclick="updateStatus(' + r.id + ", 'approved'" + ')">Approva</button>' +
-        '<button class="btn btn-reject" onclick="updateStatus(' + r.id + ", 'rejected'" + ')">Rifiuta</button>'
+      '<button class="btn btn-reject" onclick="updateStatus(' + r.id + ", 'rejected'" + ')">Rifiuta</button>'
       : '-';
     return '<tr>' +
       '<td>' + r.companyName + '</td>' +
@@ -4392,6 +4493,95 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
             }
           } catch (e) {
             showToast('Errore di connessione', 'error');
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `;
+}
+
+function getAdminImportPage() {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Import CSV - VIPIESSE Admin</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; }
+        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; display: flex; }
+        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
+        .container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h2 { margin-bottom: 1.5rem; }
+        textarea { width: 100%; height: 400px; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.9rem; margin-bottom: 1rem; }
+        .btn { padding: 0.75rem 1.5rem; background: #000; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+        .btn:disabled { background: #999; cursor: not-allowed; }
+        .status { margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+      </style>
+    </head>
+    <body>
+      <div class="header"><h1>VIPIESSE Admin Panel</h1></div>
+      <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/products">Products</a>
+        <a href="/admin/import" style="color: #000; border-bottom: 2px solid #000;">Import CSV</a>
+      </div>
+      <div class="container">
+        <div class="card">
+          <h2>Import Products from CSV</h2>
+          <p style="margin-bottom: 1rem; color: #666;">Incolla il contenuto CSV qui sotto come fornito. La prima riga deve essere l'intestazione.</p>
+          <textarea id="csvInput" placeholder="Data invio,Articolo,Colore,SKU,Taglia,Quantità,Prezzo..."></textarea>
+          <div style="display: flex; gap: 1rem;">
+            <button id="importBtn" class="btn" onclick="runImport()">Avvia Importazione</button>
+          </div>
+          <div id="status" class="status"></div>
+        </div>
+      </div>
+      <script>
+        async function runImport() {
+          const btn = document.getElementById('importBtn');
+          const status = document.getElementById('status');
+          const csvContent = document.getElementById('csvInput').value;
+
+          if (!csvContent.trim()) {
+            alert('Inserisci il contenuto CSV');
+            return;
+          }
+
+          btn.disabled = true;
+          btn.textContent = 'Importazione in corso...';
+          status.style.display = 'none';
+
+          try {
+            const res = await fetch('/api/admin/products/import', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ csvContent })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+              status.className = 'status success';
+              status.textContent = result.message || 'Importazione completata con successo!';
+            } else {
+              status.className = 'status error';
+              status.textContent = 'Errore: ' + (result.error || 'Errore sconosciuto');
+            }
+          } catch (e) {
+            status.className = 'status error';
+            status.textContent = 'Errore di connessione';
+          } finally {
+            status.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Avvia Importazione';
           }
         }
       </script>
