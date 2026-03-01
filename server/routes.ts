@@ -518,7 +518,7 @@ export async function registerRoutes(
     }
   });
 
-  // Stripe Webhook endpoint - updates order after payment confirmation
+  // Stripe Webhook endpoint-updates order after payment confirmation
   app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -1119,7 +1119,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // PUBLIC API - Products
+  // PUBLIC API-Products
   // ================================
   app.get("/api/products", async (req, res) => {
     try {
@@ -1154,7 +1154,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // PUBLIC API - Collections
+  // PUBLIC API-Collections
   // ================================
   app.get("/api/collections", async (req, res) => {
     try {
@@ -1268,7 +1268,7 @@ export async function registerRoutes(
     }
 
     if (email !== adminEmail || password !== adminPassword) {
-      console.log("[LOGIN] ERROR: Invalid credentials - email match:", email === adminEmail, "password match:", password === adminPassword);
+      console.log("[LOGIN] ERROR: Invalid credentials-email match:", email === adminEmail, "password match:", password === adminPassword);
       if (isFormSubmit) return res.redirect('/login?error=1');
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -1308,7 +1308,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Products
+  // ADMIN API-Products
   // ================================
   app.get("/api/admin/products", isAdmin, async (req, res) => {
     try {
@@ -1394,7 +1394,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Variants
+  // ADMIN API-Variants
   // ================================
   app.get("/api/admin/products/:productId/variants", isAdmin, async (req, res) => {
     try {
@@ -1464,7 +1464,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Product Images
+  // ADMIN API-Product Images
   // ================================
   app.get("/api/admin/products/:productId/images", isAdmin, async (req, res) => {
     try {
@@ -1536,7 +1536,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Variant Images
+  // ADMIN API-Variant Images
   // ================================
   app.get("/api/admin/variants/:variantId/images", isAdmin, async (req, res) => {
     try {
@@ -1575,7 +1575,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Collections
+  // ADMIN API-Collections
   // ================================
   app.get("/api/admin/collections", isAdmin, async (req, res) => {
     try {
@@ -1620,45 +1620,72 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Data Importer (CSV)
+  // ADMIN API-Data Importer (CSV)
   // ================================
-  app.post("/api/admin/products/import", isAdmin, async (req, res) => {
-    const { csvContent } = req.body;
+  app.post("/api/admin/products/import", isAdmin, upload.single("csvFile"), async (req, res) => {
+    let csvContent = "";
+    if (req.file) {
+      csvContent = fs.readFileSync(req.file.path, "utf-8");
+      try { fs.unlinkSync(req.file.path); } catch (e) { }
+    } else {
+      csvContent = req.body.csvContent;
+    }
+
     if (!csvContent) {
-      return res.status(400).json({ error: "CSV content missing" });
+      return res.status(400).json({ error: "CSV content or file missing" });
     }
 
     try {
       const lines = csvContent.split(/\r?\n/);
-      let currentArticolo = '';
-      let currentColore = '';
+      let currentArticolo = "";
+      let currentColore = "";
       let currentPrezzoCents = 0;
-      let importedCount = 0;
-      let updatedCount = 0;
+
+      let productsCreated = 0;
+      let variantsCreated = 0;
+      let skipped: { sku: string; reason: string }[] = [];
       let productsCache = new Map<string, number>();
 
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
-        // Skip empty lines or lines with only commas
-        if (!line || line.replace(/,/g, '').trim() === '') continue;
+        if (!line || line.replace(/,/g, "").trim() === "") continue;
 
-        // Split by comma while respecting quotes (handles "BM, 72" and "13,9")
-        const parts = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(p => p.trim().replace(/^"|"$/g, ''));
-        if (parts.length < 7) continue;
+        // Split by comma while respecting quotes
+        const parts = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(p => p.trim().replace(/^"|"$/g, ""));
 
-        const [, articolo, colore, sku, taglia, quantita, prezzo] = parts;
+        let articolo, colore, sku, taglia, quantita, prezzo;
+
+        if (parts.length >= 7) {
+          [, articolo, colore, sku, taglia, quantita, prezzo] = parts;
+        } else if (parts.length >= 6) {
+          [articolo, colore, sku, taglia, quantita, prezzo] = parts;
+        } else {
+          continue;
+        }
 
         if (articolo && articolo.trim()) currentArticolo = articolo.trim();
         if (colore && colore.trim()) currentColore = colore.trim();
         if (prezzo && prezzo.trim()) {
-          const normalizedPrezzo = prezzo.trim().replace(',', '.');
+          const normalizedPrezzo = prezzo.trim().replace(",", ".");
           currentPrezzoCents = Math.round(parseFloat(normalizedPrezzo) * 100);
         }
 
-        if (!sku || sku.trim() === '') continue;
+        if (!sku || sku.trim() === "") continue;
         const cleanSku = sku.trim();
 
-        // 1. Resolve product ID (use cache to avoid many lookups for the same articolo name)
+        const qtyStr = quantita || "";
+        const qty = parseInt(qtyStr.trim());
+        if (!qtyStr.trim() || isNaN(qty) || qty <= 0) {
+          skipped.push({ sku: cleanSku, reason: "skipped: missing quantity" });
+          continue;
+        }
+
+        const existingVariant = await storage.getVariantBySku(cleanSku);
+        if (existingVariant) {
+          skipped.push({ sku: cleanSku, reason: "SKU already exists" });
+          continue;
+        }
+
         let productId = productsCache.get(currentArticolo);
         if (productId === undefined) {
           let product = await storage.getProductByName(currentArticolo);
@@ -1667,45 +1694,34 @@ export async function registerRoutes(
               name: currentArticolo,
               basePriceCents: currentPrezzoCents,
               active: true
-            });
+            } as any);
+            productsCreated++;
           }
           productId = product.id;
           productsCache.set(currentArticolo, productId);
         }
 
-        // 2. Check if variant exists by SKU for upsert
-        const existingVariant = await storage.getVariantBySku(cleanSku);
-        const qty = parseInt(quantita) || 0;
-
-        if (existingVariant) {
-          await storage.updateVariant(existingVariant.id, {
-            productId: productId,
-            color: currentColore,
-            size: taglia.trim(),
-            stockQty: qty,
-            priceCents: currentPrezzoCents
-          });
-          updatedCount++;
-        } else {
-          await storage.createVariant({
-            productId: productId,
-            color: currentColore,
-            size: taglia.trim(),
-            sku: cleanSku,
-            stockQty: qty,
-            priceCents: currentPrezzoCents,
-            active: true
-          });
-          importedCount++;
-        }
+        await storage.createVariant({
+          productId: productId,
+          color: currentColore,
+          size: taglia.trim(),
+          sku: cleanSku,
+          stockQty: qty,
+          priceCents: currentPrezzoCents,
+          active: true
+        } as any);
+        variantsCreated++;
       }
 
       scheduleSyncDataUpdate();
       res.json({
         success: true,
-        message: `Importazione completata: ${importedCount} nuovi, ${updatedCount} aggiornati`,
-        imported: importedCount,
-        updated: updatedCount
+        summary: {
+          productsCreated,
+          variantsCreated,
+          skippedCount: skipped.length
+        },
+        skipped: skipped
       });
 
     } catch (error: any) {
@@ -1744,7 +1760,7 @@ export async function registerRoutes(
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Admin Login - VIPIESSE</title>
+        <title>Admin Login-VIPIESSE</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
@@ -1791,7 +1807,7 @@ export async function registerRoutes(
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Admin Panel - VIPIESSE</title>
+        <title>Admin Panel-VIPIESSE</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
@@ -1835,7 +1851,7 @@ export async function registerRoutes(
     `);
   });
 
-  // Admin Products page - redirects to new admin interface
+  // Admin Products page-redirects to new admin interface
   app.get("/admin/products", isAdminHTML, async (req, res) => {
     const products = await storage.getAllProductsWithVariants();
     const collections = await storage.getAllCollections();
@@ -1901,7 +1917,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // PUBLIC API - Orders (Checkout)
+  // PUBLIC API-Orders (Checkout)
   // ================================
 
   // Create order with stock validation and decrement (transactional) - requires authentication
@@ -2130,7 +2146,7 @@ export async function registerRoutes(
   });
 
   // ================================
-  // ADMIN API - Orders
+  // ADMIN API-Orders
   // ================================
 
   app.get("/api/admin/orders", isAdmin, async (req, res) => {
@@ -2413,7 +2429,7 @@ export async function registerRoutes(
     }
   });
 
-  // Test email endpoint - for verifying email configuration without placing an order
+  // Test email endpoint-for verifying email configuration without placing an order
   app.post("/api/admin/test-email", isAdminToken, async (req, res) => {
     try {
       console.log('[Email Test] Starting test email send...');
@@ -2607,7 +2623,7 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Products - Admin Panel</title>
+      <title>Products-Admin Panel</title>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
@@ -2658,8 +2674,9 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
         <a href="/admin/b2b-products">B2B Products</a>
       </div>
       <div class="container">
-        <div class="controls">
+        <div class="controls" style="display: flex; gap: 1rem;">
           <button class="btn" onclick="showCreateModal()">+ New Product</button>
+          <button class="btn" onclick="showImportModal()" style="background: #333;">Import CSV</button>
         </div>
         <table>
           <thead>
@@ -2731,6 +2748,26 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
           </form>
         </div>
       </div>
+
+      <div id="importModal" class="modal">
+        <div class="modal-content">
+          <h2>Import Products from CSV</h2>
+          <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #666;">
+            Select a .csv file with columns: Articolo, Colore, SKU, Taglia, Quantità, Prezzo.
+          </p>
+          <form id="importForm">
+            <div class="form-group">
+              <label>Select CSV File</label>
+              <input type="file" id="csvFile" accept=".csv" required>
+            </div>
+            <div id="importStatus" style="margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none;"></div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+              <button type="submit" id="importSubmitBtn" class="btn">Start Import</button>
+              <button type="button" class="btn" onclick="closeImportModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
       
       <script>
         async function logout() {
@@ -2747,72 +2784,142 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
         function closeModal() {
           document.getElementById('productModal').classList.remove('show');
         }
-        
-        async function deleteProduct(id) {
-          if (!confirm('Delete this product and all its variants?')) return;
-          await fetch('/api/admin/products/' + id, { method: 'DELETE' });
-          location.reload();
+
+        function showImportModal() {
+          document.getElementById('importForm').reset();
+          const status = document.getElementById('importStatus');
+          status.style.display = 'none';
+          status.innerHTML = '';
+          document.getElementById('importModal').classList.add('show');
         }
-        
-        function parsePrice(str) {
-          if (!str) return null;
-          return Math.round(parseFloat(str.replace(',', '.')) * 100);
+
+        function closeImportModal() {
+          document.getElementById('importModal').classList.remove('show');
         }
-        
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
+
+        document.getElementById('importForm').onsubmit = async (e) => {
           e.preventDefault();
-          const errorDiv = document.getElementById('formError');
-          errorDiv.classList.remove('show');
+          const btn = document.getElementById('importSubmitBtn');
+          const status = document.getElementById('importStatus');
+          const fileInput = document.getElementById('csvFile');
           
-          const basePriceInput = document.getElementById('basePrice').value;
-          const basePriceCents = basePriceInput ? parsePrice(basePriceInput) : null;
-          
-          const data = {
-            name: document.getElementById('name').value,
-            brand: document.getElementById('brand').value || null,
-            description: document.getElementById('description').value || null,
-            basePriceCents: basePriceCents,
-            active: true
-          };
-          
-          const collectionIds = Array.from(document.querySelectorAll('input[name="collection"]:checked'))
-            .map(cb => parseInt(cb.value));
-          
+          if (!fileInput.files[0]) return;
+
+          btn.disabled = true;
+          btn.textContent = 'Importing...';
+          status.style.display = 'block';
+          status.style.background = '#f8f9fa';
+          status.innerHTML = 'Caricamento in corso...';
+
+          const formData = new FormData();
+          formData.append('csvFile', fileInput.files[0]);
+
           try {
-            const res = await fetch('/api/admin/products', {
+            const res = await fetch('/api/admin/products/import', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
+              body: formData
             });
-            
-            const result = await res.json();
-            
-            if (!res.ok) {
-              errorDiv.textContent = result.error || 'Failed to create product';
-              errorDiv.classList.add('show');
-              return;
+
+            const data = await res.json();
+            if (res.ok) {
+              status.style.background = '#d4edda';
+              status.style.color = '#155724';
+              let html = '<strong>Import Successful!</strong><br>';
+              html += 'Products Created: ' + data.summary.productsCreated + '<br>';
+              html += 'Variants Created: ' + data.summary.variantsCreated + '<br>';
+              html += 'Skipped: ' + data.summary.skippedCount + '<br>';
+
+              if (data.skipped && data.skipped.length> 0) {
+                html += '<div style="margin-top: 0.5rem; font-size: 0.8rem; max-height: 150px; overflow-y: auto; border-top: 1px solid #c3e6cb; padding-top: 0.5rem;">';
+                data.skipped.forEach(s => {
+                  html += '<div>SKU ' + s.sku + ': ' + s.reason + '</div>';
+                });
+                html += '</div>';
+              }
+
+              status.innerHTML = html;
+              setTimeout(() => window.location.reload(), 3000);
+            } else {
+              status.style.background = '#f8d7da';
+              status.style.color = '#721c24';
+              status.textContent = 'Error: ' + (data.error || 'Unknown error');
+              btn.disabled = false;
+              btn.textContent = 'Start Import';
             }
-            
-            // Assign collections
-            if (collectionIds.length > 0) {
-              await fetch('/api/admin/products/' + result.id + '/collections', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ collectionIds })
-              });
-            }
-            
-            // Redirect to product edit page
-            window.location.href = '/admin/products/' + result.id;
           } catch (err) {
-            errorDiv.textContent = 'Network error';
-            errorDiv.classList.add('show');
+            status.style.background = '#f8d7da';
+            status.style.color = '#721c24';
+            status.textContent = 'Connection error';
+            btn.disabled = false;
+            btn.textContent = 'Start Import';
           }
-        });
-      </script>
-    </body>
-    </html>
-  `;
+        };
+
+async function deleteProduct(id) {
+  if (!confirm('Delete this product and all its variants?')) return;
+  await fetch('/api/admin/products/' + id, { method: 'DELETE' });
+  location.reload();
+}
+
+function parsePrice(str) {
+  if (!str) return null;
+  return Math.round(parseFloat(str.replace(',', '.')) * 100);
+}
+
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorDiv = document.getElementById('formError');
+  errorDiv.classList.remove('show');
+
+  const basePriceInput = document.getElementById('basePrice').value;
+  const basePriceCents = basePriceInput ? parsePrice(basePriceInput) : null;
+
+  const data = {
+    name: document.getElementById('name').value,
+    brand: document.getElementById('brand').value || null,
+    description: document.getElementById('description').value || null,
+    basePriceCents: basePriceCents,
+    active: true
+  };
+
+  const collectionIds = Array.from(document.querySelectorAll('input[name="collection"]:checked'))
+    .map(cb => parseInt(cb.value));
+
+  try {
+    const res = await fetch('/api/admin/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      errorDiv.textContent = result.error || 'Failed to create product';
+      errorDiv.classList.add('show');
+      return;
+    }
+
+    // Assign collections
+    if (collectionIds.length> 0) {
+      await fetch('/api/admin/products/' + result.id + '/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ collectionIds })
+      });
+    }
+
+    // Redirect to product edit page
+    window.location.href = '/admin/products/' + result.id;
+  } catch (err) {
+    errorDiv.textContent = 'Network error';
+    errorDiv.classList.add('show');
+  }
+});
+</script>
+  </body>
+  </html>
+    `;
 }
 
 function getAdminProductEditPage(product: any, collections: any[]): string {
@@ -2840,33 +2947,33 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         .btn-small { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
         .btn-secondary { background: #6c757d; }
         .btn-danger { background: #dc3545; }
-        .section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
         .section h3 { margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+input, select, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
         .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
         .checkbox-group label { font-weight: normal; display: flex; align-items: center; font-size: 0.85rem; }
         .checkbox-group input { width: auto; margin-right: 0.5rem; }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100 %; border-collapse: collapse; }
         table th, table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         table th { font-weight: 600; background: #f8f8f8; }
         .active-badge { display: inline-block; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600; }
         .active-badge.yes { background: #d4edda; color: #155724; }
         .active-badge.no { background: #f8d7da; color: #721c24; }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95%; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95 %; max-height: 90vh; overflow-y: auto; }
         .error-msg { color: #dc3545; font-size: 0.85rem; margin-bottom: 0.5rem; display: none; }
         .error-msg.show { display: block; }
         .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0; }
         .image-card { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 2px solid #e0e0e0; }
-        .image-card img { width: 100%; height: 100%; object-fit: cover; }
-        .image-delete-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: white; border: none; cursor: pointer; font-size: 16px; line-height: 1; }
+        .image-card img { width: 100 %; height: 100 %; object-fit: cover; }
+        .image-delete-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50 %; background: #ef4444; color: white; border: none; cursor: pointer; font-size: 16px; line-height: 1; }
         .image-delete-btn:hover { background: #dc2626; }
         .drop-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; margin-top: 1rem; background: #fafafa; }
-        .drop-zone:hover, .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+        .drop-zone: hover, .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
         .drop-zone-content { color: #666; }
         .drop-zone-content svg { color: #9ca3af; margin-bottom: 0.5rem; }
         .drop-zone.dragover svg { color: #2563eb; }
@@ -2874,146 +2981,148 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         .drop-hint { font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem; }
         .upload-progress { margin-top: 1rem; }
         .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #2563eb; width: 0%; transition: width 0.3s; }
+        .progress-fill { height: 100 %; background: #2563eb; width: 0 %; transition: width 0.3s; }
         .progress-text { display: block; font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
         .back-link { color: #666; text-decoration: none; margin-bottom: 1rem; display: inline-block; }
         .back-link:hover { color: #000; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products" class="active">Products</a>
-        <a href="/admin/collections">Collections</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/contacts">Contacts</a>
-        <a href="/admin/business-requests">Business Requests</a>
-        <a href="/admin/b2b-products">B2B Products</a>
-      </div>
-      <div class="container">
-        <a href="/admin/products" class="back-link">← Back to Products</a>
-        
-        <!-- Product Details Section -->
-        <div class="section">
-          <h3>Product Details</h3>
-          <form id="productForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Name / Articolo *</label>
-                <input type="text" id="name" value="${product.name}" required>
-              </div>
-              <div class="form-group">
-                <label>Brand</label>
-                <input type="text" id="brand" value="${product.brand || ''}">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Base Price (€)</label>
-                <input type="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
-              </div>
-              <div class="form-group">
-                <label>Prezzo Pre-Sconto / Outlet (€)</label>
-                <input type="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
-                <small style="color:#666;font-size:0.75rem;">Se compilato, nella sezione Outlet verrà mostrato come prezzo barrato con la % di sconto</small>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Active</label>
-                <select id="active">
-                  <option value="true" ${product.active ? 'selected' : ''}>Yes</option>
-                  <option value="false" ${!product.active ? 'selected' : ''}>No</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Stagione</label>
-                <select id="season">
-                  <option value="" ${!product.season ? 'selected' : ''}>-- Nessuna --</option>
-                  <option value="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}>Primavera / Estate</option>
-                  <option value="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}>Autunno / Inverno</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Description</label>
-              <textarea id="description" rows="3">${product.description || ''}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Collections</label>
-              <div class="checkbox-group">
-                ${collections.map(c => `
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
+        </div>
+       <divclass="nav">
+          <a href="/admin/products" class="active"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <a href="/admin/products" class="back-link">← Back to Products </a>
+
+                          <!--Product Details Section-->
+                            <div class="section">
+                              <h3>Product Details </h3>
+                               <formid="productForm">
+                                  <div class="form-row">
+                                    <div class="form-group">
+                                      <label>Name / Articolo * </label>
+                                     <inputtype="text" id="name" value="${product.name}" required>
+                                        </div>
+                                       <divclass="form-group">
+                                          <label>Brand </label>
+                                         <inputtype="text" id="brand" value="${product.brand || ''}">
+                                            </div>
+                                            </div>
+                                           <divclass="form-row">
+                                              <div class="form-group">
+                                                <label>Base Price(€) </label>
+                                                 <inputtype="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
+                                                    </div>
+                                                   <divclass="form-group">
+                                                      <label>Prezzo Pre-Sconto / Outlet(€) </label>
+                                                       <inputtype="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
+                                                          <small style="color:#666;font-size:0.75rem;"> Se compilato, nella sezione Outlet verrà mostrato come prezzo barrato con la % di sconto </small>
+                                                            </div>
+                                                            </div>
+                                                           <divclass="form-row">
+                                                              <div class="form-group">
+                                                                <label>Active </label>
+                                                               <selectid="active">
+                                                                  <option value="true" ${product.active ? 'selected' : ''}> Yes </option>
+                                                                   <optionvalue="false" ${!product.active ? 'selected' : ''}> No </option>
+                                                                      </select>
+                                                                      </div>
+                                                                     <divclass="form-group">
+                                                                        <label>Stagione </label>
+                                                                       <selectid="season">
+                                                                          <option value="" ${!product.season ? 'selected' : ''}> --Nessuna --</option>
+                                                                           <optionvalue="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}> Primavera / Estate </option>
+                                                                             <optionvalue="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}> Autunno / Inverno </option>
+                                                                                </select>
+                                                                                </div>
+                                                                                </div>
+                                                                               <divclass="form-group">
+                                                                                  <label>Description </label>
+                                                                                 <textareaid="description" rows="3"> ${product.description || ''} </textarea>
+                                                                                    </div>
+                                                                                   <divclass="form-group">
+                                                                                      <label>Collections </label>
+                                                                                     <divclass="checkbox-group">
+                                                                                        ${collections.map(c => `
                   <label>
                     <input type="checkbox" name="collection" value="${c.id}" ${productCollectionIds.includes(c.id) ? 'checked' : ''}>
                     ${c.name}
                   </label>
-                `).join('')}
-              </div>
-            </div>
-            <button type="submit" class="btn">Save Product</button>
-          </form>
-        </div>
-        
-        <!-- Product Images Section -->
-        <div class="section">
-          <h3>Product Images</h3>
-          <div id="imagesList" class="image-grid">
+                `).join('')
+    }
+</div>
+  </div>
+ <buttontype="submit" class="btn"> Save Product </button>
+    </form>
+    </div>
+
+    <!--Product Images Section-->
+      <div class="section">
+        <h3>Product Images </h3>
+         <divid="imagesList" class="image-grid">
             ${product.images?.map((img: any) => `
               <div class="image-card" data-id="${img.id}">
                 <img src="${img.imageUrl}" alt="Product image" onerror="this.src='https://via.placeholder.com/150?text=Error'">
                 <button class="image-delete-btn" onclick="deleteImage(${img.id})">×</button>
               </div>
-            `).join('') || '<p style="color: #666; grid-column: 1/-1;">No images yet. Upload images below.</p>'}
-          </div>
-          
-          <!-- Drag & Drop Upload Area -->
-          <div id="dropZone" class="drop-zone">
-            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
-            <div class="drop-zone-content">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
-              <p>Trascina le immagini qui o <span class="browse-link">clicca per selezionare</span></p>
-              <p class="drop-hint">Formati supportati: JPG, PNG, WebP (max 10MB)</p>
-            </div>
-          </div>
-          <div id="uploadProgress" class="upload-progress" style="display: none;">
-            <div class="progress-bar"><div class="progress-fill"></div></div>
-            <span class="progress-text">Caricamento...</span>
-          </div>
-        </div>
-        
-        <!-- Color Images Section -->
-        <div class="section" id="colorImagesSection">
-          <h3>Color Images</h3>
-          <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;">Assign an image to each color. All sizes of the same color share this image. On the storefront, the product image updates when a customer selects a color.</p>
-          <div id="colorImagesList"></div>
-        </div>
+            `).join('') || '<p style="color: #666; grid-column: 1/-1;">No images yet. Upload images below.</p>'
+    }
+</div>
 
-        <!-- Variants Section -->
-        <div class="section">
-          <h3>Variants (Color + Size Combinations)</h3>
-          <button class="btn" onclick="showVariantModal()">+ Add Variant</button>
-          <table style="margin-top: 1rem;">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Color</th>
-                <th>Size</th>
-                <th>SKU</th>
-                <th>Stock</th>
-                <th>Price</th>
-                <th>Active</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="variantsList">
-              ${product.variants?.map((v: any) => `
+  <!--Drag & Drop Upload Area-->
+    <div id="dropZone" class="drop-zone">
+      <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+        <div class="drop-zone-content">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"> </path>
+             <polylinepoints="17 8 12 3 7 8"> </polyline>
+               <linex1="12" y1="3" x2="12" y2="15"> </line>
+                  </svg>
+                 <p> Trascina le immagini qui o<spanclass="browse-link"> clicca per selezionare</span></p>
+                    <p class="drop-hint"> Formati supportati: JPG, PNG, WebP(max 10MB) </p>
+                      </div>
+                      </div>
+                     <divid="uploadProgress" class="upload-progress" style="display: none;">
+                        <div class="progress-bar"> <div class="progress-fill"> </div></div>
+                          <span class="progress-text"> Caricamento...</span>
+                            </div>
+                            </div>
+
+                            <!--Color Images Section-->
+                              <div class="section" id="colorImagesSection">
+                                <h3>Color Images </h3>
+                                 <pstyle="color: #666; font-size: 0.85rem; margin-bottom: 1rem;"> Assign an image to each color.All sizes of the same color share this image.On the storefront, the product image updates when a customer selects a color.</p>
+                                   <divid="colorImagesList"> </div>
+                                      </div>
+
+                                      <!--Variants Section-->
+                                        <div class="section">
+                                          <h3>Variants(Color + Size Combinations) </h3>
+                                         <buttonclass="btn" onclick="showVariantModal()"> + Add Variant </button>
+                                           <tablestyle="margin-top: 1rem;">
+                                              <thead>
+                                              <tr>
+                                              <th>Image </th>
+                                             <th> Color </th>
+                                             <th> Size </th>
+                                             <th> SKU </th>
+                                             <th> Stock </th>
+                                             <th> Price </th>
+                                             <th> Active </th>
+                                             <th> Actions </th>
+                                              </tr>
+                                              </thead>
+                                             <tbodyid="variantsList">
+                                                ${product.variants?.map((v: any) => `
                 <tr data-id="${v.id}">
                   <td>${v.imageUrl ? '<img src="' + v.imageUrl + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" onerror="this.style.display=\'none\'">' : '<span style="color:#ccc;">—</span>'}</td>
                   <td>${v.color}</td>
@@ -3027,434 +3136,435 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                     <button class="btn btn-small btn-danger" onclick="deleteVariant(${v.id})">Delete</button>
                   </td>
                 </tr>
-              `).join('') || '<tr><td colspan="8" style="color: #666;">No variants yet. Add color/size combinations.</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <!-- Variant Modal -->
-      <div id="variantModal" class="modal">
-        <div class="modal-content">
-          <h2 id="variantModalTitle">Add Variant</h2>
-          <form id="variantForm">
-            <input type="hidden" id="variantId">
-            <div class="error-msg" id="variantError"></div>
-            <div class="form-group">
-              <label>Color *</label>
-              <input type="text" id="variantColor" required placeholder="e.g. BORDEAUX">
-            </div>
-            <div class="form-group">
-              <label>Size *</label>
-              <input type="text" id="variantSize" required placeholder="e.g. 36/37">
-            </div>
-            <div class="form-group">
-              <label>SKU * (unique)</label>
-              <input type="text" id="variantSku" required placeholder="e.g. ROMATOPIWA20BO36">
-            </div>
-            <div class="form-group">
-              <label>Stock Quantity</label>
-              <input type="number" id="variantStock" min="0" value="0">
-            </div>
-            <div class="form-group">
-              <label>Price (€) - leave empty to use base price</label>
-              <input type="text" id="variantPrice" placeholder="e.g. 14,90">
-            </div>
-            <div class="form-group">
-              <label>Active</label>
-              <select id="variantActive">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-              <button type="submit" class="btn">Save Variant</button>
-              <button type="button" class="btn btn-secondary" onclick="closeVariantModal()">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-      
-      <script>
-        const productId = ${product.id};
-        const variants = ${JSON.stringify(product.variants || [])};
-        
-        function slugifyColor(color) {
-          return color.replace(/[^a-zA-Z0-9]/g, '_');
-        }
+              `).join('') || '<tr><td colspan="8" style="color: #666;">No variants yet. Add color/size combinations.</td></tr>'
+    }
+</tbody>
+  </table>
+  </div>
+  </div>
 
-        function renderColorImages() {
-          const colorMap = {};
-          variants.forEach(v => {
-            if (!colorMap[v.color]) {
-              colorMap[v.color] = { imageUrl: v.imageUrl || '', variantIds: [] };
-            }
-            colorMap[v.color].variantIds.push(v.id);
-            if (v.imageUrl && !colorMap[v.color].imageUrl) {
-              colorMap[v.color].imageUrl = v.imageUrl;
-            }
-          });
-          
-          const container = document.getElementById('colorImagesList');
-          const colors = Object.keys(colorMap).sort();
-          
-          if (colors.length === 0) {
-            container.innerHTML = '<p style="color:#999;">Add variants first to assign color images.</p>';
-            return;
-          }
-          
-          container.innerHTML = colors.map(color => {
-            const info = colorMap[color];
-            const slug = slugifyColor(color);
-            const safeColor = color.replace(/'/g, "\\\\'");
-            return '<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem;border:1px solid #eee;border-radius:8px;margin-bottom:0.75rem;background:#fafafa;">' +
-              '<div style="width:60px;height:60px;border-radius:6px;overflow:hidden;background:#e5e7eb;flex-shrink:0;border:1px solid #ddd;">' +
-                (info.imageUrl ? '<img src="' + info.imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\\\'none\\\'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">No img</div>') +
-              '</div>' +
-              '<div style="flex:1;">' +
-                '<strong style="font-size:0.95rem;">' + color + '</strong>' +
-                '<div style="font-size:0.75rem;color:#666;">' + info.variantIds.length + ' variant(s)</div>' +
-              '</div>' +
-              '<div style="display:flex;gap:0.5rem;align-items:center;">' +
-                '<input type="file" id="colorFile_' + slug + '" accept="image/*" style="display:none;" onchange="uploadColorImage(\\\'' + safeColor + '\\\')">' +
-                '<button class="btn btn-small" onclick="document.getElementById(\\\'colorFile_' + slug + '\\\').click()">Upload Image</button>' +
-                (info.imageUrl ? '<button class="btn btn-small btn-danger" onclick="removeColorImage(\\\'' + safeColor + '\\\')">Remove</button>' : '') +
-              '</div>' +
-            '</div>';
-          }).join('');
-        }
-        
-        async function uploadColorImage(color) {
-          const fileInput = document.getElementById('colorFile_' + slugifyColor(color));
-          const file = fileInput.files[0];
-          if (!file) return;
-          
-          const formData = new FormData();
-          formData.append('images', file);
-          
-          try {
-            const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (!uploadRes.ok) throw new Error('Upload failed');
-            const result = await uploadRes.json();
-            const imageUrl = result.files[0].url;
-            
-            // Update all variants of this color
-            const colorVariants = variants.filter(v => v.color === color);
-            for (const v of colorVariants) {
-              await fetch('/api/admin/variants/' + v.id, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl })
-              });
-              v.imageUrl = imageUrl;
-            }
-            
-            renderColorImages();
-            alert('Image set for color: ' + color);
-          } catch (err) {
-            alert('Error uploading image: ' + err.message);
-          }
-        }
-        
-        async function removeColorImage(color) {
-          if (!confirm('Remove image for color ' + color + '?')) return;
-          
-          const colorVariants = variants.filter(v => v.color === color);
-          for (const v of colorVariants) {
-            await fetch('/api/admin/variants/' + v.id, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ imageUrl: null })
-            });
-            v.imageUrl = null;
-          }
-          
-          renderColorImages();
-        }
-        
-        // Initialize color images on load
-        document.addEventListener('DOMContentLoaded', renderColorImages);
-        
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
-        
-        function parsePrice(str) {
-          if (!str) return null;
-          const val = parseFloat(str.replace(',', '.'));
-          return isNaN(val) ? null : Math.round(val * 100);
-        }
-        
-        // Product form
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          
-          const basePriceInput = document.getElementById('basePrice').value;
-          const compareAtPriceInput = document.getElementById('compareAtPrice').value;
-          const seasonVal = document.getElementById('season').value;
-          const data = {
-            name: document.getElementById('name').value,
-            brand: document.getElementById('brand').value || null,
-            description: document.getElementById('description').value || null,
-            basePriceCents: parsePrice(basePriceInput),
-            compareAtPriceCents: parsePrice(compareAtPriceInput),
-            season: seasonVal || null,
-            active: document.getElementById('active').value === 'true'
-          };
-          
-          const collectionIds = Array.from(document.querySelectorAll('input[name="collection"]:checked'))
-            .map(cb => parseInt(cb.value));
-          
-          await fetch('/api/admin/products/' + productId, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-          
-          await fetch('/api/admin/products/' + productId + '/collections', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ collectionIds })
-          });
-          
-          alert('Product saved!');
-        });
-        
-        // Images - Drag & Drop Upload
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const uploadProgress = document.getElementById('uploadProgress');
-        const progressFill = document.querySelector('.progress-fill');
-        const progressText = document.querySelector('.progress-text');
-        
-        // Click to browse
-        dropZone.addEventListener('click', () => fileInput.click());
-        
-        // Drag and drop events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-          dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-          dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-          dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
-        });
-        
-        dropZone.addEventListener('drop', handleDrop);
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-        
-        function handleDrop(e) {
-          const files = e.dataTransfer.files;
-          handleFiles(files);
-        }
-        
-        async function handleFiles(files) {
-          const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-          if (imageFiles.length === 0) {
-            alert('Seleziona almeno un file immagine');
-            return;
-          }
-          
-          // Validate file sizes (max 10MB)
-          const maxSize = 10 * 1024 * 1024;
-          const validFiles = imageFiles.filter(f => {
-            if (f.size > maxSize) {
-              alert(f.name + ' supera il limite di 10MB');
-              return false;
-            }
-            return true;
-          });
-          
-          if (validFiles.length === 0) return;
-          
-          uploadProgress.style.display = 'block';
-          progressText.textContent = 'Caricamento in corso...';
-          progressFill.style.width = '10%';
-          
-          try {
-            // Upload all files at once using FormData
-            const formData = new FormData();
-            validFiles.forEach(file => {
-              formData.append('images', file);
-            });
-            
-            progressFill.style.width = '30%';
-            
-            const uploadRes = await fetch('/api/upload', {
-              method: 'POST',
-              body: formData
-            });
-            
-            if (!uploadRes.ok) {
-              const errData = await uploadRes.json();
-              throw new Error(errData.error || 'Errore durante il caricamento');
-            }
-            
-            const result = await uploadRes.json();
-            progressFill.style.width = '60%';
-            
-            // Get current max sortOrder to assign new orders
-            const maxOrderRes = await fetch('/api/admin/products/' + productId + '/max-image-order');
-            const maxOrderData = await maxOrderRes.json();
-            let nextOrder = (maxOrderData.maxOrder ?? -1) + 1;
-            
-            // Save each uploaded image to the database with sortOrder
-            let saved = 0;
-            for (const file of result.files) {
-              const saveRes = await fetch('/api/admin/products/' + productId + '/images', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl: file.url, sortOrder: nextOrder++ })
-              });
-              
-              if (saveRes.ok) {
-                saved++;
-                // Add preview immediately
-                const imagesList = document.getElementById('imagesList');
-                const noImagesMsg = imagesList.querySelector('p');
-                if (noImagesMsg) noImagesMsg.remove();
-                
-                const imgCard = document.createElement('div');
-                imgCard.className = 'image-card';
-                imgCard.innerHTML = '<img src="' + file.url + '" alt="Product image"><button class="image-delete-btn" onclick="this.parentElement.remove()">×</button>';
-                imagesList.appendChild(imgCard);
-              }
-            }
-            
-            progressFill.style.width = '100%';
-            progressText.textContent = 'Caricate ' + saved + ' immagini!';
-            
-            setTimeout(() => {
-              uploadProgress.style.display = 'none';
-              progressFill.style.width = '0%';
-            }, 2000);
-            
-          } catch (err) {
-            console.error('Upload failed:', err);
-            progressText.textContent = 'Errore: ' + err.message;
-            progressFill.style.background = '#ef4444';
-            
-            setTimeout(() => {
-              uploadProgress.style.display = 'none';
-              progressFill.style.width = '0%';
-              progressFill.style.background = '#2563eb';
-            }, 3000);
-          }
-        }
-        
-        async function deleteImage(id) {
-          if (!confirm('Eliminare questa immagine?')) return;
-          await fetch('/api/admin/product-images/' + id, { method: 'DELETE' });
-          document.querySelector('.image-card[data-id="' + id + '"]').remove();
-        }
-        
-        // Variants
-        function showVariantModal() {
-          document.getElementById('variantModalTitle').textContent = 'Add Variant';
-          document.getElementById('variantForm').reset();
-          document.getElementById('variantId').value = '';
-          document.getElementById('variantStock').value = '0';
-          document.getElementById('variantError').classList.remove('show');
-          document.getElementById('variantModal').classList.add('show');
-        }
-        
-        function editVariant(id) {
-          const variant = variants.find(v => v.id === id);
-          if (!variant) return;
-          
-          document.getElementById('variantModalTitle').textContent = 'Edit Variant';
-          document.getElementById('variantId').value = id;
-          document.getElementById('variantColor').value = variant.color;
-          document.getElementById('variantSize').value = variant.size;
-          document.getElementById('variantSku').value = variant.sku;
-          document.getElementById('variantStock').value = variant.stockQty;
-          document.getElementById('variantPrice').value = variant.priceCents ? (variant.priceCents / 100).toFixed(2) : '';
-          document.getElementById('variantActive').value = variant.active.toString();
-          document.getElementById('variantError').classList.remove('show');
-          document.getElementById('variantModal').classList.add('show');
-        }
-        
-        function closeVariantModal() {
-          document.getElementById('variantModal').classList.remove('show');
-        }
-        
-        async function deleteVariant(id) {
-          if (!confirm('Delete this variant?')) return;
-          await fetch('/api/admin/variants/' + id, { method: 'DELETE' });
-          location.reload();
-        }
-        
-        document.getElementById('variantForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const errorDiv = document.getElementById('variantError');
-          errorDiv.classList.remove('show');
-          
-          const variantId = document.getElementById('variantId').value;
-          const priceInput = document.getElementById('variantPrice').value;
-          
-          const data = {
-            color: document.getElementById('variantColor').value,
-            size: document.getElementById('variantSize').value,
-            sku: document.getElementById('variantSku').value,
-            stockQty: parseInt(document.getElementById('variantStock').value) || 0,
-            priceCents: parsePrice(priceInput),
-            active: document.getElementById('variantActive').value === 'true'
-          };
-          
-          try {
-            let res;
-            if (variantId) {
-              res = await fetch('/api/admin/variants/' + variantId, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-              });
-            } else {
-              res = await fetch('/api/admin/products/' + productId + '/variants', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-              });
-            }
-            
-            const result = await res.json();
-            
-            if (!res.ok) {
-              errorDiv.textContent = result.error || 'Failed to save variant';
-              errorDiv.classList.add('show');
-              return;
-            }
-            
-            location.reload();
-          } catch (err) {
-            errorDiv.textContent = 'Network error';
-            errorDiv.classList.add('show');
-          }
-        });
-      </script>
-    </body>
-    </html>
-  `;
+  <!--Variant Modal-->
+    <div id="variantModal" class="modal">
+      <div class="modal-content">
+        <h2 id="variantModalTitle"> Add Variant </h2>
+         <formid="variantForm">
+            <input type="hidden" id="variantId">
+              <div class="error-msg" id="variantError"> </div>
+               <divclass="form-group">
+                  <label>Color * </label>
+                 <inputtype="text" id="variantColor" required placeholder="e.g. BORDEAUX">
+                    </div>
+                   <divclass="form-group">
+                      <label>Size * </label>
+                     <inputtype="text" id="variantSize" required placeholder="e.g. 36/37">
+                        </div>
+                       <divclass="form-group">
+                          <label>SKU * (unique) </label>
+                         <inputtype="text" id="variantSku" required placeholder="e.g. ROMATOPIWA20BO36">
+                            </div>
+                           <divclass="form-group">
+                              <label>Stock Quantity </label>
+                               <inputtype="number" id="variantStock" min="0" value="0">
+                                  </div>
+                                 <divclass="form-group">
+                                    <label>Price(€) - leave empty to use base price </label>
+                                     <inputtype="text" id="variantPrice" placeholder="e.g. 14,90">
+                                        </div>
+                                       <divclass="form-group">
+                                          <label>Active </label>
+                                         <selectid="variantActive">
+                                            <option value="true"> Yes </option>
+                                             <optionvalue="false"> No </option>
+                                                </select>
+                                                </div>
+                                               <divstyle="display: flex; gap: 1rem; margin-top: 1rem;">
+                                                  <button type="submit" class="btn"> Save Variant </button>
+                                                   <buttontype="button" class="btn btn-secondary" onclick="closeVariantModal()"> Cancel </button>
+                                                      </div>
+                                                      </form>
+                                                      </div>
+                                                      </div>
+
+                                                      <script>
+const productId = ${product.id};
+const variants = ${JSON.stringify(product.variants || [])};
+
+function slugifyColor(color) {
+  return color.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
+function renderColorImages() {
+  const colorMap = {};
+  variants.forEach(v => {
+    if (!colorMap[v.color]) {
+      colorMap[v.color] = { imageUrl: v.imageUrl || '', variantIds: [] };
+    }
+    colorMap[v.color].variantIds.push(v.id);
+    if (v.imageUrl && !colorMap[v.color].imageUrl) {
+      colorMap[v.color].imageUrl = v.imageUrl;
+    }
+  });
+
+  const container = document.getElementById('colorImagesList');
+  const colors = Object.keys(colorMap).sort();
+
+  if (colors.length === 0) {
+    container.innerHTML = '<p style="color:#999;">Add variants first to assign color images.</p>';
+    return;
+  }
+
+  container.innerHTML = colors.map(color => {
+    const info = colorMap[color];
+    const slug = slugifyColor(color);
+    const safeColor = color.replace(/'/g, "\\\\'");
+    return '<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem;border:1px solid #eee;border-radius:8px;margin-bottom:0.75rem;background:#fafafa;">' +
+      '<div style="width:60px;height:60px;border-radius:6px;overflow:hidden;background:#e5e7eb;flex-shrink:0;border:1px solid #ddd;">' +
+      (info.imageUrl ? '<img src="' + info.imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\\\'none\\\'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">No img</div>') +
+      '</div>' +
+      '<div style="flex:1;">' +
+      '<strong style="font-size:0.95rem;">' + color + '</strong>' +
+      '<div style="font-size:0.75rem;color:#666;">' + info.variantIds.length + ' variant(s)</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:0.5rem;align-items:center;">' +
+      '<input type="file" id="colorFile_' + slug + '" accept="image/*" style="display:none;" onchange="uploadColorImage(\\\'' + safeColor + '\\\')">' +
+      '<button class="btn btn-small" onclick="document.getElementById(\\\'colorFile_' + slug + '\\\').click()">Upload Image</button>' +
+      (info.imageUrl ? '<button class="btn btn-small btn-danger" onclick="removeColorImage(\\\'' + safeColor + '\\\')">Remove</button>' : '') +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+
+async function uploadColorImage(color) {
+  const fileInput = document.getElementById('colorFile_' + slugifyColor(color));
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('images', file);
+
+  try {
+    const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (!uploadRes.ok) throw new Error('Upload failed');
+    const result = await uploadRes.json();
+    const imageUrl = result.files[0].url;
+
+    // Update all variants of this color
+    const colorVariants = variants.filter(v => v.color === color);
+    for (const v of colorVariants) {
+      await fetch('/api/admin/variants/' + v.id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl })
+      });
+      v.imageUrl = imageUrl;
+    }
+
+    renderColorImages();
+    alert('Image set for color: ' + color);
+  } catch (err) {
+    alert('Error uploading image: ' + err.message);
+  }
+}
+
+async function removeColorImage(color) {
+  if (!confirm('Remove image for color ' + color + '?')) return;
+
+  const colorVariants = variants.filter(v => v.color === color);
+  for (const v of colorVariants) {
+    await fetch('/api/admin/variants/' + v.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl: null })
+    });
+    v.imageUrl = null;
+  }
+
+  renderColorImages();
+}
+
+// Initialize color images on load
+document.addEventListener('DOMContentLoaded', renderColorImages);
+
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+function parsePrice(str) {
+  if (!str) return null;
+  const val = parseFloat(str.replace(',', '.'));
+  return isNaN(val) ? null : Math.round(val * 100);
+}
+
+// Product form
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const basePriceInput = document.getElementById('basePrice').value;
+  const compareAtPriceInput = document.getElementById('compareAtPrice').value;
+  const seasonVal = document.getElementById('season').value;
+  const data = {
+    name: document.getElementById('name').value,
+    brand: document.getElementById('brand').value || null,
+    description: document.getElementById('description').value || null,
+    basePriceCents: parsePrice(basePriceInput),
+    compareAtPriceCents: parsePrice(compareAtPriceInput),
+    season: seasonVal || null,
+    active: document.getElementById('active').value === 'true'
+  };
+
+  const collectionIds = Array.from(document.querySelectorAll('input[name="collection"]:checked'))
+    .map(cb => parseInt(cb.value));
+
+  await fetch('/api/admin/products/' + productId, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  await fetch('/api/admin/products/' + productId + '/collections', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ collectionIds })
+  });
+
+  alert('Product saved!');
+});
+
+// Images-Drag & Drop Upload
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const uploadProgress = document.getElementById('uploadProgress');
+const progressFill = document.querySelector('.progress-fill');
+const progressText = document.querySelector('.progress-text');
+
+// Click to browse
+dropZone.addEventListener('click', () => fileInput.click());
+
+// Drag and drop events
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+  dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+});
+
+dropZone.addEventListener('drop', handleDrop);
+fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+function handleDrop(e) {
+  const files = e.dataTransfer.files;
+  handleFiles(files);
+}
+
+async function handleFiles(files) {
+  const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (imageFiles.length === 0) {
+    alert('Seleziona almeno un file immagine');
+    return;
+  }
+
+  // Validate file sizes (max 10MB)
+  const maxSize = 10 * 1024 * 1024;
+  const validFiles = imageFiles.filter(f => {
+    if (f.size> maxSize) {
+      alert(f.name + ' supera il limite di 10MB');
+      return false;
+    }
+    return true;
+  });
+
+  if (validFiles.length === 0) return;
+
+  uploadProgress.style.display = 'block';
+  progressText.textContent = 'Caricamento in corso...';
+  progressFill.style.width = '10%';
+
+  try {
+    // Upload all files at once using FormData
+    const formData = new FormData();
+    validFiles.forEach(file => {
+      formData.append('images', file);
+    });
+
+    progressFill.style.width = '30%';
+
+    const uploadRes = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!uploadRes.ok) {
+      const errData = await uploadRes.json();
+      throw new Error(errData.error || 'Errore durante il caricamento');
+    }
+
+    const result = await uploadRes.json();
+    progressFill.style.width = '60%';
+
+    // Get current max sortOrder to assign new orders
+    const maxOrderRes = await fetch('/api/admin/products/' + productId + '/max-image-order');
+    const maxOrderData = await maxOrderRes.json();
+    let nextOrder = (maxOrderData.maxOrder ?? -1) + 1;
+
+    // Save each uploaded image to the database with sortOrder
+    let saved = 0;
+    for (const file of result.files) {
+      const saveRes = await fetch('/api/admin/products/' + productId + '/images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: file.url, sortOrder: nextOrder++ })
+      });
+
+      if (saveRes.ok) {
+        saved++;
+        // Add preview immediately
+        const imagesList = document.getElementById('imagesList');
+        const noImagesMsg = imagesList.querySelector('p');
+        if (noImagesMsg) noImagesMsg.remove();
+
+        const imgCard = document.createElement('div');
+        imgCard.className = 'image-card';
+        imgCard.innerHTML = '<img src="' + file.url + '" alt="Product image"><button class="image-delete-btn" onclick="this.parentElement.remove()">×</button>';
+        imagesList.appendChild(imgCard);
+      }
+    }
+
+    progressFill.style.width = '100%';
+    progressText.textContent = 'Caricate ' + saved + ' immagini!';
+
+    setTimeout(() => {
+      uploadProgress.style.display = 'none';
+      progressFill.style.width = '0%';
+    }, 2000);
+
+  } catch (err) {
+    console.error('Upload failed:', err);
+    progressText.textContent = 'Errore: ' + err.message;
+    progressFill.style.background = '#ef4444';
+
+    setTimeout(() => {
+      uploadProgress.style.display = 'none';
+      progressFill.style.width = '0%';
+      progressFill.style.background = '#2563eb';
+    }, 3000);
+  }
+}
+
+async function deleteImage(id) {
+  if (!confirm('Eliminare questa immagine?')) return;
+  await fetch('/api/admin/product-images/' + id, { method: 'DELETE' });
+  document.querySelector('.image-card[data-id="' + id + '"]').remove();
+}
+
+// Variants
+function showVariantModal() {
+  document.getElementById('variantModalTitle').textContent = 'Add Variant';
+  document.getElementById('variantForm').reset();
+  document.getElementById('variantId').value = '';
+  document.getElementById('variantStock').value = '0';
+  document.getElementById('variantError').classList.remove('show');
+  document.getElementById('variantModal').classList.add('show');
+}
+
+function editVariant(id) {
+  const variant = variants.find(v => v.id === id);
+  if (!variant) return;
+
+  document.getElementById('variantModalTitle').textContent = 'Edit Variant';
+  document.getElementById('variantId').value = id;
+  document.getElementById('variantColor').value = variant.color;
+  document.getElementById('variantSize').value = variant.size;
+  document.getElementById('variantSku').value = variant.sku;
+  document.getElementById('variantStock').value = variant.stockQty;
+  document.getElementById('variantPrice').value = variant.priceCents ? (variant.priceCents / 100).toFixed(2) : '';
+  document.getElementById('variantActive').value = variant.active.toString();
+  document.getElementById('variantError').classList.remove('show');
+  document.getElementById('variantModal').classList.add('show');
+}
+
+function closeVariantModal() {
+  document.getElementById('variantModal').classList.remove('show');
+}
+
+async function deleteVariant(id) {
+  if (!confirm('Delete this variant?')) return;
+  await fetch('/api/admin/variants/' + id, { method: 'DELETE' });
+  location.reload();
+}
+
+document.getElementById('variantForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorDiv = document.getElementById('variantError');
+  errorDiv.classList.remove('show');
+
+  const variantId = document.getElementById('variantId').value;
+  const priceInput = document.getElementById('variantPrice').value;
+
+  const data = {
+    color: document.getElementById('variantColor').value,
+    size: document.getElementById('variantSize').value,
+    sku: document.getElementById('variantSku').value,
+    stockQty: parseInt(document.getElementById('variantStock').value) || 0,
+    priceCents: parsePrice(priceInput),
+    active: document.getElementById('variantActive').value === 'true'
+  };
+
+  try {
+    let res;
+    if (variantId) {
+      res = await fetch('/api/admin/variants/' + variantId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    } else {
+      res = await fetch('/api/admin/products/' + productId + '/variants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    }
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      errorDiv.textContent = result.error || 'Failed to save variant';
+      errorDiv.classList.add('show');
+      return;
+    }
+
+    location.reload();
+  } catch (err) {
+    errorDiv.textContent = 'Network error';
+    errorDiv.classList.add('show');
+  }
+});
+</script>
+  </body>
+  </html>
+    `;
 }
 
 function getAdminCollectionsPage(collections: any[]): string {
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Collections - Admin Panel</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Collections-Admin Panel </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -3467,44 +3577,44 @@ function getAdminCollectionsPage(collections: any[]): string {
         .controls { margin-bottom: 1.5rem; }
         .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
         .btn:hover { background: #333; }
-        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95%; }
+        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95 %; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        input, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products">Products</a>
-        <a href="/admin/collections" class="active">Collections</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/contacts">Contacts</a>
-        <a href="/admin/business-requests">Business Requests</a>
-        <a href="/admin/b2b-products">B2B Products</a>
-      </div>
-      <div class="container">
-        <div class="controls">
-          <button class="btn" onclick="showCreateModal()">+ New Collection</button>
+input, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Description</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+       <divclass="nav">
+          <a href="/admin/products"> Products </a>
+           <ahref="/admin/collections" class="active"> Collections </a>
+             <ahref="/admin/orders"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <div class="controls">
+                          <button class="btn" onclick="showCreateModal()"> + New Collection </button>
+                            </div>
+                           <table>
+                            <thead>
+                            <tr>
+                            <th>Name </th>
+                           <th> Slug </th>
+                           <th> Description </th>
+                           <th> Actions </th>
+                            </tr>
+                            </thead>
+                            <tbody>
             ${collections.map(c => `
               <tr>
                 <td>${c.name}</td>
@@ -3515,103 +3625,104 @@ function getAdminCollectionsPage(collections: any[]): string {
                   <button class="btn" onclick="deleteCollection(${c.id})">Delete</button>
                 </td>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-      
-      <div id="collectionModal" class="modal">
-        <div class="modal-content">
-          <h2 id="modalTitle">Create Collection</h2>
-          <form id="collectionForm">
-            <input type="hidden" id="collectionId">
+            `).join('')
+    }
+</tbody>
+  </table>
+  </div>
+
+ <divid="collectionModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle"> Create Collection </h2>
+       <formid="collectionForm">
+          <input type="hidden" id="collectionId">
             <div class="form-group">
-              <label>Name *</label>
-              <input type="text" id="name" required>
-            </div>
-            <div class="form-group">
-              <label>Slug *</label>
-              <input type="text" id="slug" required placeholder="e.g. best-sellers">
-            </div>
-            <div class="form-group">
-              <label>Description</label>
-              <textarea id="description" rows="2"></textarea>
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-              <button type="submit" class="btn">Save</button>
-              <button type="button" class="btn" onclick="closeModal()">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-      
-      <script>
-        const collections = ${JSON.stringify(collections)};
-        
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
-        
-        function showCreateModal() {
-          document.getElementById('modalTitle').textContent = 'Create Collection';
-          document.getElementById('collectionForm').reset();
-          document.getElementById('collectionId').value = '';
-          document.getElementById('collectionModal').classList.add('show');
-        }
-        
-        function editCollection(id) {
-          const collection = collections.find(c => c.id === id);
-          if (!collection) return;
-          
-          document.getElementById('modalTitle').textContent = 'Edit Collection';
-          document.getElementById('collectionId').value = id;
-          document.getElementById('name').value = collection.name;
-          document.getElementById('slug').value = collection.slug;
-          document.getElementById('description').value = collection.description || '';
-          document.getElementById('collectionModal').classList.add('show');
-        }
-        
-        function closeModal() {
-          document.getElementById('collectionModal').classList.remove('show');
-        }
-        
-        async function deleteCollection(id) {
-          if (!confirm('Delete this collection?')) return;
-          await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
-          location.reload();
-        }
-        
-        document.getElementById('collectionForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const id = document.getElementById('collectionId').value;
-          
-          const data = {
-            name: document.getElementById('name').value,
-            slug: document.getElementById('slug').value,
-            description: document.getElementById('description').value || null
-          };
-          
-          if (id) {
-            await fetch('/api/admin/collections/' + id, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-            });
-          } else {
-            await fetch('/api/admin/collections', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-            });
-          }
-          
-          location.reload();
-        });
-      </script>
-    </body>
-    </html>
-  `;
+              <label>Name * </label>
+             <inputtype="text" id="name" required>
+                </div>
+               <divclass="form-group">
+                  <label>Slug * </label>
+                 <inputtype="text" id="slug" required placeholder="e.g. best-sellers">
+                    </div>
+                   <divclass="form-group">
+                      <label>Description </label>
+                     <textareaid="description" rows="2"> </textarea>
+                        </div>
+                       <divstyle="display: flex; gap: 1rem; margin-top: 1rem;">
+                          <button type="submit" class="btn"> Save </button>
+                           <buttontype="button" class="btn" onclick="closeModal()"> Cancel </button>
+                              </div>
+                              </form>
+                              </div>
+                              </div>
+
+                              <script>
+const collections = ${JSON.stringify(collections)};
+
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+function showCreateModal() {
+  document.getElementById('modalTitle').textContent = 'Create Collection';
+  document.getElementById('collectionForm').reset();
+  document.getElementById('collectionId').value = '';
+  document.getElementById('collectionModal').classList.add('show');
+}
+
+function editCollection(id) {
+  const collection = collections.find(c => c.id === id);
+  if (!collection) return;
+
+  document.getElementById('modalTitle').textContent = 'Edit Collection';
+  document.getElementById('collectionId').value = id;
+  document.getElementById('name').value = collection.name;
+  document.getElementById('slug').value = collection.slug;
+  document.getElementById('description').value = collection.description || '';
+  document.getElementById('collectionModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('collectionModal').classList.remove('show');
+}
+
+async function deleteCollection(id) {
+  if (!confirm('Delete this collection?')) return;
+  await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
+  location.reload();
+}
+
+document.getElementById('collectionForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('collectionId').value;
+
+  const data = {
+    name: document.getElementById('name').value,
+    slug: document.getElementById('slug').value,
+    description: document.getElementById('description').value || null
+  };
+
+  if (id) {
+    await fetch('/api/admin/collections/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } else {
+    await fetch('/api/admin/collections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  }
+
+  location.reload();
+});
+</script>
+  </body>
+  </html>
+    `;
 }
 
 // Admin Orders Page
@@ -3626,13 +3737,13 @@ function getAdminOrdersPage(orders: any[]): string {
   };
 
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Orders - Admin Panel</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Orders-Admin Panel </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -3642,44 +3753,44 @@ function getAdminOrdersPage(orders: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
         .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: white; }
         .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
         .btn:hover { background: #333; }
         .btn-small { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
         select { padding: 0.25rem 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products">Products</a>
-        <a href="/admin/collections">Collections</a>
-        <a href="/admin/orders" class="active">Orders</a>
-        <a href="/admin/contacts">Contacts</a>
-        <a href="/admin/business-requests">Business Requests</a>
-        <a href="/admin/b2b-products">B2B Products</a>
-      </div>
-      <div class="container">
-        <h2 style="margin-bottom: 1rem;">Orders (${orders.length})</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Order #</th>
-              <th>Date</th>
-              <th>Customer</th>
-              <th>Total</th>
-              <th>Payment</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
+        </div>
+       <divclass="nav">
+          <a href="/admin/products"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders" class="active"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <h2 style="margin-bottom: 1rem;"> Orders(${orders.length}) </h2>
+                         <table>
+                          <thead>
+                          <tr>
+                          <th>Order # </th>
+                           <th> Date </th>
+                           <th> Customer </th>
+                           <th> Total </th>
+                           <th> Payment </th>
+                           <th> Status </th>
+                           <th> Actions </th>
+                            </tr>
+                            </thead>
+                            <tbody>
             ${orders.length === 0 ? '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No orders yet</td></tr>' : orders.map(o => {
     const status = statusLabels[o.status] || { label: o.status, color: "#666" };
     const date = new Date(o.createdAt).toLocaleDateString('it-IT');
@@ -3705,28 +3816,29 @@ function getAdminOrdersPage(orders: any[]): string {
                   </td>
                 </tr>
               `;
-  }).join('')}
-          </tbody>
-        </table>
-      </div>
-      <script>
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
-        
-        async function updateStatus(id, status) {
-          await fetch('/api/admin/orders/' + id + '/status', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-          });
-          location.reload();
-        }
-      </script>
-    </body>
-    </html>
-  `;
+  }).join('')
+    }
+</tbody>
+  </table>
+  </div>
+  <script>
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+async function updateStatus(id, status) {
+  await fetch('/api/admin/orders/' + id + '/status', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  location.reload();
+}
+</script>
+  </body>
+  </html>
+    `;
 }
 
 // Admin Order Detail Page
@@ -3746,13 +3858,13 @@ function getAdminOrderDetailPage(order: any): string {
   });
 
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Order ${order.orderNumber} - Admin Panel</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Order ${order.orderNumber} - Admin Panel </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -3768,137 +3880,138 @@ function getAdminOrderDetailPage(order: any): string {
         .order-number { font-size: 1.5rem; font-weight: bold; }
         .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; color: white; margin-left: 1rem; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
         .card h3 { margin-bottom: 1rem; font-size: 1.1rem; color: #333; }
         .info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
-        .info-row:last-child { border-bottom: none; }
+        .info-row: last-child { border-bottom: none; }
         .info-label { color: #666; }
         .info-value { font-weight: 500; }
-        .items-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .items-table { width: 100 %; border-collapse: collapse; margin-top: 1rem; }
         .items-table th, .items-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
         .items-table th { font-weight: 600; color: #666; font-size: 0.85rem; }
         .item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
         .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
         .btn:hover { background: #333; }
         select { padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products">Products</a>
-        <a href="/admin/collections">Collections</a>
-        <a href="/admin/orders" class="active">Orders</a>
-        <a href="/admin/contacts">Contacts</a>
-        <a href="/admin/business-requests">Business Requests</a>
-        <a href="/admin/b2b-products">B2B Products</a>
-      </div>
-      <div class="container">
-        <a href="/admin/orders" class="back-link">← Back to Orders</a>
-        
-        <div class="order-header">
-          <div>
-            <span class="order-number">${order.orderNumber}</span>
-            <span class="status-badge" style="background-color: ${status.color}">${status.label}</span>
-          </div>
-          <div>
-            <select id="statusSelect" onchange="updateStatus(${order.id}, this.value)">
-              <option value="pending_payment" ${order.status === 'pending_payment' ? 'selected' : ''}>In attesa pagamento</option>
-              <option value="awaiting_bank" ${order.status === 'awaiting_bank' ? 'selected' : ''}>Attesa bonifico</option>
-              <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>Pagato</option>
-              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Spedito</option>
-              <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completato</option>
-              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Annullato</option>
-            </select>
-          </div>
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
         </div>
-        
-        <div class="grid">
-          <div class="card">
-            <h3>Customer Details</h3>
-            <div class="info-row">
-              <span class="info-label">Name</span>
-              <span class="info-value">${order.customerName} ${order.customerSurname}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Email</span>
-              <span class="info-value">${order.customerEmail}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Phone</span>
-              <span class="info-value">${order.customerPhone || '-'}</span>
-            </div>
-          </div>
-          
-          <div class="card">
-            <h3>Shipping Address</h3>
-            <div class="info-row">
-              <span class="info-label">Address</span>
-              <span class="info-value">${order.shippingAddress}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">City</span>
-              <span class="info-value">${order.shippingCity}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Province</span>
-              <span class="info-value">${order.shippingProvince || '-'}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">CAP</span>
-              <span class="info-value">${order.shippingCap || '-'}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card" style="margin-top: 2rem;">
-          <h3>Order Details</h3>
-          <div class="info-row">
-            <span class="info-label">Order Date</span>
-            <span class="info-value">${date}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Payment Method</span>
-            <span class="info-value">${order.paymentMethod === 'stripe' ? 'Carta di Credito' : order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'}</span>
-          </div>
+       <divclass="nav">
+          <a href="/admin/products"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders" class="active"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <a href="/admin/orders" class="back-link">← Back to Orders </a>
+
+                         <divclass="order-header">
+                            <div>
+                            <span class="order-number"> ${order.orderNumber} </span>
+                             <spanclass="status-badge" style="background-color: ${status.color}"> ${status.label} </span>
+                                </div>
+                               <div>
+                                <select id="statusSelect" onchange="updateStatus(${order.id}, this.value)">
+                                  <option value="pending_payment" ${order.status === 'pending_payment' ? 'selected' : ''}> In attesa pagamento </option>
+                                   <optionvalue="awaiting_bank" ${order.status === 'awaiting_bank' ? 'selected' : ''}> Attesa bonifico </option>
+                                     <optionvalue="paid" ${order.status === 'paid' ? 'selected' : ''}> Pagato </option>
+                                       <optionvalue="shipped" ${order.status === 'shipped' ? 'selected' : ''}> Spedito </option>
+                                         <optionvalue="completed" ${order.status === 'completed' ? 'selected' : ''}> Completato </option>
+                                           <optionvalue="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}> Annullato </option>
+                                              </select>
+                                              </div>
+                                              </div>
+
+                                             <divclass="grid">
+                                                <div class="card">
+                                                  <h3>Customer Details </h3>
+                                                   <divclass="info-row">
+                                                      <span class="info-label"> Name </span>
+                                                       <spanclass="info-value"> ${order.customerName} ${order.customerSurname} </span>
+                                                          </div>
+                                                         <divclass="info-row">
+                                                            <span class="info-label"> Email </span>
+                                                             <spanclass="info-value"> ${order.customerEmail} </span>
+                                                                </div>
+                                                               <divclass="info-row">
+                                                                  <span class="info-label"> Phone </span>
+                                                                   <spanclass="info-value"> ${order.customerPhone || '-'} </span>
+                                                                      </div>
+                                                                      </div>
+
+                                                                     <divclass="card">
+                                                                        <h3>Shipping Address </h3>
+                                                                         <divclass="info-row">
+                                                                            <span class="info-label"> Address </span>
+                                                                             <spanclass="info-value"> ${order.shippingAddress} </span>
+                                                                                </div>
+                                                                               <divclass="info-row">
+                                                                                  <span class="info-label"> City </span>
+                                                                                   <spanclass="info-value"> ${order.shippingCity} </span>
+                                                                                      </div>
+                                                                                     <divclass="info-row">
+                                                                                        <span class="info-label"> Province </span>
+                                                                                         <spanclass="info-value"> ${order.shippingProvince || '-'} </span>
+                                                                                            </div>
+                                                                                           <divclass="info-row">
+                                                                                              <span class="info-label"> CAP </span>
+                                                                                               <spanclass="info-value"> ${order.shippingCap || '-'} </span>
+                                                                                                  </div>
+                                                                                                  </div>
+                                                                                                  </div>
+
+                                                                                                 <divclass="card" style="margin-top: 2rem;">
+                                                                                                    <h3>Order Details </h3>
+                                                                                                     <divclass="info-row">
+                                                                                                        <span class="info-label"> Order Date </span>
+                                                                                                         <spanclass="info-value"> ${date} </span>
+                                                                                                            </div>
+                                                                                                           <divclass="info-row">
+                                                                                                              <span class="info-label"> Payment Method </span>
+                                                                                                               <spanclass="info-value"> ${order.paymentMethod === 'stripe' ? 'Carta di Credito' : order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'} </span>
+                                                                                                                  </div>
           ${order.paypalOrderId ? `
           <div class="info-row">
             <span class="info-label">PayPal Order ID</span>
             <span class="info-value">${order.paypalOrderId}</span>
           </div>
-          ` : ''}
-          <div class="info-row">
-            <span class="info-label">Subtotal</span>
-            <span class="info-value">€${(order.subtotalCents / 100).toFixed(2)}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Shipping</span>
-            <span class="info-value">${order.shippingCents === 0 ? 'Free' : '€' + (order.shippingCents / 100).toFixed(2)}</span>
-          </div>
-          <div class="info-row" style="font-weight: bold; font-size: 1.1rem;">
-            <span class="info-label">Total</span>
-            <span class="info-value">€${(order.totalCents / 100).toFixed(2)}</span>
-          </div>
-        </div>
-        
-        <div class="card" style="margin-top: 2rem;">
-          <h3>Order Items</h3>
-          <table class="items-table">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Color</th>
-                <th>Size</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
+          ` : ''
+    }
+<div class="info-row">
+  <span class="info-label"> Subtotal </span>
+   <spanclass="info-value">€${(order.subtotalCents / 100).toFixed(2)} </span>
+      </div>
+     <divclass="info-row">
+        <span class="info-label"> Shipping </span>
+         <spanclass="info-value"> ${order.shippingCents === 0 ? 'Free' : '€' + (order.shippingCents / 100).toFixed(2)} </span>
+            </div>
+           <divclass="info-row" style="font-weight: bold; font-size: 1.1rem;">
+              <span class="info-label"> Total </span>
+               <spanclass="info-value">€${(order.totalCents / 100).toFixed(2)} </span>
+                  </div>
+                  </div>
+
+                 <divclass="card" style="margin-top: 2rem;">
+                    <h3>Order Items </h3>
+                     <tableclass="items-table">
+                        <thead>
+                        <tr>
+                        <th>Image </th>
+                       <th> Product </th>
+                       <th> Color </th>
+                       <th> Size </th>
+                       <th> Qty </th>
+                       <th> Price </th>
+                       <th> Total </th>
+                        </tr>
+                        </thead>
+                        <tbody>
               ${(order.items || []).map((item: any) => `
                 <tr>
                   <td>${item.imageUrl ? `<img src="${item.imageUrl}" class="item-img" />` : '-'}</td>
@@ -3909,58 +4022,63 @@ function getAdminOrderDetailPage(order: any): string {
                   <td>€${(item.priceCents / 100).toFixed(2)}</td>
                   <td>€${((item.priceCents * item.quantity) / 100).toFixed(2)}</td>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+              `).join('')
+    }
+</tbody>
+  </table>
+  </div>
         
         ${order.notes ? `
         <div class="card" style="margin-top: 2rem;">
           <h3>Customer Notes</h3>
           <p>${order.notes}</p>
         </div>
-        ` : ''}
-        
-        <!-- Shipping Section -->
-        <div class="card" style="margin-top: 2rem; ${['paid', 'processing', 'shipped'].includes(order.status) ? '' : 'opacity: 0.6;'}">
-          <h3>Spedizione</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-            <div>
-              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">Corriere</label>
-              <input type="text" id="carrier" value="${order.carrier || 'BRT'}" placeholder="BRT" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">Numero Tracking</label>
-              <input type="text" id="trackingNumber" value="${order.trackingNumber || ''}" placeholder="Es. 123456789" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">URL Tracking (opzionale)</label>
-              <input type="text" id="trackingUrl" value="${order.trackingUrl || ''}" placeholder="https://..." style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;">Consegna Prevista</label>
-              <input type="date" id="estimatedDelivery" value="${order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toISOString().split('T')[0] : ''}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
-            </div>
+        ` : ''
+    }
+
+<!--Shipping Section-->
+  <div class="card" style="margin-top: 2rem; ${['paid', 'processing', 'shipped'].includes(order.status) ? '' : 'opacity: 0.6;'}">
+    <h3>Spedizione </h3>
+   <divstyle="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div>
+      <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> Corriere </label>
+       <inputtype="text" id="carrier" value="${order.carrier || 'BRT'}" placeholder="BRT" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
           </div>
+         <div>
+          <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> Numero Tracking </label>
+           <inputtype="text" id="trackingNumber" value="${order.trackingNumber || ''}" placeholder="Es. 123456789" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+             <div>
+              <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> URL Tracking(opzionale) </label>
+               <inputtype="text" id="trackingUrl" value="${order.trackingUrl || ''}" placeholder="https://..." style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+                  </div>
+                 <div>
+                  <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> Consegna Prevista </label>
+                   <inputtype="date" id="estimatedDelivery" value="${order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toISOString().split('T')[0] : ''}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+                      </div>
+                      </div>
           
           ${order.shippedAt ? `
           <div style="margin-top: 1rem; padding: 0.75rem; background: #f0fdf4; border-radius: 4px; color: #166534;">
             <strong>Spedito il:</strong> ${new Date(order.shippedAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
           </div>
-          ` : ''}
+          ` : ''
+    }
           
           ${order.deliveredAt ? `
           <div style="margin-top: 0.5rem; padding: 0.75rem; background: #dcfce7; border-radius: 4px; color: #166534;">
             <strong>Consegnato il:</strong> ${new Date(order.deliveredAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
           </div>
-          ` : ''}
-          
-          <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            ${['paid', 'processing'].includes(order.status) ? `
+          ` : ''
+    }
+
+<div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+  ${['paid', 'processing'].includes(order.status) ? `
             <button class="btn" onclick="markAsShipped(${order.id})" style="background: #7c3aed;">
               Segna come Spedito
             </button>
-            ` : ''}
+            ` : ''
+    }
             ${order.status === 'shipped' ? `
             <button class="btn" onclick="markAsDelivered(${order.id})" style="background: #16a34a;">
               Segna come Consegnato
@@ -3968,123 +4086,124 @@ function getAdminOrderDetailPage(order: any): string {
             <button class="btn" onclick="updateTracking(${order.id})" style="background: #666;">
               Aggiorna Tracking
             </button>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-      <script>
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
-        
-        async function updateStatus(id, status) {
-          await fetch('/api/admin/orders/' + id + '/status', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-          });
-          location.reload();
-        }
-        
-        async function markAsShipped(id) {
-          const carrier = document.getElementById('carrier').value || 'BRT';
-          const trackingNumber = document.getElementById('trackingNumber').value;
-          const trackingUrl = document.getElementById('trackingUrl').value;
-          const estimatedDelivery = document.getElementById('estimatedDelivery').value;
-          
-          if (!trackingNumber) {
-            alert('Inserisci il numero di tracking');
-            return;
-          }
-          
-          try {
-            const res = await fetch('/api/admin/orders/' + id + '/ship', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                carrier,
-                trackingNumber,
-                trackingUrl: trackingUrl || undefined,
-                estimatedDeliveryDate: estimatedDelivery || undefined
-              })
-            });
-            
-            if (res.ok) {
-              alert('Ordine spedito! Email inviata al cliente.');
-              location.reload();
-            } else {
-              const err = await res.json();
-              alert('Errore: ' + (err.error || 'Spedizione fallita'));
-            }
-          } catch (e) {
-            alert('Errore di connessione');
-          }
-        }
-        
-        async function markAsDelivered(id) {
-          try {
-            const res = await fetch('/api/admin/orders/' + id + '/deliver', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (res.ok) {
-              location.reload();
-            } else {
-              const err = await res.json();
-              alert('Errore: ' + (err.error || 'Operazione fallita'));
-            }
-          } catch (e) {
-            alert('Errore di connessione');
-          }
-        }
-        
-        async function updateTracking(id) {
-          const carrier = document.getElementById('carrier').value;
-          const trackingNumber = document.getElementById('trackingNumber').value;
-          const trackingUrl = document.getElementById('trackingUrl').value;
-          const estimatedDelivery = document.getElementById('estimatedDelivery').value;
-          
-          try {
-            const res = await fetch('/api/admin/orders/' + id + '/tracking', {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                carrier,
-                trackingNumber,
-                trackingUrl: trackingUrl || undefined,
-                estimatedDeliveryDate: estimatedDelivery || undefined
-              })
-            });
-            
-            if (res.ok) {
-              alert('Tracking aggiornato!');
-              location.reload();
-            } else {
-              const err = await res.json();
-              alert('Errore: ' + (err.error || 'Aggiornamento fallito'));
-            }
-          } catch (e) {
-            alert('Errore di connessione');
-          }
-        }
-      </script>
-    </body>
-    </html>
-  `;
+            ` : ''
+    }
+</div>
+  </div>
+  </div>
+  <script>
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+async function updateStatus(id, status) {
+  await fetch('/api/admin/orders/' + id + '/status', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  location.reload();
+}
+
+async function markAsShipped(id) {
+  const carrier = document.getElementById('carrier').value || 'BRT';
+  const trackingNumber = document.getElementById('trackingNumber').value;
+  const trackingUrl = document.getElementById('trackingUrl').value;
+  const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+
+  if (!trackingNumber) {
+    alert('Inserisci il numero di tracking');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/orders/' + id + '/ship', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        carrier,
+        trackingNumber,
+        trackingUrl: trackingUrl || undefined,
+        estimatedDeliveryDate: estimatedDelivery || undefined
+      })
+    });
+
+    if (res.ok) {
+      alert('Ordine spedito! Email inviata al cliente.');
+      location.reload();
+    } else {
+      const err = await res.json();
+      alert('Errore: ' + (err.error || 'Spedizione fallita'));
+    }
+  } catch (e) {
+    alert('Errore di connessione');
+  }
+}
+
+async function markAsDelivered(id) {
+  try {
+    const res = await fetch('/api/admin/orders/' + id + '/deliver', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (res.ok) {
+      location.reload();
+    } else {
+      const err = await res.json();
+      alert('Errore: ' + (err.error || 'Operazione fallita'));
+    }
+  } catch (e) {
+    alert('Errore di connessione');
+  }
+}
+
+async function updateTracking(id) {
+  const carrier = document.getElementById('carrier').value;
+  const trackingNumber = document.getElementById('trackingNumber').value;
+  const trackingUrl = document.getElementById('trackingUrl').value;
+  const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+
+  try {
+    const res = await fetch('/api/admin/orders/' + id + '/tracking', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        carrier,
+        trackingNumber,
+        trackingUrl: trackingUrl || undefined,
+        estimatedDeliveryDate: estimatedDelivery || undefined
+      })
+    });
+
+    if (res.ok) {
+      alert('Tracking aggiornato!');
+      location.reload();
+    } else {
+      const err = await res.json();
+      alert('Errore: ' + (err.error || 'Aggiornamento fallito'));
+    }
+  } catch (e) {
+    alert('Errore di connessione');
+  }
+}
+</script>
+  </body>
+  </html>
+    `;
 }
 
 // Admin Contacts Page
 function getAdminContactsPage(contacts: any[]): string {
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Contact Messages - Admin Panel</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Contact Messages-Admin Panel </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -4094,7 +4213,7 @@ function getAdminContactsPage(contacts: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        .contact-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .contact-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 1rem; }
         .contact-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
         .contact-info { display: flex; gap: 1rem; align-items: center; }
         .contact-name { font-weight: 600; font-size: 1.1rem; }
@@ -4104,28 +4223,28 @@ function getAdminContactsPage(contacts: any[]): string {
         .contact-message { color: #666; line-height: 1.5; }
         .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
         .status-new { background: #ffc107; color: #000; }
-        .status-read { background: #6c757d; color: white; }
+  .status-read { background: #6c757d; color: white; }
         .status-replied { background: #28a745; color: white; }
         .btn { padding: 0.25rem 0.5rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-decoration: none; display: inline-block; margin-left: 0.5rem; }
         .btn:hover { background: #333; }
         .empty { text-align: center; padding: 4rem; color: #666; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products">Products</a>
-        <a href="/admin/collections">Collections</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/contacts" class="active">Contacts</a>
-        <a href="/admin/business-requests">Business Requests</a>
-        <a href="/admin/b2b-products">B2B Products</a>
-      </div>
-      <div class="container">
-        <h2 style="margin-bottom: 1.5rem;">Contact Messages (${contacts.length})</h2>
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
+        </div>
+       <divclass="nav">
+          <a href="/admin/products"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders"> Orders </a>
+               <ahref="/admin/contacts" class="active"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <h2 style="margin-bottom: 1.5rem;"> Contact Messages(${contacts.length}) </h2>
         
         ${contacts.length === 0 ? '<div class="empty">No contact messages yet</div>' : contacts.map(c => {
     const date = new Date(c.createdAt).toLocaleDateString('it-IT', {
@@ -4151,35 +4270,36 @@ function getAdminContactsPage(contacts: any[]): string {
               <div class="contact-message">${c.message}</div>
             </div>
           `;
-  }).join('')}
-      </div>
-      <script>
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
-        
-        async function markRead(id) {
-          await fetch('/api/admin/contacts/' + id + '/status', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'read' })
-          });
-          location.reload();
-        }
-        
-        async function markReplied(id) {
-          await fetch('/api/admin/contacts/' + id + '/status', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'replied' })
-          });
-          location.reload();
-        }
-      </script>
-    </body>
-    </html>
-  `;
+  }).join('')
+    }
+</div>
+  <script>
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+async function markRead(id) {
+  await fetch('/api/admin/contacts/' + id + '/status', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'read' })
+  });
+  location.reload();
+}
+
+async function markReplied(id) {
+  await fetch('/api/admin/contacts/' + id + '/status', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'replied' })
+  });
+  location.reload();
+}
+</script>
+  </body>
+  </html>
+    `;
 }
 
 function getAdminBusinessRequestsPage(requests: any[]): string {
@@ -4209,13 +4329,13 @@ function getAdminBusinessRequestsPage(requests: any[]): string {
     : '<table><thead><tr><th>Azienda</th><th>P.IVA</th><th>Email</th><th>Telefono</th><th>Tipo Attività</th><th>Referente</th><th>Stato</th><th>Data</th><th>Azioni</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>';
 
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Richieste Business - Admin Panel</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Richieste Business-Admin Panel </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -4225,8 +4345,8 @@ function getAdminBusinessRequestsPage(requests: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
         th { background: #f8f8f8; font-weight: 600; }
         .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
         .status-pending { background: #ffc107; color: #000; }
@@ -4242,61 +4362,61 @@ function getAdminBusinessRequestsPage(requests: any[]): string {
         .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 6px; color: white; font-weight: 500; z-index: 9999; display: none; }
         .toast.success { background: #28a745; }
         .toast.error { background: #dc3545; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products">Products</a>
-        <a href="/admin/collections">Collections</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/contacts">Contacts</a>
-        <a href="/admin/business-requests" class="active">Business Requests</a>
-        <a href="/admin/b2b-products">B2B Products</a>
-      </div>
-      <div class="container">
-        <h2 style="margin-bottom: 1rem;">Richieste Business (${requests.length})</h2>
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
+        </div>
+       <divclass="nav">
+          <a href="/admin/products"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests" class="active"> Business Requests </a>
+                   <ahref="/admin/b2b-products"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <h2 style="margin-bottom: 1rem;"> Richieste Business(${requests.length}) </h2>
         ${tableHtml}
-      </div>
-      <div class="toast" id="toast"></div>
-      <script>
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
+</div>
+ <divclass="toast" id="toast"> </div>
+    <script>
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
 
-        function showToast(message, type) {
-          const toast = document.getElementById('toast');
-          toast.textContent = message;
-          toast.className = 'toast ' + type;
-          toast.style.display = 'block';
-          setTimeout(function() { toast.style.display = 'none'; }, 3000);
-        }
+function showToast(message, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast ' + type;
+  toast.style.display = 'block';
+  setTimeout(function () { toast.style.display = 'none'; }, 3000);
+}
 
-        async function updateStatus(id, status) {
-          try {
-            const res = await fetch('/api/admin/business-requests/' + id + '/status', {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ status: status })
-            });
-            if (res.ok) {
-              showToast(status === 'approved' ? 'Richiesta approvata!' : 'Richiesta rifiutata', 'success');
-              setTimeout(function() { location.reload(); }, 1000);
-            } else {
-              showToast('Errore aggiornamento', 'error');
-            }
-          } catch (e) {
-            showToast('Errore di connessione', 'error');
-          }
-        }
-      </script>
-    </body>
-    </html>
-  `;
+async function updateStatus(id, status) {
+  try {
+    const res = await fetch('/api/admin/business-requests/' + id + '/status', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: status })
+    });
+    if (res.ok) {
+      showToast(status === 'approved' ? 'Richiesta approvata!' : 'Richiesta rifiutata', 'success');
+      setTimeout(function () { location.reload(); }, 1000);
+    } else {
+      showToast('Errore aggiornamento', 'error');
+    }
+  } catch (e) {
+    showToast('Errore di connessione', 'error');
+  }
+}
+</script>
+  </body>
+  </html>
+    `;
 }
 
 function getAdminB2bProductsPage(allProducts: any[]): string {
@@ -4322,13 +4442,13 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
   }).join('');
 
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Prodotti B2B - Admin Panel</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Prodotti B2B-Admin Panel </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -4338,8 +4458,8 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
         .price-input { width: 120px; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
         .btn-save { padding: 0.4rem 0.8rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
@@ -4353,163 +4473,163 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
         .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 6px; color: white; font-weight: 500; z-index: 9999; display: none; }
         .toast.success { background: #28a745; }
         .toast.error { background: #dc3545; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>VIPIESSE Admin Panel</h1>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-      <div class="nav">
-        <a href="/admin/products">Products</a>
-        <a href="/admin/collections">Collections</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/contacts">Contacts</a>
-        <a href="/admin/business-requests">Business Requests</a>
-        <a href="/admin/b2b-products" class="active">B2B Products</a>
-      </div>
-      <div class="container">
-        <h2 style="margin-bottom: 1rem;">Gestione Prezzi - B2B &amp; Outlet (${allProducts.length})</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Nome Prodotto</th>
-              <th>Brand</th>
-              <th>Prezzo Attuale</th>
-              <th>Prezzo Pre-Sconto (Outlet)</th>
-              <th>Sconto Outlet</th>
-              <th>Prezzo B2B (&euro;)</th>
-              <th>Sconto B2B</th>
-              <th>Azioni B2B</th>
-            </tr>
-          </thead>
-          <tbody>
+</style>
+  </head>
+ <body>
+  <div class="header">
+    <h1>VIPIESSE Admin Panel </h1>
+     <buttonclass="logout" onclick="logout()"> Logout </button>
+        </div>
+       <divclass="nav">
+          <a href="/admin/products"> Products </a>
+           <ahref="/admin/collections"> Collections </a>
+             <ahref="/admin/orders"> Orders </a>
+               <ahref="/admin/contacts"> Contacts </a>
+                 <ahref="/admin/business-requests"> Business Requests </a>
+                   <ahref="/admin/b2b-products" class="active"> B2B Products </a>
+                      </div>
+                     <divclass="container">
+                        <h2 style="margin-bottom: 1rem;"> Gestione Prezzi-B2B & amp; Outlet(${allProducts.length}) </h2>
+                         <table>
+                          <thead>
+                          <tr>
+                          <th>Nome Prodotto </th>
+                           <th> Brand </th>
+                           <th> Prezzo Attuale </th>
+                             <th> Prezzo Pre-Sconto(Outlet) </th>
+                               <th> Sconto Outlet </th>
+                                 <th> Prezzo B2B(& euro;)</th>
+                                   <th> Sconto B2B </th>
+                                     <th> Azioni B2B </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
             ${rowsHtml}
-          </tbody>
-        </table>
-      </div>
-      <div class="toast" id="toast"></div>
-      <script>
-        async function logout() {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          window.location.href = '/login';
-        }
+</tbody>
+  </table>
+  </div>
+ <divclass="toast" id="toast"> </div>
+    <script>
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
 
-        function showToast(message, type) {
-          var toast = document.getElementById('toast');
-          toast.textContent = message;
-          toast.className = 'toast ' + type;
-          toast.style.display = 'block';
-          setTimeout(function() { toast.style.display = 'none'; }, 3000);
-        }
+function showToast(message, type) {
+  var toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast ' + type;
+  toast.style.display = 'block';
+  setTimeout(function () { toast.style.display = 'none'; }, 3000);
+}
 
-        function calcDiscount(productId, basePriceCents) {
-          var input = document.getElementById('b2b-' + productId);
-          var discountEl = document.getElementById('discount-' + productId);
-          var val = parseFloat(input.value);
-          if (val > 0 && basePriceCents > 0) {
-            var b2bCents = Math.round(val * 100);
-            var disc = Math.round((1 - b2bCents / basePriceCents) * 100);
-            discountEl.textContent = disc + '%';
-          } else {
-            discountEl.textContent = '-';
-          }
-        }
+function calcDiscount(productId, basePriceCents) {
+  var input = document.getElementById('b2b-' + productId);
+  var discountEl = document.getElementById('discount-' + productId);
+  var val = parseFloat(input.value);
+  if (val> 0 && basePriceCents> 0) {
+    var b2bCents = Math.round(val * 100);
+    var disc = Math.round((1 - b2bCents / basePriceCents) * 100);
+    discountEl.textContent = disc + '%';
+  } else {
+    discountEl.textContent = '-';
+  }
+}
 
-        async function saveB2bPrice(productId) {
-          var input = document.getElementById('b2b-' + productId);
-          var val = parseFloat(input.value);
-          var b2bPriceCents = val > 0 ? Math.round(val * 100) : null;
-          
-          try {
-            var res = await fetch('/api/admin/products/' + productId + '/b2b-price', {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ b2bPriceCents: b2bPriceCents })
-            });
-            if (res.ok) {
-              var saved = document.getElementById('saved-' + productId);
-              saved.style.display = 'inline';
-              setTimeout(function() { saved.style.display = 'none'; }, 2000);
-              showToast('Prezzo B2B aggiornato!', 'success');
-            } else {
-              showToast('Errore nel salvataggio', 'error');
-            }
-          } catch (e) {
-            showToast('Errore di connessione', 'error');
-          }
-        }
+async function saveB2bPrice(productId) {
+  var input = document.getElementById('b2b-' + productId);
+  var val = parseFloat(input.value);
+  var b2bPriceCents = val> 0 ? Math.round(val * 100) : null;
 
-        function calcOutletDiscount(productId, basePriceCents) {
-          var input = document.getElementById('compare-' + productId);
-          var discountEl = document.getElementById('outlet-discount-' + productId);
-          var val = parseFloat(input.value);
-          if (val > 0 && basePriceCents > 0) {
-            var compareCents = Math.round(val * 100);
-            var disc = Math.round((1 - basePriceCents / compareCents) * 100);
-            discountEl.textContent = '-' + disc + '%';
-          } else {
-            discountEl.textContent = '-';
-          }
-        }
+  try {
+    var res = await fetch('/api/admin/products/' + productId + '/b2b-price', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ b2bPriceCents: b2bPriceCents })
+    });
+    if (res.ok) {
+      var saved = document.getElementById('saved-' + productId);
+      saved.style.display = 'inline';
+      setTimeout(function () { saved.style.display = 'none'; }, 2000);
+      showToast('Prezzo B2B aggiornato!', 'success');
+    } else {
+      showToast('Errore nel salvataggio', 'error');
+    }
+  } catch (e) {
+    showToast('Errore di connessione', 'error');
+  }
+}
 
-        async function saveComparePrice(productId) {
-          var input = document.getElementById('compare-' + productId);
-          var val = parseFloat(input.value);
-          var compareAtPriceCents = val > 0 ? Math.round(val * 100) : null;
-          
-          try {
-            var res = await fetch('/api/admin/products/' + productId + '/compare-price', {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ compareAtPriceCents: compareAtPriceCents })
-            });
-            if (res.ok) {
-              showToast('Prezzo outlet aggiornato!', 'success');
-            } else {
-              showToast('Errore nel salvataggio', 'error');
-            }
-          } catch (e) {
-            showToast('Errore di connessione', 'error');
-          }
-        }
+function calcOutletDiscount(productId, basePriceCents) {
+  var input = document.getElementById('compare-' + productId);
+  var discountEl = document.getElementById('outlet-discount-' + productId);
+  var val = parseFloat(input.value);
+  if (val> 0 && basePriceCents> 0) {
+    var compareCents = Math.round(val * 100);
+    var disc = Math.round((1 - basePriceCents / compareCents) * 100);
+    discountEl.textContent = '-' + disc + '%';
+  } else {
+    discountEl.textContent = '-';
+  }
+}
 
-        async function clearB2bPrice(productId) {
-          var input = document.getElementById('b2b-' + productId);
-          input.value = '';
-          
-          try {
-            var res = await fetch('/api/admin/products/' + productId + '/b2b-price', {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ b2bPriceCents: null })
-            });
-            if (res.ok) {
-              document.getElementById('discount-' + productId).textContent = '-';
-              showToast('Prezzo B2B rimosso', 'success');
-              setTimeout(function() { location.reload(); }, 1000);
-            } else {
-              showToast('Errore nella rimozione', 'error');
-            }
-          } catch (e) {
-            showToast('Errore di connessione', 'error');
-          }
-        }
-      </script>
-    </body>
-    </html>
-  `;
+async function saveComparePrice(productId) {
+  var input = document.getElementById('compare-' + productId);
+  var val = parseFloat(input.value);
+  var compareAtPriceCents = val> 0 ? Math.round(val * 100) : null;
+
+  try {
+    var res = await fetch('/api/admin/products/' + productId + '/compare-price', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ compareAtPriceCents: compareAtPriceCents })
+    });
+    if (res.ok) {
+      showToast('Prezzo outlet aggiornato!', 'success');
+    } else {
+      showToast('Errore nel salvataggio', 'error');
+    }
+  } catch (e) {
+    showToast('Errore di connessione', 'error');
+  }
+}
+
+async function clearB2bPrice(productId) {
+  var input = document.getElementById('b2b-' + productId);
+  input.value = '';
+
+  try {
+    var res = await fetch('/api/admin/products/' + productId + '/b2b-price', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ b2bPriceCents: null })
+    });
+    if (res.ok) {
+      document.getElementById('discount-' + productId).textContent = '-';
+      showToast('Prezzo B2B rimosso', 'success');
+      setTimeout(function () { location.reload(); }, 1000);
+    } else {
+      showToast('Errore nella rimozione', 'error');
+    }
+  } catch (e) {
+    showToast('Errore di connessione', 'error');
+  }
+}
+</script>
+  </body>
+  </html>
+    `;
 }
 
 function getAdminImportPage() {
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html>
     <head>
-      <title>Import CSV - VIPIESSE Admin</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <title>Import CSV-VIPIESSE Admin </title>
+     <metacharset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -4517,75 +4637,75 @@ function getAdminImportPage() {
         .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; display: flex; }
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
         h2 { margin-bottom: 1.5rem; }
-        textarea { width: 100%; height: 400px; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.9rem; margin-bottom: 1rem; }
+        textarea { width: 100 %; height: 400px; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.9rem; margin-bottom: 1rem; }
         .btn { padding: 0.75rem 1.5rem; background: #000; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
         .btn:disabled { background: #999; cursor: not-allowed; }
         .status { margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none; }
         .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-      </style>
-    </head>
-    <body>
-      <div class="header"><h1>VIPIESSE Admin Panel</h1></div>
-      <div class="nav">
-        <a href="/admin">Dashboard</a>
-        <a href="/admin/products">Products</a>
-        <a href="/admin/import" style="color: #000; border-bottom: 2px solid #000;">Import CSV</a>
-      </div>
-      <div class="container">
-        <div class="card">
-          <h2>Import Products from CSV</h2>
-          <p style="margin-bottom: 1rem; color: #666;">Incolla il contenuto CSV qui sotto come fornito. La prima riga deve essere l'intestazione.</p>
-          <textarea id="csvInput" placeholder="Data invio,Articolo,Colore,SKU,Taglia,Quantità,Prezzo..."></textarea>
-          <div style="display: flex; gap: 1rem;">
-            <button id="importBtn" class="btn" onclick="runImport()">Avvia Importazione</button>
-          </div>
-          <div id="status" class="status"></div>
-        </div>
-      </div>
-      <script>
-        async function runImport() {
-          const btn = document.getElementById('importBtn');
-          const status = document.getElementById('status');
-          const csvContent = document.getElementById('csvInput').value;
+</style>
+  </head>
+ <body>
+  <div class="header"> <h1>VIPIESSE Admin Panel</h1></div>
+    <div class="nav">
+      <a href="/admin"> Dashboard </a>
+       <ahref="/admin/products"> Products </a>
+         <ahref="/admin/import" style="color: #000; border-bottom: 2px solid #000;"> Import CSV </a>
+            </div>
+           <divclass="container">
+              <div class="card">
+                <h2>Import Products from CSV </h2>
+                 <pstyle="margin-bottom: 1rem; color: #666;"> Incolla il contenuto CSV qui sotto come fornito.La prima riga deve essere l'intestazione.</p>
+                   <textareaid="csvInput" placeholder="Data invio,Articolo,Colore,SKU,Taglia,Quantità,Prezzo..."> </textarea>
+                     <divstyle="display: flex; gap: 1rem;">
+                        <button id="importBtn" class="btn" onclick="runImport()"> Avvia Importazione </button>
+                          </div>
+                         <divid="status" class="status"> </div>
+                            </div>
+                            </div>
+                            <script>
+async function runImport() {
+  const btn = document.getElementById('importBtn');
+  const status = document.getElementById('status');
+  const csvContent = document.getElementById('csvInput').value;
 
-          if (!csvContent.trim()) {
-            alert('Inserisci il contenuto CSV');
-            return;
-          }
+  if (!csvContent.trim()) {
+    alert('Inserisci il contenuto CSV');
+    return;
+  }
 
-          btn.disabled = true;
-          btn.textContent = 'Importazione in corso...';
-          status.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Importazione in corso...';
+  status.style.display = 'none';
 
-          try {
-            const res = await fetch('/api/admin/products/import', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ csvContent })
-            });
+  try {
+    const res = await fetch('/api/admin/products/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ csvContent })
+    });
 
-            const result = await res.json();
-            if (res.ok) {
-              status.className = 'status success';
-              status.textContent = result.message || 'Importazione completata con successo!';
-            } else {
-              status.className = 'status error';
-              status.textContent = 'Errore: ' + (result.error || 'Errore sconosciuto');
-            }
-          } catch (e) {
-            status.className = 'status error';
-            status.textContent = 'Errore di connessione';
-          } finally {
-            status.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = 'Avvia Importazione';
-          }
-        }
-      </script>
-    </body>
-    </html>
-  `;
+    const result = await res.json();
+    if (res.ok) {
+      status.className = 'status success';
+      status.textContent = result.message || 'Importazione completata con successo!';
+    } else {
+      status.className = 'status error';
+      status.textContent = 'Errore: ' + (result.error || 'Errore sconosciuto');
+    }
+  } catch (e) {
+    status.className = 'status error';
+    status.textContent = 'Errore di connessione';
+  } finally {
+    status.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Avvia Importazione';
+  }
+}
+</script>
+  </body>
+  </html>
+    `;
 }
