@@ -1834,7 +1834,6 @@ export async function registerRoutes(
           <a href="/admin/contacts">Contacts</a>
           <a href="/admin/business-requests">Business Requests</a>
           <a href="/admin/b2b-products">B2B Products</a>
-          <a href="/admin/import">Import CSV</a>
         </div>
         <div class="container">
           <h2>Welcome, ${req.adminEmail}</h2>
@@ -1909,11 +1908,6 @@ export async function registerRoutes(
   app.get("/admin/b2b-products", isAdminHTML, async (req, res) => {
     const allProducts = await storage.getAllProducts();
     res.send(getAdminB2bProductsPage(allProducts));
-  });
-
-  // Admin CSV Import page
-  app.get("/admin/import", isAdminHTML, async (req, res) => {
-    res.send(getAdminImportPage());
   });
 
   // ================================
@@ -2677,7 +2671,7 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
       <div class="container">
         <div class="controls" style="display: flex; gap: 1rem;">
           <button class="btn" onclick="showCreateModal()">+ New Product</button>
-          <button class="btn" onclick="showImportModal()" style="background: #333;">Import CSV</button>
+          <button class="btn" onclick="showImportModal()" style="background: #2563eb; color: white; font-weight: 600; padding: 0.6rem 1.2rem; font-size: 1rem;">📄 Importa CSV</button>
         </div>
         <table>
           <thead>
@@ -2752,19 +2746,20 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
 
       <div id="importModal" class="modal">
         <div class="modal-content">
-          <h2>Import Products from CSV</h2>
+          <h2>Importa Prodotti da CSV</h2>
           <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #666;">
-            Select a .csv file with columns: Articolo, Colore, SKU, Taglia, Quantità, Prezzo.
+            Seleziona un file .csv con le colonne: <strong>Articolo, Colore, SKU, Taglia, Quantità, Prezzo</strong>.<br>
+            Le righe senza quantità verranno saltate. I prodotti con lo stesso nome verranno raggruppati automaticamente.
           </p>
           <form id="importForm">
             <div class="form-group">
-              <label>Select CSV File</label>
+              <label>Seleziona file CSV</label>
               <input type="file" id="csvFile" accept=".csv" required>
             </div>
             <div id="importStatus" style="margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none;"></div>
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-              <button type="submit" id="importSubmitBtn" class="btn">Start Import</button>
-              <button type="button" class="btn" onclick="closeImportModal()">Cancel</button>
+              <button type="submit" id="importSubmitBtn" class="btn">Avvia Importazione</button>
+              <button type="button" class="btn" onclick="closeImportModal()">Annulla</button>
             </div>
           </form>
         </div>
@@ -2825,10 +2820,10 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
             if (res.ok) {
               status.style.background = '#d4edda';
               status.style.color = '#155724';
-              let html = '<strong>Import Successful!</strong><br>';
-              html += 'Products Created: ' + data.summary.productsCreated + '<br>';
-              html += 'Variants Created: ' + data.summary.variantsCreated + '<br>';
-              html += 'Skipped: ' + data.summary.skippedCount + '<br>';
+              let html = '<strong>✅ Importazione completata!</strong><br>';
+              html += 'Prodotti creati: ' + data.summary.productsCreated + '<br>';
+              html += 'Varianti create: ' + data.summary.variantsCreated + '<br>';
+              html += 'Saltate: ' + data.summary.skippedCount + '<br>';
 
               if (data.skipped && data.skipped.length> 0) {
                 html += '<div style="margin-top: 0.5rem; font-size: 0.8rem; max-height: 150px; overflow-y: auto; border-top: 1px solid #c3e6cb; padding-top: 0.5rem;">';
@@ -2843,16 +2838,16 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
             } else {
               status.style.background = '#f8d7da';
               status.style.color = '#721c24';
-              status.textContent = 'Error: ' + (data.error || 'Unknown error');
+              status.textContent = 'Errore: ' + (data.error || 'Errore sconosciuto');
               btn.disabled = false;
-              btn.textContent = 'Start Import';
+              btn.textContent = 'Avvia Importazione';
             }
           } catch (err) {
             status.style.background = '#f8d7da';
             status.style.color = '#721c24';
-            status.textContent = 'Connection error';
+            status.textContent = 'Errore di connessione';
             btn.disabled = false;
-            btn.textContent = 'Start Import';
+            btn.textContent = 'Avvia Importazione';
           }
         };
 
@@ -4622,91 +4617,3 @@ async function clearB2bPrice(productId) {
     `;
 }
 
-function getAdminImportPage() {
-  return `
-  <!DOCTYPE html>
-    <html>
-    <head>
-    <title>Import CSV-VIPIESSE Admin </title>
-     <metacharset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
-        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.5rem; }
-        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; display: flex; }
-        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
-        .container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
-        h2 { margin-bottom: 1.5rem; }
-        textarea { width: 100 %; height: 400px; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.9rem; margin-bottom: 1rem; }
-        .btn { padding: 0.75rem 1.5rem; background: #000; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
-        .btn:disabled { background: #999; cursor: not-allowed; }
-        .status { margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none; }
-        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-</style>
-  </head>
- <body>
-  <div class="header"> <h1>VIPIESSE Admin Panel</h1></div>
-    <div class="nav">
-      <a href="/admin"> Dashboard </a>
-       <ahref="/admin/products"> Products </a>
-         <ahref="/admin/import" style="color: #000; border-bottom: 2px solid #000;"> Import CSV </a>
-            </div>
-           <divclass="container">
-              <div class="card">
-                <h2>Import Products from CSV </h2>
-                 <pstyle="margin-bottom: 1rem; color: #666;"> Incolla il contenuto CSV qui sotto come fornito.La prima riga deve essere l'intestazione.</p>
-                   <textareaid="csvInput" placeholder="Data invio,Articolo,Colore,SKU,Taglia,Quantità,Prezzo..."> </textarea>
-                     <divstyle="display: flex; gap: 1rem;">
-                        <button id="importBtn" class="btn" onclick="runImport()"> Avvia Importazione </button>
-                          </div>
-                         <divid="status" class="status"> </div>
-                            </div>
-                            </div>
-                            <script>
-async function runImport() {
-  const btn = document.getElementById('importBtn');
-  const status = document.getElementById('status');
-  const csvContent = document.getElementById('csvInput').value;
-
-  if (!csvContent.trim()) {
-    alert('Inserisci il contenuto CSV');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Importazione in corso...';
-  status.style.display = 'none';
-
-  try {
-    const res = await fetch('/api/admin/products/import', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csvContent })
-    });
-
-    const result = await res.json();
-    if (res.ok) {
-      status.className = 'status success';
-      status.textContent = result.message || 'Importazione completata con successo!';
-    } else {
-      status.className = 'status error';
-      status.textContent = 'Errore: ' + (result.error || 'Errore sconosciuto');
-    }
-  } catch (e) {
-    status.className = 'status error';
-    status.textContent = 'Errore di connessione';
-  } finally {
-    status.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Avvia Importazione';
-  }
-}
-</script>
-  </body>
-  </html>
-    `;
-}
