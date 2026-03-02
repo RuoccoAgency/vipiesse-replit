@@ -1205,13 +1205,18 @@ Sitemap: https://${domain}/sitemap.xml`;
       const charms = await storage.getProductsByBrandBase("CHARMS");
       res.json(charms);
     } catch (error) {
+      console.error("[charms] Failed to fetch charm products:", error);
       res.status(500).json({ error: "Failed to fetch charms" });
     }
   });
 
   app.get("/api/products/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid product ID" });
+    }
     try {
-      const product = await storage.getProductWithVariants(parseInt(req.params.id));
+      const product = await storage.getProductWithVariants(id);
       if (!product || !product.active) {
         return res.status(404).json({ error: "Product not found" });
       }
