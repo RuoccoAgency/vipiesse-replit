@@ -1146,6 +1146,16 @@ export async function registerRoutes(
     }
   });
 
+  // Charm products (used as Crocs add-on)
+  app.get("/api/products/charms", async (req, res) => {
+    try {
+      const charms = await storage.getProductsByBrandBase("CHARMS");
+      res.json(charms);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch charms" });
+    }
+  });
+
   app.get("/api/products/:id", async (req, res) => {
     try {
       const product = await storage.getProductWithVariants(parseInt(req.params.id));
