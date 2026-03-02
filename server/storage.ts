@@ -51,6 +51,7 @@ export interface IStorage {
   getProductWithVariants(id: number): Promise<ProductWithVariants | undefined>;
   getAllProductsWithVariants(): Promise<ProductWithVariants[]>;
   getProductsByCollection(collectionSlug: string, includeOutlet?: boolean): Promise<ProductWithVariants[]>;
+  getProductsByBrandBase(brandBase: string): Promise<ProductWithVariants[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<void>;
@@ -326,6 +327,42 @@ export class DatabaseStorage implements IStorage {
         collections: productCols
       });
     }
+
+    return result;
+  }
+
+  async getProductsByBrandBase(brandBase: string): Promise<ProductWithVariants[]> {
+    const normalized = brandBase.trim().toLowerCase();
+    if (!normalized) return [];
+
+    const matchedProducts = await db
+      .select()
+      .from(products)
+      .where(
+        and(
+          eq(products.active, true),
+          sql`lower(${products.brand}) = ${normalized}`
+        )
+      );
+
+    if (matchedProducts.length === 0) return [];
+
+    const result = await Promise.all(
+      matchedProducts.map(async (product) => {
+        const [variants, images, productCols] = await Promise.all([
+          this.getVariantsByProduct(product.id),
+          this.getImagesByProduct(product.id),
+          this.getCollectionsByProduct(product.id),
+        ]);
+
+        return {
+          ...product,
+          variants,
+          images,
+          collections: productCols,
+        };
+      })
+    );
 
     return result;
   }
