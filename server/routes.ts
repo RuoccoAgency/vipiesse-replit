@@ -3580,13 +3580,13 @@ document.getElementById('variantForm').addEventListener('submit', async (e) => {
 
 function getAdminCollectionsPage(collections: any[]): string {
   return `
-  <!DOCTYPE html>
+    <!DOCTYPE html>
     <html>
     <head>
-    <title>Collections-Admin Panel </title>
-     <metacharset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
+      <title>Collections - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -3597,46 +3597,46 @@ function getAdminCollectionsPage(collections: any[]): string {
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
         .controls { margin-bottom: 1.5rem; }
-        .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
         .btn:hover { background: #333; }
-        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95 %; }
+        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95%; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-input, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-</style>
-  </head>
- <body>
-  <div class="header">
-    <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+        input, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections" class="active">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
+      </div>
+      <div class="container">
+        <div class="controls">
+          <button class="btn" onclick="showCreateModal()">+ New Collection</button>
         </div>
-       <divclass="nav">
-          <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections" class="active"> Collections </a>
-             <ahref="/admin/orders"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
-                      </div>
-                     <divclass="container">
-                        <div class="controls">
-                          <button class="btn" onclick="showCreateModal()"> + New Collection </button>
-                            </div>
-                           <table>
-                            <thead>
-                            <tr>
-                            <th>Name </th>
-                           <th> Slug </th>
-                           <th> Description </th>
-                           <th> Actions </th>
-                            </tr>
-                            </thead>
-                            <tbody>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             ${collections.map(c => `
               <tr>
                 <td>${c.name}</td>
@@ -3647,104 +3647,103 @@ input, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-
                   <button class="btn" onclick="deleteCollection(${c.id})">Delete</button>
                 </td>
               </tr>
-            `).join('')
-    }
-</tbody>
-  </table>
-  </div>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
 
- <divid="collectionModal" class="modal">
-    <div class="modal-content">
-      <h2 id="modalTitle"> Create Collection </h2>
-       <formid="collectionForm">
-          <input type="hidden" id="collectionId">
+      <div id="collectionModal" class="modal">
+        <div class="modal-content">
+          <h2 id="modalTitle">Create Collection</h2>
+          <form id="collectionForm">
+            <input type="hidden" id="collectionId">
             <div class="form-group">
-              <label>Name * </label>
-             <inputtype="text" id="name" required>
-                </div>
-               <divclass="form-group">
-                  <label>Slug * </label>
-                 <inputtype="text" id="slug" required placeholder="e.g. best-sellers">
-                    </div>
-                   <divclass="form-group">
-                      <label>Description </label>
-                     <textareaid="description" rows="2"> </textarea>
-                        </div>
-                       <divstyle="display: flex; gap: 1rem; margin-top: 1rem;">
-                          <button type="submit" class="btn"> Save </button>
-                           <buttontype="button" class="btn" onclick="closeModal()"> Cancel </button>
-                              </div>
-                              </form>
-                              </div>
-                              </div>
+              <label>Name *</label>
+              <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+              <label>Slug *</label>
+              <input type="text" id="slug" required placeholder="e.g. best-sellers">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="description" rows="2"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+              <button type="submit" class="btn">Save</button>
+              <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-                              <script>
-const collections = ${JSON.stringify(collections)};
+      <script>
+        const collections = ${JSON.stringify(collections)};
 
-async function logout() {
-  await fetch('/api/admin/logout', { method: 'POST' });
-  window.location.href = '/login';
-}
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
 
-function showCreateModal() {
-  document.getElementById('modalTitle').textContent = 'Create Collection';
-  document.getElementById('collectionForm').reset();
-  document.getElementById('collectionId').value = '';
-  document.getElementById('collectionModal').classList.add('show');
-}
+        function showCreateModal() {
+          document.getElementById('modalTitle').textContent = 'Create Collection';
+          document.getElementById('collectionForm').reset();
+          document.getElementById('collectionId').value = '';
+          document.getElementById('collectionModal').classList.add('show');
+        }
 
-function editCollection(id) {
-  const collection = collections.find(c => c.id === id);
-  if (!collection) return;
+        function editCollection(id) {
+          const collection = collections.find(c => c.id === id);
+          if (!collection) return;
 
-  document.getElementById('modalTitle').textContent = 'Edit Collection';
-  document.getElementById('collectionId').value = id;
-  document.getElementById('name').value = collection.name;
-  document.getElementById('slug').value = collection.slug;
-  document.getElementById('description').value = collection.description || '';
-  document.getElementById('collectionModal').classList.add('show');
-}
+          document.getElementById('modalTitle').textContent = 'Edit Collection';
+          document.getElementById('collectionId').value = id;
+          document.getElementById('name').value = collection.name;
+          document.getElementById('slug').value = collection.slug;
+          document.getElementById('description').value = collection.description || '';
+          document.getElementById('collectionModal').classList.add('show');
+        }
 
-function closeModal() {
-  document.getElementById('collectionModal').classList.remove('show');
-}
+        function closeModal() {
+          document.getElementById('collectionModal').classList.remove('show');
+        }
 
-async function deleteCollection(id) {
-  if (!confirm('Delete this collection?')) return;
-  await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
-  location.reload();
-}
+        async function deleteCollection(id) {
+          if (!confirm('Delete this collection?')) return;
+          await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
+          location.reload();
+        }
 
-document.getElementById('collectionForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const id = document.getElementById('collectionId').value;
+        document.getElementById('collectionForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const id = document.getElementById('collectionId').value;
 
-  const data = {
-    name: document.getElementById('name').value,
-    slug: document.getElementById('slug').value,
-    description: document.getElementById('description').value || null
-  };
+          const data = {
+            name: document.getElementById('name').value,
+            slug: document.getElementById('slug').value,
+            description: document.getElementById('description').value || null,
+          };
 
-  if (id) {
-    await fetch('/api/admin/collections/' + id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  } else {
-    await fetch('/api/admin/collections', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  }
+          if (id) {
+            await fetch('/api/admin/collections/' + id, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+          } else {
+            await fetch('/api/admin/collections', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+          }
 
-  location.reload();
-});
-</script>
-  </body>
-  </html>
-    `;
+          location.reload();
+        });
+      </script>
+    </body>
+    </html>
+  `;
 }
 
 // Admin Orders Page
