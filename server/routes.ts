@@ -3031,11 +3031,11 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
-input, select, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+        input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
         .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
         .checkbox-group label { font-weight: normal; display: flex; align-items: center; font-size: 0.85rem; }
         .checkbox-group input { width: auto; margin-right: 0.5rem; }
-        table { width: 100 %; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; }
         table th, table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         table th { font-weight: 600; background: #f8f8f8; }
         .active-badge { display: inline-block; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600; }
@@ -3043,16 +3043,16 @@ input, select, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd;
         .active-badge.no { background: #f8d7da; color: #721c24; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95 %; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95%; max-height: 90vh; overflow-y: auto; }
         .error-msg { color: #dc3545; font-size: 0.85rem; margin-bottom: 0.5rem; display: none; }
         .error-msg.show { display: block; }
         .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0; }
         .image-card { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 2px solid #e0e0e0; }
-        .image-card img { width: 100 %; height: 100 %; object-fit: cover; }
-        .image-delete-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50 %; background: #ef4444; color: white; border: none; cursor: pointer; font-size: 16px; line-height: 1; }
+        .image-card img { width: 100%; height: 100%; object-fit: cover; }
+        .image-delete-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: white; border: none; cursor: pointer; font-size: 16px; line-height: 1; }
         .image-delete-btn:hover { background: #dc2626; }
         .drop-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; margin-top: 1rem; background: #fafafa; }
-        .drop-zone: hover, .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
         .drop-zone-content { color: #666; }
         .drop-zone-content svg { color: #9ca3af; margin-bottom: 0.5rem; }
         .drop-zone.dragover svg { color: #2563eb; }
@@ -3060,7 +3060,7 @@ input, select, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd;
         .drop-hint { font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem; }
         .upload-progress { margin-top: 1rem; }
         .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100 %; background: #2563eb; width: 0 %; transition: width 0.3s; }
+        .progress-fill { height: 100%; background: #2563eb; width: 0%; transition: width 0.3s; }
         .progress-text { display: block; font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
         .back-link { color: #666; text-decoration: none; margin-bottom: 1rem; display: inline-block; }
         .back-link:hover { color: #000; }
@@ -3832,8 +3832,8 @@ function getAdminOrdersPage(orders: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
         .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: white; }
         .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
@@ -3962,10 +3962,10 @@ function getAdminOrderDetailPage(order: any): string {
         .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
         .card h3 { margin-bottom: 1rem; font-size: 1.1rem; color: #333; }
         .info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
-        .info-row: last-child { border-bottom: none; }
+        .info-row:last-child { border-bottom: none; }
         .info-label { color: #666; }
         .info-value { font-weight: 500; }
-        .items-table { width: 100 %; border-collapse: collapse; margin-top: 1rem; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         .items-table th, .items-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
         .items-table th { font-weight: 600; color: #666; font-size: 0.85rem; }
         .item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
@@ -4424,8 +4424,8 @@ function getAdminBusinessRequestsPage(requests: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
         th { background: #f8f8f8; font-weight: 600; }
         .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
         .status-pending { background: #ffc107; color: #000; }
@@ -4537,8 +4537,8 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
         .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
         .price-input { width: 120px; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
         .btn-save { padding: 0.4rem 0.8rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
