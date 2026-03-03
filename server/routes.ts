@@ -3069,68 +3069,68 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
  <body>
   <div class="header">
     <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+     <button class="logout" onclick="logout()"> Logout </button>
         </div>
-       <divclass="nav">
+       <div class="nav">
           <a href="/admin/products" class="active"> Products </a>
-           <ahref="/admin/collections"> Collections </a>
-             <ahref="/admin/orders"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
+           <a href="/admin/collections"> Collections </a>
+             <a href="/admin/orders"> Orders </a>
+               <a href="/admin/contacts"> Contacts </a>
+                 <a href="/admin/business-requests"> Business Requests </a>
+                   <a href="/admin/b2b-products"> B2B Products </a>
                       </div>
-                     <divclass="container">
+                     <div class="container">
                         <a href="/admin/products" class="back-link">← Back to Products </a>
 
                           <!--Product Details Section-->
                             <div class="section">
                               <h3>Product Details </h3>
-                               <formid="productForm">
+                               <form id="productForm">
                                   <div class="form-row">
                                     <div class="form-group">
                                       <label>Name / Articolo * </label>
-                                     <inputtype="text" id="name" value="${product.name}" required>
+                                     <input type="text" id="name" value="${product.name}" required>
                                         </div>
-                                       <divclass="form-group">
+                                       <div class="form-group">
                                           <label>Brand </label>
-                                         <inputtype="text" id="brand" value="${product.brand || ''}">
+                                         <input type="text" id="brand" value="${product.brand || ''}">
                                             </div>
                                             </div>
-                                           <divclass="form-row">
+                                           <div class="form-row">
                                               <div class="form-group">
                                                 <label>Base Price(€) </label>
-                                                 <inputtype="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
+                                                 <input type="text" id="basePrice" value="${product.basePriceCents ? (product.basePriceCents / 100).toFixed(2) : ''}">
                                                     </div>
-                                                   <divclass="form-group">
+                                                   <div class="form-group">
                                                       <label>Prezzo Pre-Sconto / Outlet(€) </label>
-                                                       <inputtype="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
+                                                       <input type="text" id="compareAtPrice" value="${product.compareAtPriceCents ? (product.compareAtPriceCents / 100).toFixed(2) : ''}" placeholder="Es: 39.90 (prezzo originale prima dello sconto)">
                                                           <small style="color:#666;font-size:0.75rem;"> Se compilato, nella sezione Outlet verrà mostrato come prezzo barrato con la % di sconto </small>
                                                             </div>
                                                             </div>
-                                                           <divclass="form-row">
+                                                           <div class="form-row">
                                                               <div class="form-group">
                                                                 <label>Active </label>
-                                                               <selectid="active">
+                                                               <select id="active">
                                                                   <option value="true" ${product.active ? 'selected' : ''}> Yes </option>
-                                                                   <optionvalue="false" ${!product.active ? 'selected' : ''}> No </option>
+                                                                   <option value="false" ${!product.active ? 'selected' : ''}> No </option>
                                                                       </select>
                                                                       </div>
-                                                                     <divclass="form-group">
+                                                                     <div class="form-group">
                                                                         <label>Stagione </label>
-                                                                       <selectid="season">
+                                                                       <select id="season">
                                                                           <option value="" ${!product.season ? 'selected' : ''}> --Nessuna --</option>
-                                                                           <optionvalue="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}> Primavera / Estate </option>
-                                                                             <optionvalue="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}> Autunno / Inverno </option>
+                                                                           <option value="primavera-estate" ${product.season === 'primavera-estate' ? 'selected' : ''}> Primavera / Estate </option>
+                                                                             <option value="autunno-inverno" ${product.season === 'autunno-inverno' ? 'selected' : ''}> Autunno / Inverno </option>
                                                                                 </select>
                                                                                 </div>
                                                                                 </div>
-                                                                               <divclass="form-group">
+                                                                               <div class="form-group">
                                                                                   <label>Description </label>
-                                                                                 <textareaid="description" rows="3"> ${product.description || ''} </textarea>
+                                                                                 <textarea id="description" rows="3"> ${product.description || ''} </textarea>
                                                                                     </div>
-                                                                                   <divclass="form-group">
+                                                                                   <div class="form-group">
                                                                                       <label>Collections </label>
-                                                                                     <divclass="checkbox-group">
+                                                                                     <div class="checkbox-group">
                                                                                         ${collections.map(c => `
                   <label>
                     <input type="checkbox" name="collection" value="${c.id}" ${productCollectionIds.includes(c.id) ? 'checked' : ''}>
@@ -3140,14 +3140,14 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
     }
 </div>
   </div>
- <buttontype="submit" class="btn"> Save Product </button>
+ <button type="submit" class="btn"> Save Product </button>
     </form>
     </div>
 
     <!--Product Images Section-->
       <div class="section">
         <h3>Product Images </h3>
-         <divid="imagesList" class="image-grid">
+         <div id="imagesList" class="image-grid">
             ${product.images?.map((img: any) => `
               <div class="image-card" data-id="${img.id}">
                 <img src="${img.imageUrl}" alt="Product image" onerror="this.src='https://via.placeholder.com/150?text=Error'">
@@ -3166,11 +3166,11 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
              <polylinepoints="17 8 12 3 7 8"> </polyline>
                <linex1="12" y1="3" x2="12" y2="15"> </line>
                   </svg>
-                 <p> Trascina le immagini qui o<spanclass="browse-link"> clicca per selezionare</span></p>
+                 <p> Trascina le immagini qui o<span class="browse-link"> clicca per selezionare</span></p>
                     <p class="drop-hint"> Formati supportati: JPG, PNG, WebP(max 10MB) </p>
                       </div>
                       </div>
-                     <divid="uploadProgress" class="upload-progress" style="display: none;">
+                     <div id="uploadProgress" class="upload-progress" style="display: none;">
                         <div class="progress-bar"> <div class="progress-fill"> </div></div>
                           <span class="progress-text"> Caricamento...</span>
                             </div>
@@ -3179,15 +3179,15 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                             <!--Color Images Section-->
                               <div class="section" id="colorImagesSection">
                                 <h3>Color Images </h3>
-                                 <pstyle="color: #666; font-size: 0.85rem; margin-bottom: 1rem;"> Assign an image to each color.All sizes of the same color share this image.On the storefront, the product image updates when a customer selects a color.</p>
-                                   <divid="colorImagesList"> </div>
+                                 <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;"> Assign an image to each color.All sizes of the same color share this image.On the storefront, the product image updates when a customer selects a color.</p>
+                                   <div id="colorImagesList"> </div>
                                       </div>
 
                                       <!--Variants Section-->
                                         <div class="section">
                                           <h3>Variants(Color + Size Combinations) </h3>
-                                         <buttonclass="btn" onclick="showVariantModal()"> + Add Variant </button>
-                                           <tablestyle="margin-top: 1rem;">
+                                         <button class="btn" onclick="showVariantModal()"> + Add Variant </button>
+                                           <table style="margin-top: 1rem;">
                                               <thead>
                                               <tr>
                                               <th>Image </th>
@@ -3200,7 +3200,7 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
                                              <th> Actions </th>
                                               </tr>
                                               </thead>
-                                             <tbodyid="variantsList">
+                                             <tbody id="variantsList">
                                                 ${product.variants?.map((v: any) => `
                 <tr data-id="${v.id}">
                   <td>${v.imageUrl ? '<img src="' + v.imageUrl + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" onerror="this.style.display=\'none\'">' : '<span style="color:#ccc;">—</span>'}</td>
@@ -3226,39 +3226,39 @@ function getAdminProductEditPage(product: any, collections: any[]): string {
     <div id="variantModal" class="modal">
       <div class="modal-content">
         <h2 id="variantModalTitle"> Add Variant </h2>
-         <formid="variantForm">
+         <form id="variantForm">
             <input type="hidden" id="variantId">
               <div class="error-msg" id="variantError"> </div>
-               <divclass="form-group">
+               <div class="form-group">
                   <label>Color * </label>
-                 <inputtype="text" id="variantColor" required placeholder="e.g. BORDEAUX">
+                 <input type="text" id="variantColor" required placeholder="e.g. BORDEAUX">
                     </div>
-                   <divclass="form-group">
+                   <div class="form-group">
                       <label>Size * </label>
-                     <inputtype="text" id="variantSize" required placeholder="e.g. 36/37">
+                     <input type="text" id="variantSize" required placeholder="e.g. 36/37">
                         </div>
-                       <divclass="form-group">
+                       <div class="form-group">
                           <label>SKU * (unique) </label>
-                         <inputtype="text" id="variantSku" required placeholder="e.g. ROMATOPIWA20BO36">
+                         <input type="text" id="variantSku" required placeholder="e.g. ROMATOPIWA20BO36">
                             </div>
-                           <divclass="form-group">
+                           <div class="form-group">
                               <label>Stock Quantity </label>
-                               <inputtype="number" id="variantStock" min="0" value="0">
+                               <input type="number" id="variantStock" min="0" value="0">
                                   </div>
-                                 <divclass="form-group">
+                                 <div class="form-group">
                                     <label>Price(€) - leave empty to use base price </label>
-                                     <inputtype="text" id="variantPrice" placeholder="e.g. 14,90">
+                                     <input type="text" id="variantPrice" placeholder="e.g. 14,90">
                                         </div>
-                                       <divclass="form-group">
+                                       <div class="form-group">
                                           <label>Active </label>
-                                         <selectid="variantActive">
+                                         <select id="variantActive">
                                             <option value="true"> Yes </option>
-                                             <optionvalue="false"> No </option>
+                                             <option value="false"> No </option>
                                                 </select>
                                                 </div>
-                                               <divstyle="display: flex; gap: 1rem; margin-top: 1rem;">
+                                               <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                                                   <button type="submit" class="btn"> Save Variant </button>
-                                                   <buttontype="button" class="btn btn-secondary" onclick="closeVariantModal()"> Cancel </button>
+                                                   <button type="button" class="btn btn-secondary" onclick="closeVariantModal()"> Cancel </button>
                                                       </div>
                                                       </form>
                                                       </div>
@@ -3845,17 +3845,17 @@ function getAdminOrdersPage(orders: any[]): string {
  <body>
   <div class="header">
     <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+     <button class="logout" onclick="logout()"> Logout </button>
         </div>
-       <divclass="nav">
+       <div class="nav">
           <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections"> Collections </a>
-             <ahref="/admin/orders" class="active"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
+           <a href="/admin/collections"> Collections </a>
+             <a href="/admin/orders" class="active"> Orders </a>
+               <a href="/admin/contacts"> Contacts </a>
+                 <a href="/admin/business-requests"> Business Requests </a>
+                   <a href="/admin/b2b-products"> B2B Products </a>
                       </div>
-                     <divclass="container">
+                     <div class="container">
                         <h2 style="margin-bottom: 1rem;"> Orders(${orders.length}) </h2>
                          <table>
                           <thead>
@@ -3977,83 +3977,83 @@ function getAdminOrderDetailPage(order: any): string {
  <body>
   <div class="header">
     <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+     <button class="logout" onclick="logout()"> Logout </button>
         </div>
-       <divclass="nav">
+       <div class="nav">
           <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections"> Collections </a>
-             <ahref="/admin/orders" class="active"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
+           <a href="/admin/collections"> Collections </a>
+             <a href="/admin/orders" class="active"> Orders </a>
+               <a href="/admin/contacts"> Contacts </a>
+                 <a href="/admin/business-requests"> Business Requests </a>
+                   <a href="/admin/b2b-products"> B2B Products </a>
                       </div>
-                     <divclass="container">
+                     <div class="container">
                         <a href="/admin/orders" class="back-link">← Back to Orders </a>
 
-                         <divclass="order-header">
+                         <div class="order-header">
                             <div>
                             <span class="order-number"> ${order.orderNumber} </span>
-                             <spanclass="status-badge" style="background-color: ${status.color}"> ${status.label} </span>
+                             <span class="status-badge" style="background-color: ${status.color}"> ${status.label} </span>
                                 </div>
                                <div>
                                 <select id="statusSelect" onchange="updateStatus(${order.id}, this.value)">
                                   <option value="pending_payment" ${order.status === 'pending_payment' ? 'selected' : ''}> In attesa pagamento </option>
-                                   <optionvalue="awaiting_bank" ${order.status === 'awaiting_bank' ? 'selected' : ''}> Attesa bonifico </option>
-                                     <optionvalue="paid" ${order.status === 'paid' ? 'selected' : ''}> Pagato </option>
-                                       <optionvalue="shipped" ${order.status === 'shipped' ? 'selected' : ''}> Spedito </option>
-                                         <optionvalue="completed" ${order.status === 'completed' ? 'selected' : ''}> Completato </option>
-                                           <optionvalue="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}> Annullato </option>
+                                   <option value="awaiting_bank" ${order.status === 'awaiting_bank' ? 'selected' : ''}> Attesa bonifico </option>
+                                     <option value="paid" ${order.status === 'paid' ? 'selected' : ''}> Pagato </option>
+                                       <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}> Spedito </option>
+                                         <option value="completed" ${order.status === 'completed' ? 'selected' : ''}> Completato </option>
+                                           <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}> Annullato </option>
                                               </select>
                                               </div>
                                               </div>
 
-                                             <divclass="grid">
+                                             <div class="grid">
                                                 <div class="card">
                                                   <h3>Customer Details </h3>
-                                                   <divclass="info-row">
+                                                   <div class="info-row">
                                                       <span class="info-label"> Name </span>
-                                                       <spanclass="info-value"> ${order.customerName} ${order.customerSurname} </span>
+                                                       <span class="info-value"> ${order.customerName} ${order.customerSurname} </span>
                                                           </div>
-                                                         <divclass="info-row">
+                                                         <div class="info-row">
                                                             <span class="info-label"> Email </span>
-                                                             <spanclass="info-value"> ${order.customerEmail} </span>
+                                                             <span class="info-value"> ${order.customerEmail} </span>
                                                                 </div>
-                                                               <divclass="info-row">
+                                                               <div class="info-row">
                                                                   <span class="info-label"> Phone </span>
-                                                                   <spanclass="info-value"> ${order.customerPhone || '-'} </span>
+                                                                   <span class="info-value"> ${order.customerPhone || '-'} </span>
                                                                       </div>
                                                                       </div>
 
-                                                                     <divclass="card">
+                                                                     <div class="card">
                                                                         <h3>Shipping Address </h3>
-                                                                         <divclass="info-row">
+                                                                         <div class="info-row">
                                                                             <span class="info-label"> Address </span>
-                                                                             <spanclass="info-value"> ${order.shippingAddress} </span>
+                                                                             <span class="info-value"> ${order.shippingAddress} </span>
                                                                                 </div>
-                                                                               <divclass="info-row">
+                                                                               <div class="info-row">
                                                                                   <span class="info-label"> City </span>
-                                                                                   <spanclass="info-value"> ${order.shippingCity} </span>
+                                                                                   <span class="info-value"> ${order.shippingCity} </span>
                                                                                       </div>
-                                                                                     <divclass="info-row">
+                                                                                     <div class="info-row">
                                                                                         <span class="info-label"> Province </span>
-                                                                                         <spanclass="info-value"> ${order.shippingProvince || '-'} </span>
+                                                                                         <span class="info-value"> ${order.shippingProvince || '-'} </span>
                                                                                             </div>
-                                                                                           <divclass="info-row">
+                                                                                           <div class="info-row">
                                                                                               <span class="info-label"> CAP </span>
-                                                                                               <spanclass="info-value"> ${order.shippingCap || '-'} </span>
+                                                                                               <span class="info-value"> ${order.shippingCap || '-'} </span>
                                                                                                   </div>
                                                                                                   </div>
                                                                                                   </div>
 
-                                                                                                 <divclass="card" style="margin-top: 2rem;">
+                                                                                                 <div class="card" style="margin-top: 2rem;">
                                                                                                     <h3>Order Details </h3>
-                                                                                                     <divclass="info-row">
+                                                                                                     <div class="info-row">
                                                                                                         <span class="info-label"> Order Date </span>
-                                                                                                         <spanclass="info-value"> ${date} </span>
+                                                                                                         <span class="info-value"> ${date} </span>
                                                                                                             </div>
-                                                                                                           <divclass="info-row">
+                                                                                                           <div class="info-row">
                                                                                                               <span class="info-label"> Payment Method </span>
-                                                                                                               <spanclass="info-value"> ${order.paymentMethod === 'stripe' ? 'Carta di Credito' : order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'} </span>
+                                                                                                               <span class="info-value"> ${order.paymentMethod === 'stripe' ? 'Carta di Credito' : order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario'} </span>
                                                                                                                   </div>
           ${order.paypalOrderId ? `
           <div class="info-row">
@@ -4064,21 +4064,21 @@ function getAdminOrderDetailPage(order: any): string {
     }
 <div class="info-row">
   <span class="info-label"> Subtotal </span>
-   <spanclass="info-value">€${(order.subtotalCents / 100).toFixed(2)} </span>
+   <span class="info-value">€${(order.subtotalCents / 100).toFixed(2)} </span>
       </div>
-     <divclass="info-row">
+     <div class="info-row">
         <span class="info-label"> Shipping </span>
-         <spanclass="info-value"> ${order.shippingCents === 0 ? 'Free' : '€' + (order.shippingCents / 100).toFixed(2)} </span>
+         <span class="info-value"> ${order.shippingCents === 0 ? 'Free' : '€' + (order.shippingCents / 100).toFixed(2)} </span>
             </div>
-           <divclass="info-row" style="font-weight: bold; font-size: 1.1rem;">
+           <div class="info-row" style="font-weight: bold; font-size: 1.1rem;">
               <span class="info-label"> Total </span>
-               <spanclass="info-value">€${(order.totalCents / 100).toFixed(2)} </span>
+               <span class="info-value">€${(order.totalCents / 100).toFixed(2)} </span>
                   </div>
                   </div>
 
-                 <divclass="card" style="margin-top: 2rem;">
+                 <div class="card" style="margin-top: 2rem;">
                     <h3>Order Items </h3>
-                     <tableclass="items-table">
+                     <table class="items-table">
                         <thead>
                         <tr>
                         <th>Image </th>
@@ -4118,22 +4118,22 @@ function getAdminOrderDetailPage(order: any): string {
 <!--Shipping Section-->
   <div class="card" style="margin-top: 2rem; ${['paid', 'processing', 'shipped'].includes(order.status) ? '' : 'opacity: 0.6;'}">
     <h3>Spedizione </h3>
-   <divstyle="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
       <div>
       <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> Corriere </label>
-       <inputtype="text" id="carrier" value="${order.carrier || 'BRT'}" placeholder="BRT" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+       <input type="text" id="carrier" value="${order.carrier || 'BRT'}" placeholder="BRT" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
           </div>
          <div>
           <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> Numero Tracking </label>
-           <inputtype="text" id="trackingNumber" value="${order.trackingNumber || ''}" placeholder="Es. 123456789" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+           <input type="text" id="trackingNumber" value="${order.trackingNumber || ''}" placeholder="Es. 123456789" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
               </div>
              <div>
               <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> URL Tracking(opzionale) </label>
-               <inputtype="text" id="trackingUrl" value="${order.trackingUrl || ''}" placeholder="https://..." style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+               <input type="text" id="trackingUrl" value="${order.trackingUrl || ''}" placeholder="https://..." style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
                   </div>
                  <div>
                   <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; color: #666;"> Consegna Prevista </label>
-                   <inputtype="date" id="estimatedDelivery" value="${order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toISOString().split('T')[0] : ''}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
+                   <input type="date" id="estimatedDelivery" value="${order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toISOString().split('T')[0] : ''}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
                       </div>
                       </div>
           
@@ -4312,17 +4312,17 @@ function getAdminContactsPage(contacts: any[]): string {
  <body>
   <div class="header">
     <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+     <button class="logout" onclick="logout()"> Logout </button>
         </div>
-       <divclass="nav">
+       <div class="nav">
           <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections"> Collections </a>
-             <ahref="/admin/orders"> Orders </a>
-               <ahref="/admin/contacts" class="active"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
+           <a href="/admin/collections"> Collections </a>
+             <a href="/admin/orders"> Orders </a>
+               <a href="/admin/contacts" class="active"> Contacts </a>
+                 <a href="/admin/business-requests"> Business Requests </a>
+                   <a href="/admin/b2b-products"> B2B Products </a>
                       </div>
-                     <divclass="container">
+                     <div class="container">
                         <h2 style="margin-bottom: 1.5rem;"> Contact Messages(${contacts.length}) </h2>
         
         ${contacts.length === 0 ? '<div class="empty">No contact messages yet</div>' : contacts.map(c => {
@@ -4446,21 +4446,21 @@ function getAdminBusinessRequestsPage(requests: any[]): string {
  <body>
   <div class="header">
     <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+     <button class="logout" onclick="logout()"> Logout </button>
         </div>
-       <divclass="nav">
+       <div class="nav">
           <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections"> Collections </a>
-             <ahref="/admin/orders"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests" class="active"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
+           <a href="/admin/collections"> Collections </a>
+             <a href="/admin/orders"> Orders </a>
+               <a href="/admin/contacts"> Contacts </a>
+                 <a href="/admin/business-requests" class="active"> Business Requests </a>
+                   <a href="/admin/b2b-products"> B2B Products </a>
                       </div>
-                     <divclass="container">
+                     <div class="container">
                         <h2 style="margin-bottom: 1rem;"> Richieste Business(${requests.length}) </h2>
         ${tableHtml}
 </div>
- <divclass="toast" id="toast"> </div>
+ <div class="toast" id="toast"> </div>
     <script>
 async function logout() {
   await fetch('/api/admin/logout', { method: 'POST' });
@@ -4557,17 +4557,17 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
  <body>
   <div class="header">
     <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+     <button class="logout" onclick="logout()"> Logout </button>
         </div>
-       <divclass="nav">
+       <div class="nav">
           <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections"> Collections </a>
-             <ahref="/admin/orders"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products" class="active"> B2B Products </a>
+           <a href="/admin/collections"> Collections </a>
+             <a href="/admin/orders"> Orders </a>
+               <a href="/admin/contacts"> Contacts </a>
+                 <a href="/admin/business-requests"> Business Requests </a>
+                   <a href="/admin/b2b-products" class="active"> B2B Products </a>
                       </div>
-                     <divclass="container">
+                     <div class="container">
                         <h2 style="margin-bottom: 1rem;"> Gestione Prezzi-B2B & amp; Outlet(${allProducts.length}) </h2>
                          <table>
                           <thead>
@@ -4587,7 +4587,7 @@ function getAdminB2bProductsPage(allProducts: any[]): string {
 </tbody>
   </table>
   </div>
- <divclass="toast" id="toast"> </div>
+ <div class="toast" id="toast"> </div>
     <script>
 async function logout() {
   await fetch('/api/admin/logout', { method: 'POST' });
