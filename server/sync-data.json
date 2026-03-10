@@ -278,8 +278,8 @@
     {
       "id": 29,
       "name": "Pantofole Donna Inblu",
-      "brand": "Inblu (5033)",
-      "description": "Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 4",
+      "brand": "inblu (5033)",
+      "description": " Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 4 ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -289,8 +289,8 @@
     {
       "id": 30,
       "name": "Pantofole Uomo Inblu",
-      "brand": "Inblu (RH 33)",
-      "description": "Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 2,5",
+      "brand": "inblu (RH 33)",
+      "description": " Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 2,5 ",
       "basePriceCents": 1990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -827,112 +827,112 @@
     },
     {
       "id": 82,
-      "name": "PALERMOE WA32",
-      "brand": null,
-      "description": null,
+      "name": "Pantofole Donna De Fonseca CON SCATOLA",
+      "brand": "de fonseca (PALERMOE WA32)",
+      "description": " Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito  \nTacco 4 CM\nPlateau 1 CM  ",
       "basePriceCents": 1890,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 83,
-      "name": "PALERMOE WA00",
-      "brand": null,
-      "description": null,
+      "name": "Pantofole Donna De Fonseca ",
+      "brand": "de fonseca (PALERMOE WA00)",
+      "description": "Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito\nTacco 4 CM\nPlateau 1 CM ",
       "basePriceCents": 1690,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 84,
-      "name": "DEFO MU2",
-      "brand": null,
-      "description": null,
+      "name": "SCARPE DA UOMO DE FONSECA",
+      "brand": "de fonseca (DEFO MU2)",
+      "description": "Esterno Canvas\nSottopiede sintetico gomma",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 85,
-      "name": "615553",
-      "brand": null,
-      "description": null,
+      "name": "Sarpe da bimba IN TELA E GOMMA CON VELCRO MARCHIO SNOOPY",
+      "brand": "de fonseca (615553)",
+      "description": "Suola\tGomma\nEsterno\tTela  ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 86,
-      "name": "IB2215377",
-      "brand": null,
-      "description": null,
+      "name": "PANTOFOLA ALTA BIMBA IN TELA CON VELCRO TOMAIA GLITTER JEANS MARCHIO SNOOPY",
+      "brand": "de fonseca (IB2215377)",
+      "description": "Suola Gomma\nEsterno\tTela",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 87,
-      "name": "EG2216602",
-      "brand": null,
-      "description": null,
+      "name": "SANDALO BIMBA IN GOMMA E TELA A POIS CON VELCRO MARCHIO SNOOPY",
+      "brand": "de fonseca (EG2216602)",
+      "description": "Suola Gomma\nEsterno\tTela  ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 88,
-      "name": "E53713302",
-      "brand": null,
-      "description": null,
+      "name": "SCARPA DA TENNIS BASSA BIMBO IN TELA CON VELCRO MARCHIO SNOOPY",
+      "brand": "de fonseca (E53713302)",
+      "description": "Suola Gomma\nEsterno\tTela  ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 89,
-      "name": "615876",
-      "brand": null,
-      "description": null,
+      "name": "SANDALO BIMBO IN GOMMA E TELA CON VELCRO MARCHIO SNOOPY",
+      "brand": "de fonseca (615876)",
+      "description": "Suola Gomma\nEsterno\tTela   ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 90,
-      "name": "2216407",
-      "brand": null,
-      "description": null,
+      "name": "SANDALO BIMBO IN GOMMA E TELA CON VELCRO MARCHIO SNOOPY",
+      "brand": "de fonseca (2216407)",
+      "description": "Suola Gomma\nEsterno\tTela  ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
       "id": 91,
-      "name": "HELLO KITTY",
-      "brand": null,
-      "description": null,
+      "name": "CIABATTA BIMBA IN GOMMA ",
+      "brand": "de fonseca (HELLO KITTY)",
+      "description": "Suola Gomma\nEsterno\tTela  ",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
-      "season": null,
+      "season": "primavera-estate",
       "active": true
     },
     {
@@ -1027,7 +1027,7 @@
       "id": 100,
       "name": "3 Paia calze sportive in spugna",
       "brand": "polo assn. (BOSTON CALZ. U.S. POLO)",
-      "description": "Calzino sportivo in spugna set 3 paia, misto cotone e poliestere titolo 20/1. Contraddistinto dalla scritta U.S. Polo Assn. e dalla rifiniture nei colori istituzionali del brand. Colori resistenti al lavaggio.\nComposizione: 67% CO 30% PL 3% EA ",
+      "description": " Calzino sportivo in spugna set 3 paia, misto cotone e poliestere titolo 20/1. Contraddistinto dalla scritta U.S. Polo Assn. e dalla rifiniture nei colori istituzionali del brand. Colori resistenti al lavaggio.\nComposizione: 67% CO 30% PL 3% EA  ",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -9173,7 +9173,7 @@
       "sku": "PALERMOEWA32RO36",
       "stockQty": 1,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/632a0401-8145-4813-bd08-e602d5861029.png",
       "active": true
     },
     {
@@ -9184,7 +9184,7 @@
       "sku": "PALERMOEWA32RO37",
       "stockQty": 2,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/632a0401-8145-4813-bd08-e602d5861029.png",
       "active": true
     },
     {
@@ -9195,7 +9195,7 @@
       "sku": "PALERMOEWA32RO38",
       "stockQty": 3,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/632a0401-8145-4813-bd08-e602d5861029.png",
       "active": true
     },
     {
@@ -9206,7 +9206,7 @@
       "sku": "PALERMOEWA32RO39",
       "stockQty": 3,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/632a0401-8145-4813-bd08-e602d5861029.png",
       "active": true
     },
     {
@@ -9217,7 +9217,7 @@
       "sku": "PALERMOEWA32RO40",
       "stockQty": 2,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/632a0401-8145-4813-bd08-e602d5861029.png",
       "active": true
     },
     {
@@ -9228,7 +9228,7 @@
       "sku": "PALERMOEWA32RO41",
       "stockQty": 1,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/632a0401-8145-4813-bd08-e602d5861029.png",
       "active": true
     },
     {
@@ -9239,7 +9239,7 @@
       "sku": "PARLEMOEWA32BL36",
       "stockQty": 1,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/8d77589b-9acf-41f4-a073-ac8fd0cf267b.png",
       "active": true
     },
     {
@@ -9250,7 +9250,7 @@
       "sku": "PARLEMOEWA32BL37",
       "stockQty": 2,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/8d77589b-9acf-41f4-a073-ac8fd0cf267b.png",
       "active": true
     },
     {
@@ -9261,7 +9261,7 @@
       "sku": "PARLEMOEWA32BL38",
       "stockQty": 3,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/8d77589b-9acf-41f4-a073-ac8fd0cf267b.png",
       "active": true
     },
     {
@@ -9272,7 +9272,7 @@
       "sku": "PARLEMOEWA32BL39",
       "stockQty": 3,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/8d77589b-9acf-41f4-a073-ac8fd0cf267b.png",
       "active": true
     },
     {
@@ -9283,7 +9283,7 @@
       "sku": "PARLEMOEWA32BL40",
       "stockQty": 2,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/8d77589b-9acf-41f4-a073-ac8fd0cf267b.png",
       "active": true
     },
     {
@@ -9294,7 +9294,7 @@
       "sku": "PARLEMOEWA32BL41",
       "stockQty": 1,
       "priceCents": 1890,
-      "imageUrl": null,
+      "imageUrl": "/uploads/8d77589b-9acf-41f4-a073-ac8fd0cf267b.png",
       "active": true
     },
     {
@@ -9305,7 +9305,7 @@
       "sku": "PALERMOEWA00BL36",
       "stockQty": 1,
       "priceCents": 1690,
-      "imageUrl": null,
+      "imageUrl": "/uploads/47e624c0-4d8b-4595-b898-5ea91a26930f.png",
       "active": true
     },
     {
@@ -9316,7 +9316,7 @@
       "sku": "PALERMOEWA00BL37",
       "stockQty": 2,
       "priceCents": 1690,
-      "imageUrl": null,
+      "imageUrl": "/uploads/47e624c0-4d8b-4595-b898-5ea91a26930f.png",
       "active": true
     },
     {
@@ -9327,7 +9327,7 @@
       "sku": "PALERMOEWA00BL38",
       "stockQty": 3,
       "priceCents": 1690,
-      "imageUrl": null,
+      "imageUrl": "/uploads/47e624c0-4d8b-4595-b898-5ea91a26930f.png",
       "active": true
     },
     {
@@ -9338,7 +9338,7 @@
       "sku": "PALERMOEWA00BL39",
       "stockQty": 3,
       "priceCents": 1690,
-      "imageUrl": null,
+      "imageUrl": "/uploads/47e624c0-4d8b-4595-b898-5ea91a26930f.png",
       "active": true
     },
     {
@@ -9349,7 +9349,7 @@
       "sku": "PALERMOEWA00BL40",
       "stockQty": 2,
       "priceCents": 1690,
-      "imageUrl": null,
+      "imageUrl": "/uploads/47e624c0-4d8b-4595-b898-5ea91a26930f.png",
       "active": true
     },
     {
@@ -9360,7 +9360,7 @@
       "sku": "PALERMOEWA00BL41",
       "stockQty": 1,
       "priceCents": 1690,
-      "imageUrl": null,
+      "imageUrl": "/uploads/47e624c0-4d8b-4595-b898-5ea91a26930f.png",
       "active": true
     },
     {
@@ -9371,7 +9371,7 @@
       "sku": "DEFOMU2BE40",
       "stockQty": 1,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/bd6bc445-d208-44c8-bb5c-e11217d6957e.png",
       "active": true
     },
     {
@@ -9382,7 +9382,7 @@
       "sku": "DEFOMU2BE41",
       "stockQty": 2,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/bd6bc445-d208-44c8-bb5c-e11217d6957e.png",
       "active": true
     },
     {
@@ -9393,7 +9393,7 @@
       "sku": "DEFOMU2BE42",
       "stockQty": 3,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/bd6bc445-d208-44c8-bb5c-e11217d6957e.png",
       "active": true
     },
     {
@@ -9404,7 +9404,7 @@
       "sku": "DEFOMU2BE43",
       "stockQty": 3,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/bd6bc445-d208-44c8-bb5c-e11217d6957e.png",
       "active": true
     },
     {
@@ -9415,7 +9415,7 @@
       "sku": "DEFOMU2BE44",
       "stockQty": 2,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/bd6bc445-d208-44c8-bb5c-e11217d6957e.png",
       "active": true
     },
     {
@@ -9426,7 +9426,7 @@
       "sku": "DEFOMU2BE45",
       "stockQty": 1,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/bd6bc445-d208-44c8-bb5c-e11217d6957e.png",
       "active": true
     },
     {
@@ -9437,7 +9437,7 @@
       "sku": "0615553FX21",
       "stockQty": 1,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/3f912add-4ac4-4055-8819-87b81ff29740.png",
       "active": true
     },
     {
@@ -9448,7 +9448,7 @@
       "sku": "0615553FX22",
       "stockQty": 1,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/3f912add-4ac4-4055-8819-87b81ff29740.png",
       "active": true
     },
     {
@@ -9459,7 +9459,7 @@
       "sku": "0615553FX23",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/3f912add-4ac4-4055-8819-87b81ff29740.png",
       "active": true
     },
     {
@@ -9470,7 +9470,7 @@
       "sku": "0615553FX24",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/3f912add-4ac4-4055-8819-87b81ff29740.png",
       "active": true
     },
     {
@@ -9481,7 +9481,7 @@
       "sku": "0615553FX25",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/3f912add-4ac4-4055-8819-87b81ff29740.png",
       "active": true
     },
     {
@@ -9492,117 +9492,117 @@
       "sku": "0615553FX26",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/3f912add-4ac4-4055-8819-87b81ff29740.png",
       "active": true
     },
     {
       "id": 941,
       "productId": 86,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "19",
       "sku": "IB2215377FX19",
       "stockQty": 1,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/43462b0d-7341-42cf-ba23-e1b75f075841.png",
       "active": true
     },
     {
       "id": 942,
       "productId": 86,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "20",
       "sku": "IB2215377FX20",
       "stockQty": 1,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/43462b0d-7341-42cf-ba23-e1b75f075841.png",
       "active": true
     },
     {
       "id": 943,
       "productId": 86,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "21",
       "sku": "IB2215377FX21",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/43462b0d-7341-42cf-ba23-e1b75f075841.png",
       "active": true
     },
     {
       "id": 944,
       "productId": 86,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "22",
       "sku": "IB2215377FX22",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/43462b0d-7341-42cf-ba23-e1b75f075841.png",
       "active": true
     },
     {
       "id": 945,
       "productId": 86,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "23",
       "sku": "IB2215377FX23",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/43462b0d-7341-42cf-ba23-e1b75f075841.png",
       "active": true
     },
     {
       "id": 946,
       "productId": 86,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "24",
       "sku": "IB2215377FX24",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/43462b0d-7341-42cf-ba23-e1b75f075841.png",
       "active": true
     },
     {
       "id": 947,
       "productId": 87,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "25",
       "sku": "EG2216602FX25",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/52f56b95-ff06-4bdd-83ed-832edd4e03c1.png",
       "active": true
     },
     {
       "id": 948,
       "productId": 87,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "26",
       "sku": "EG2216602FX26",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/52f56b95-ff06-4bdd-83ed-832edd4e03c1.png",
       "active": true
     },
     {
       "id": 949,
       "productId": 87,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "27",
       "sku": "EG2216602FX27",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/52f56b95-ff06-4bdd-83ed-832edd4e03c1.png",
       "active": true
     },
     {
       "id": 950,
       "productId": 87,
-      "color": "FUXIA",
+      "color": "FUCSIA",
       "size": "28",
       "sku": "EG2216602FX28",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/52f56b95-ff06-4bdd-83ed-832edd4e03c1.png",
       "active": true
     },
     {
@@ -9613,7 +9613,7 @@
       "sku": "E53713302JE24",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/f234c2fc-bc40-468e-98d4-4c97ecb0d792.png",
       "active": true
     },
     {
@@ -9624,7 +9624,7 @@
       "sku": "E53713302JE25",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/f234c2fc-bc40-468e-98d4-4c97ecb0d792.png",
       "active": true
     },
     {
@@ -9635,7 +9635,7 @@
       "sku": "E53713302JE26",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/f234c2fc-bc40-468e-98d4-4c97ecb0d792.png",
       "active": true
     },
     {
@@ -9646,7 +9646,7 @@
       "sku": "E53713302JE27",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/f234c2fc-bc40-468e-98d4-4c97ecb0d792.png",
       "active": true
     },
     {
@@ -9657,7 +9657,7 @@
       "sku": "E53713302JE28",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/f234c2fc-bc40-468e-98d4-4c97ecb0d792.png",
       "active": true
     },
     {
@@ -9668,7 +9668,7 @@
       "sku": "E53713302JE29",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/f234c2fc-bc40-468e-98d4-4c97ecb0d792.png",
       "active": true
     },
     {
@@ -9679,7 +9679,7 @@
       "sku": "0615876JE21",
       "stockQty": 1,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/2cddd40f-8eb3-4be4-8234-db010bec674a.png",
       "active": true
     },
     {
@@ -9690,7 +9690,7 @@
       "sku": "0615876JE22",
       "stockQty": 1,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/2cddd40f-8eb3-4be4-8234-db010bec674a.png",
       "active": true
     },
     {
@@ -9701,7 +9701,7 @@
       "sku": "0615876JE23",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/2cddd40f-8eb3-4be4-8234-db010bec674a.png",
       "active": true
     },
     {
@@ -9712,7 +9712,7 @@
       "sku": "0615876JE24",
       "stockQty": 2,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/2cddd40f-8eb3-4be4-8234-db010bec674a.png",
       "active": true
     },
     {
@@ -9723,7 +9723,7 @@
       "sku": "0615876JE25",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/2cddd40f-8eb3-4be4-8234-db010bec674a.png",
       "active": true
     },
     {
@@ -9734,7 +9734,7 @@
       "sku": "0615876JE26",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/2cddd40f-8eb3-4be4-8234-db010bec674a.png",
       "active": true
     },
     {
@@ -9745,7 +9745,7 @@
       "sku": "2216407BL25",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/948ae9a5-0155-4a60-8331-5fc75b19de71.png",
       "active": true
     },
     {
@@ -9756,7 +9756,7 @@
       "sku": "2216407BL26",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/948ae9a5-0155-4a60-8331-5fc75b19de71.png",
       "active": true
     },
     {
@@ -9767,7 +9767,7 @@
       "sku": "2216407BL27",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/948ae9a5-0155-4a60-8331-5fc75b19de71.png",
       "active": true
     },
     {
@@ -9778,7 +9778,7 @@
       "sku": "2216407BL28",
       "stockQty": 3,
       "priceCents": 1490,
-      "imageUrl": null,
+      "imageUrl": "/uploads/948ae9a5-0155-4a60-8331-5fc75b19de71.png",
       "active": true
     },
     {
@@ -9789,7 +9789,7 @@
       "sku": "HELLOKITTYRO27/28",
       "stockQty": 2,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/dbe79d61-611f-44e7-bd28-8031045e3362.png",
       "active": true
     },
     {
@@ -9800,7 +9800,7 @@
       "sku": "HELLOKITTYRO29/30",
       "stockQty": 2,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/dbe79d61-611f-44e7-bd28-8031045e3362.png",
       "active": true
     },
     {
@@ -9811,7 +9811,7 @@
       "sku": "HELLOKITTYRO31/32",
       "stockQty": 2,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/dbe79d61-611f-44e7-bd28-8031045e3362.png",
       "active": true
     },
     {
@@ -9822,7 +9822,7 @@
       "sku": "HELLOKITTYRO33/34",
       "stockQty": 2,
       "priceCents": 990,
-      "imageUrl": null,
+      "imageUrl": "/uploads/dbe79d61-611f-44e7-bd28-8031045e3362.png",
       "active": true
     },
     {
@@ -12860,6 +12860,216 @@
       "productId": 81,
       "imageUrl": "/uploads/e9435dd1-bf3c-4cc2-a0d0-6bba9aea2a34.jpg",
       "sortOrder": 3
+    },
+    {
+      "id": 602,
+      "productId": 82,
+      "imageUrl": "/uploads/87bb7ec7-c238-433c-87ce-d30026c1a639.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 603,
+      "productId": 82,
+      "imageUrl": "/uploads/52dd4e20-20da-4d7b-8a34-60d644ee9053.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 604,
+      "productId": 82,
+      "imageUrl": "/uploads/df95f328-75fb-4c95-9c5f-82023a58fb56.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 605,
+      "productId": 82,
+      "imageUrl": "/uploads/a8128374-8150-4775-a45a-5a63625fe86c.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 606,
+      "productId": 82,
+      "imageUrl": "/uploads/c05adc73-0411-4ae8-b64a-582225e58aec.png",
+      "sortOrder": 4
+    },
+    {
+      "id": 607,
+      "productId": 82,
+      "imageUrl": "/uploads/48c7e486-ac48-42bb-8a33-827260cfb79d.png",
+      "sortOrder": 5
+    },
+    {
+      "id": 608,
+      "productId": 83,
+      "imageUrl": "/uploads/620fe067-91e6-4132-97fd-7a4dfb2da14f.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 609,
+      "productId": 83,
+      "imageUrl": "/uploads/f238c11f-36a9-4106-94f0-220e87b8823f.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 610,
+      "productId": 83,
+      "imageUrl": "/uploads/7638d5b8-ee79-4a80-b82b-398269020b57.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 611,
+      "productId": 82,
+      "imageUrl": "/uploads/f97c1232-481c-4f46-8317-6cbb9ad45bdd.png",
+      "sortOrder": 6
+    },
+    {
+      "id": 612,
+      "productId": 84,
+      "imageUrl": "/uploads/e9431c73-cb65-4690-aae4-d625ea2f23dc.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 613,
+      "productId": 84,
+      "imageUrl": "/uploads/b443ce56-ef7b-4391-ba7d-bb39c09c9529.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 614,
+      "productId": 84,
+      "imageUrl": "/uploads/06d676d2-1164-4432-acf7-13caef4fab32.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 615,
+      "productId": 85,
+      "imageUrl": "/uploads/59554c32-6d28-423b-861a-fd61459ab8e2.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 616,
+      "productId": 85,
+      "imageUrl": "/uploads/2069ba2c-e3e2-4836-ae02-8370be6c2c5a.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 617,
+      "productId": 85,
+      "imageUrl": "/uploads/68ee1c2c-c07c-47b2-8869-f79f4f135535.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 618,
+      "productId": 86,
+      "imageUrl": "/uploads/4d950a59-fd81-4c50-abd8-1133f0dff5df.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 619,
+      "productId": 86,
+      "imageUrl": "/uploads/3ccd6bf6-c72c-491c-a880-f6f7fd428538.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 620,
+      "productId": 86,
+      "imageUrl": "/uploads/092a3710-3a42-4560-bc25-fd560932cb59.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 621,
+      "productId": 87,
+      "imageUrl": "/uploads/053bd264-e341-4b1e-a36e-932ceb2dabbe.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 622,
+      "productId": 87,
+      "imageUrl": "/uploads/6091effd-7ad7-4b3c-9a54-93e70dda69dd.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 623,
+      "productId": 87,
+      "imageUrl": "/uploads/36dee950-7f68-498c-8096-01476383e66c.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 624,
+      "productId": 88,
+      "imageUrl": "/uploads/4171c9f7-771b-4f82-a721-27f4866334bd.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 625,
+      "productId": 88,
+      "imageUrl": "/uploads/f0246b56-af04-4c32-a3e6-6f91e91d6fc6.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 626,
+      "productId": 88,
+      "imageUrl": "/uploads/b69cde32-5d92-45a9-8d72-8c554d61d13b.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 631,
+      "productId": 90,
+      "imageUrl": "/uploads/4c5bad45-1c9a-4c61-ab2e-1742579090c2.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 632,
+      "productId": 90,
+      "imageUrl": "/uploads/5e801e61-7c03-4d07-acc0-0598e1e4f841.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 633,
+      "productId": 90,
+      "imageUrl": "/uploads/4ac7603f-2eeb-4d73-b98b-51ed92b2c72c.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 634,
+      "productId": 90,
+      "imageUrl": "/uploads/1072ea8a-f03a-4a61-acea-e4f9b9d8be84.png",
+      "sortOrder": 3
+    },
+    {
+      "id": 635,
+      "productId": 89,
+      "imageUrl": "/uploads/99528c4a-69a2-480d-9c2a-8b77e5767f5e.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 636,
+      "productId": 89,
+      "imageUrl": "/uploads/8a65d28c-3a12-4111-adf6-5884d29ab670.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 637,
+      "productId": 89,
+      "imageUrl": "/uploads/1e8225a2-416b-40f8-9da5-77848f01766d.png",
+      "sortOrder": 2
+    },
+    {
+      "id": 638,
+      "productId": 91,
+      "imageUrl": "/uploads/d2e342c3-4cec-4bad-a784-7d0cc34ab416.png",
+      "sortOrder": 0
+    },
+    {
+      "id": 639,
+      "productId": 91,
+      "imageUrl": "/uploads/55e05b6e-232a-4ff0-a963-a47019935207.png",
+      "sortOrder": 1
+    },
+    {
+      "id": 640,
+      "productId": 91,
+      "imageUrl": "/uploads/a43c311f-fa68-45a1-9ab8-8a21fb0a45e1.png",
+      "sortOrder": 2
     }
   ],
   "collections": [
@@ -13502,6 +13712,56 @@
       "position": 0
     },
     {
+      "productId": 82,
+      "collectionId": 2,
+      "position": 0
+    },
+    {
+      "productId": 83,
+      "collectionId": 2,
+      "position": 0
+    },
+    {
+      "productId": 84,
+      "collectionId": 3,
+      "position": 0
+    },
+    {
+      "productId": 85,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
+      "productId": 86,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
+      "productId": 87,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
+      "productId": 88,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
+      "productId": 89,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
+      "productId": 90,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
+      "productId": 91,
+      "collectionId": 4,
+      "position": 0
+    },
+    {
       "productId": 92,
       "collectionId": 4,
       "position": 1
@@ -13560,11 +13820,6 @@
       "productId": 99,
       "collectionId": 2,
       "position": 0
-    },
-    {
-      "productId": 100,
-      "collectionId": 2,
-      "position": 1
     },
     {
       "productId": 100,
