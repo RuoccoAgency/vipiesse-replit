@@ -1055,6 +1055,17 @@
       "compareAtPriceCents": null,
       "season": "primavera-estate",
       "active": true
+    },
+    {
+      "id": 103,
+      "name": "tiglio Pantofole Ciabatte Uomo",
+      "brand": "TIGLIO (801)",
+      "description": "Chiusura: senza chiusura\nTipo di tacco: Piatto\nLarghezza scarpa: Normale",
+      "basePriceCents": 1790,
+      "b2bPriceCents": null,
+      "compareAtPriceCents": null,
+      "season": "primavera-estate",
+      "active": true
     }
   ],
   "variants": [
@@ -10792,6 +10803,72 @@
       "priceCents": 1490,
       "imageUrl": "/uploads/e9736b4c-ae06-4af3-8bf7-20f5daeebc47.jpg",
       "active": true
+    },
+    {
+      "id": 1057,
+      "productId": 103,
+      "color": "MARRONE",
+      "size": "40",
+      "sku": "801MA40",
+      "stockQty": 1,
+      "priceCents": 1790,
+      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
+      "active": true
+    },
+    {
+      "id": 1058,
+      "productId": 103,
+      "color": "MARRONE",
+      "size": "41",
+      "sku": "801MA41",
+      "stockQty": 2,
+      "priceCents": 1790,
+      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
+      "active": true
+    },
+    {
+      "id": 1059,
+      "productId": 103,
+      "color": "MARRONE",
+      "size": "42",
+      "sku": "801MA42",
+      "stockQty": 3,
+      "priceCents": 1790,
+      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
+      "active": true
+    },
+    {
+      "id": 1060,
+      "productId": 103,
+      "color": "MARRONE",
+      "size": "43",
+      "sku": "801MA43",
+      "stockQty": 3,
+      "priceCents": 1790,
+      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
+      "active": true
+    },
+    {
+      "id": 1061,
+      "productId": 103,
+      "color": "MARRONE",
+      "size": "44",
+      "sku": "801MA44",
+      "stockQty": 2,
+      "priceCents": 1790,
+      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
+      "active": true
+    },
+    {
+      "id": 1062,
+      "productId": 103,
+      "color": "MARRONE",
+      "size": "45",
+      "sku": "801MA45",
+      "stockQty": 1,
+      "priceCents": 1790,
+      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
+      "active": true
     }
   ],
   "images": [
@@ -13518,6 +13595,36 @@
       "productId": 102,
       "imageUrl": "/uploads/22e983c6-20fc-4b8c-806c-d6a6134f9f87.jpg",
       "sortOrder": 2
+    },
+    {
+      "id": 657,
+      "productId": 103,
+      "imageUrl": "/uploads/d488ae30-ddd8-45ca-82d0-c1b81a735114.jpg",
+      "sortOrder": 0
+    },
+    {
+      "id": 658,
+      "productId": 103,
+      "imageUrl": "/uploads/c4042efc-5ea1-42b7-8ff6-98a60edd8e3e.jpg",
+      "sortOrder": 1
+    },
+    {
+      "id": 659,
+      "productId": 103,
+      "imageUrl": "/uploads/ad0e0ed8-9803-4b33-90a1-a8d5e29ff3f1.jpg",
+      "sortOrder": 2
+    },
+    {
+      "id": 660,
+      "productId": 103,
+      "imageUrl": "/uploads/61fd5d15-41f6-4b74-90d5-90855a03daf4.jpg",
+      "sortOrder": 3
+    },
+    {
+      "id": 661,
+      "productId": 103,
+      "imageUrl": "/uploads/4b09c7dc-1198-4abf-9a15-2c67418f2320.jpg",
+      "sortOrder": 4
     }
   ],
   "collections": [
@@ -14282,6 +14389,11 @@
     {
       "productId": 102,
       "collectionId": 2,
+      "position": 0
+    },
+    {
+      "productId": 103,
+      "collectionId": 3,
       "position": 0
     }
   ]
