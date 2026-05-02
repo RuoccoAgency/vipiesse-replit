@@ -135,61 +135,6 @@ export async function registerRoutes(
   // Register object storage routes for image uploads
   registerObjectStorageRoutes(app);
 
-  // SEO: robots.txt
-  app.get("/robots.txt", (req, res) => {
-    console.log(`[SEO] Robots.txt requested from ${req.ip}`);
-    const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
-    const robotsTxt = `User-agent: *
-Allow: /
-
-Sitemap: https://${domain}/sitemap.xml`;
-    res.type("text/plain");
-    res.send(robotsTxt);
-  });
-
-  // SEO: sitemap.xml
-  app.get("/sitemap.xml", async (req, res) => {
-    console.log(`[SEO] Sitemap requested from ${req.ip}`);
-    try {
-      const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
-      const baseUrl = `https://${domain}`;
-      
-      const staticRoutes = [
-        "",
-        "/shop",
-        "/shop/donna",
-        "/shop/uomo",
-        "/shop/bambino",
-        "/outlet",
-        "/business",
-        "/login",
-      ];
-      
-      const products = await storage.getAllProducts();
-      const productRoutes = products
-        .filter(p => p.active)
-        .map(p => `/product/${p.id}`);
-        
-      const allRoutes = [...staticRoutes, ...productRoutes];
-      
-      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${allRoutes.map(route => `
-  <url>
-    <loc>${baseUrl}${route}</loc>
-    <changefreq>daily</changefreq>
-    <priority>${route === "" ? "1.0" : "0.8"}</priority>
-  </url>`).join("")}
-</urlset>`;
-
-      res.header("Content-Type", "application/xml");
-      res.send(sitemap);
-    } catch (error) {
-      console.error("Sitemap generation error:", error);
-      res.status(500).end();
-    }
-  });
-
   // Bank info endpoint for checkout
   app.get("/api/bank-info", (req, res) => {
     res.json({

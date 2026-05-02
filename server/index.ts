@@ -4,6 +4,7 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { runProductionSync } from "./production-sync";
 import { generateSyncData } from "./generate-sync";
+import { storage } from "./storage";
 
 const app = express();
 const httpServer = createServer(app);
@@ -59,6 +60,59 @@ app.use((req, res, next) => {
   });
 
   next();
+});
+
+// SEO: robots.txt
+app.get("/robots.txt", (req, res) => {
+  const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
+  const robotsTxt = `User-agent: *
+Allow: /
+
+Sitemap: https://${domain}/sitemap.xml`;
+  res.type("text/plain");
+  res.send(robotsTxt);
+});
+
+// SEO: sitemap.xml
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
+    const baseUrl = `https://${domain}`;
+    
+    const staticRoutes = [
+      "",
+      "/shop",
+      "/shop/donna",
+      "/shop/uomo",
+      "/shop/bambino",
+      "/outlet",
+      "/business",
+      "/login",
+    ];
+    
+    const products = await storage.getAllProducts();
+    const productRoutes = products
+      .filter(p => p.active)
+      .map(p => `/product/${p.id}`);
+      
+    const allRoutes = [...staticRoutes, ...productRoutes];
+    
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${allRoutes.map(route => `
+  <url>
+    <loc>${baseUrl}${route}</loc>
+    <changefreq>daily</changefreq>
+    <priority>${route === "" ? "1.0" : "0.8"}</priority>
+  </url>`).join("")}
+</urlset>`;
+
+    res.header("Content-Type", "application/xml");
+    res.send(sitemap);
+  } catch (error) {
+    console.error("Sitemap generation error:", error);
+    res.status(500).end();
+  }
 });
 
 (async () => {
