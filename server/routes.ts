@@ -137,6 +137,7 @@ export async function registerRoutes(
 
   // SEO: robots.txt
   app.get("/robots.txt", (req, res) => {
+    console.log(`[SEO] Robots.txt requested from ${req.ip}`);
     const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
     const robotsTxt = `User-agent: *
 Allow: /
@@ -148,6 +149,7 @@ Sitemap: https://${domain}/sitemap.xml`;
 
   // SEO: sitemap.xml
   app.get("/sitemap.xml", async (req, res) => {
+    console.log(`[SEO] Sitemap requested from ${req.ip}`);
     try {
       const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
       const baseUrl = `https://${domain}`;
@@ -163,7 +165,7 @@ Sitemap: https://${domain}/sitemap.xml`;
         "/login",
       ];
       
-      const products = await storage.getProducts();
+      const products = await storage.getAllProducts();
       const productRoutes = products
         .filter(p => p.active)
         .map(p => `/product/${p.id}`);
