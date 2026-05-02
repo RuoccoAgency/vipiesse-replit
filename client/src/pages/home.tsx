@@ -10,10 +10,17 @@ import tiglioLogo from "@/assets/logos/tiglio.png";
 import uspoloLogo from "@/assets/logos/uspolo.png";
 import sanitalLogo from "@/assets/logos/sanital.png";
 import defonsecaLogo from "@/assets/logos/defonseca.png";
+import { useSEO } from "@/hooks/useSEO";
 
 export function Home() {
+  useSEO(
+    "VIPIESSE - Ingrosso Calzature",
+    "Vendita all'ingrosso di ciabatte e calzature. Scopri la nuova collezione Donna, Uomo e Bambino con prezzi competitivi e spedizioni rapide."
+  );
+
   return (
     <div className="flex flex-col gap-16 pb-20 bg-black text-white">
+      <h1 className="sr-only">VIPIESSE - Vendita all'ingrosso di calzature</h1>
       
       {/* SECTION A: HERO SLIDER */}
       <HeroSlider />

@@ -13,12 +13,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useSEO } from "@/hooks/useSEO";
 
 interface ShopProps {
   collection?: string;
 }
 
 export function Shop({ collection }: ShopProps) {
+  useSEO(
+    collection ? `Collezione ${collection.replace('-', ' ')} | VIPIESSE` : "Shop Calzature all'ingrosso | VIPIESSE",
+    "Esplora la nostra vasta selezione di calzature all'ingrosso. Qualità e convenienza per il tuo negozio."
+  );
+
   const [location] = useLocation();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);

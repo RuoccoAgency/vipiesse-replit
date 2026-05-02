@@ -12,12 +12,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useSEO } from "@/hooks/useSEO";
 
 interface OutletProps {
   category?: "donna" | "uomo" | "bambino";
 }
 
 export function Outlet({ category }: OutletProps) {
+  useSEO(
+    category ? `Outlet ${category} | VIPIESSE` : "Outlet Calzature | VIPIESSE",
+    "Scopri le offerte imperdibili nel nostro outlet calzature. Sconti esclusivi per acquisti all'ingrosso."
+  );
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);

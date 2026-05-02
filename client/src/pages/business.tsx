@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useState, useEffect } from "react";
 import { Loader2, CheckCircle, Building2, Truck, HeadphonesIcon, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 
 const businessSchema = z.object({
   companyName: z.string().min(2, "Ragione sociale richiesta"),
@@ -23,6 +24,11 @@ const businessSchema = z.object({
 type BusinessFormData = z.infer<typeof businessSchema>;
 
 export function Business() {
+  useSEO(
+    "Area Business B2B | VIPIESSE",
+    "Accedi all'area riservata B2B di VIPIESSE per visualizzare i listini all'ingrosso e acquistare online con sconti esclusivi."
+  );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPopup, setShowPopup] = useState(false);

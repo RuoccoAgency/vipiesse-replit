@@ -18,6 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useSEO } from "@/hooks/useSEO";
 
 interface ProductVariant {
   id: number;
@@ -61,6 +62,12 @@ export function ProductDetail() {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
+
+  useSEO(
+    product ? `${product.name} | VIPIESSE` : "Dettaglio Prodotto | VIPIESSE",
+    product?.description ? product.description.substring(0, 160) : "Scopri questo prodotto all'ingrosso su VIPIESSE.",
+    product?.images?.[0]?.imageUrl || undefined
+  );
 
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
