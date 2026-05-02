@@ -22,3 +22,9 @@ export async function fetchCollections(): Promise<any[]> {
   if (!response.ok) throw new Error('Failed to fetch collections');
   return response.json();
 }
+
+export async function fetchCharmProducts(): Promise<any[]> {
+  const response = await fetch('/api/products/charms');
+  if (!response.ok) throw new Error('Failed to fetch charms');
+  return response.json();
+}

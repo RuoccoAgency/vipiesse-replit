@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import NotFound from "./not-found";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProductById } from "@/lib/api";
+import { fetchCharmProducts, fetchProductById } from "@/lib/api";
 import {
   Accordion,
   AccordionContent,
@@ -52,6 +52,24 @@ interface ProductWithVariants {
   images: ProductImage[];
 }
 
+type CharmVariant = ProductVariant & {
+  productName: string;
+  productBrand: string | null;
+};
+
+const CHARM_ADDON_PRICE_EUR = 0.5;
+
+function getBaseBrand(brand: string | null | undefined) {
+  if (!brand) return "";
+  return brand.split("(")[0].trim().toLowerCase();
+}
+
+function isCrocsProduct(product: Pick<ProductWithVariants, "name" | "brand">) {
+  const name = product.name.toLowerCase();
+  const baseBrand = getBaseBrand(product.brand);
+  return name.includes("crocs") || baseBrand === "crocs";
+}
+
 export function ProductDetail() {
   const [, params] = useRoute("/product/:id");
   const { data: product, isLoading } = useQuery<ProductWithVariants>({
@@ -73,6 +91,15 @@ export function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState<string>("");
+  const [selectedCharmVariantIds, setSelectedCharmVariantIds] = useState<number[]>([]);
+
+  const crocsEligible = useMemo(() => (product ? isCrocsProduct(product) : false), [product]);
+
+  const { data: charmProducts = [], isLoading: charmsLoading } = useQuery<ProductWithVariants[]>({
+    queryKey: ["products", "charms"],
+    queryFn: () => fetchCharmProducts(),
+    enabled: !!product && crocsEligible,
+  });
 
   const availableColors = useMemo(() => {
     if (!product?.variants) return [];
@@ -109,16 +136,40 @@ export function ProductDetail() {
       .map(img => img.imageUrl);
   }, [product?.images]);
 
+  const hasOutletDiscount = product?.compareAtPriceCents && product.compareAtPriceCents > (product.basePriceCents || 0);
+
   const displayPrice = useMemo(() => {
+    if (hasOutletDiscount && product?.basePriceCents) return product.basePriceCents / 100;
     if (selectedVariant?.priceCents) return selectedVariant.priceCents / 100;
     if (product?.basePriceCents) return product.basePriceCents / 100;
     return 0;
-  }, [selectedVariant, product?.basePriceCents]);
+  }, [selectedVariant, product?.basePriceCents, hasOutletDiscount]);
 
   const cartPrice = useMemo(() => {
     if (user?.isB2b && product?.b2bPriceCents) return product.b2bPriceCents / 100;
     return displayPrice;
   }, [user?.isB2b, product?.b2bPriceCents, displayPrice]);
+
+  const charmVariants = useMemo<CharmVariant[]>(() => {
+    if (!crocsEligible) return [];
+    return charmProducts.flatMap((p) =>
+      (p.variants || []).map((v) => ({
+        ...v,
+        productName: p.name,
+        productBrand: p.brand,
+      }))
+    );
+  }, [charmProducts, crocsEligible]);
+
+  const charmAddonTotal = useMemo(
+    () => selectedCharmVariantIds.length * CHARM_ADDON_PRICE_EUR,
+    [selectedCharmVariantIds.length]
+  );
+
+  const actionTotal = useMemo(
+    () => cartPrice * quantity + charmAddonTotal,
+    [cartPrice, quantity, charmAddonTotal]
+  );
 
   const stockStatus = useMemo(() => {
     if (!selectedVariant) return { inStock: false, qty: 0 };
@@ -148,6 +199,10 @@ export function ProductDetail() {
       }
     }
   }, [selectedColor]);
+
+  useEffect(() => {
+    setSelectedCharmVariantIds([]);
+  }, [product?.id]);
 
   if (isLoading) {
     return (
@@ -214,10 +269,35 @@ export function ProductDetail() {
       );
     }
 
+    if (crocsEligible && selectedCharmVariantIds.length > 0) {
+      const byId = new Map(charmVariants.map(v => [v.id, v]));
+      selectedCharmVariantIds.forEach((variantId) => {
+        const charm = byId.get(variantId);
+        if (!charm || !charm.active || charm.stockQty <= 0) return;
+
+        addToCart(
+          {
+            id: charm.productId.toString(),
+            variantId: charm.id,
+            name: "Charm",
+            brand: charm.productBrand || "CHARMS",
+            price: CHARM_ADDON_PRICE_EUR,
+            image: charm.imageUrl || "",
+            color: charm.color,
+            size: charm.size,
+            sku: charm.sku,
+          },
+          charm.size
+        );
+      });
+    }
+
     toast({
       title: "Aggiunto al carrello",
-      description: `${product.name} (${selectedColor}, ${selectedSize}) è stato aggiunto al carrello.`,
+      description: `${product.name} (${selectedColor}, ${selectedSize}) è stato aggiunto al carrello.${crocsEligible && selectedCharmVariantIds.length > 0 ? ` + ${selectedCharmVariantIds.length} charm` : ""}`,
     });
+
+    setSelectedCharmVariantIds([]);
   };
 
   return (
@@ -318,7 +398,7 @@ export function ProductDetail() {
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      Prezzo più basso degli ultimi 30 giorni: €{(product.compareAtPriceCents / 100).toFixed(2)}
+                      Prezzo più basso degli ultimi 30 giorni: €{displayPrice.toFixed(2)}
                     </p>
                   </div>
                 ) : (
@@ -423,6 +503,88 @@ export function ProductDetail() {
                 )}
               </div>
 
+              {/* Charms upsell (Crocs only) */}
+              {crocsEligible && (
+                <div className="space-y-3 pt-2" data-testid="charm-upsell">
+                  <div className="flex items-end justify-between">
+                    <span className="text-sm font-bold text-gray-900">
+                      Add a Charm (+€0.50)
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {selectedCharmVariantIds.length} selezionati
+                    </span>
+                  </div>
+
+                  {charmsLoading ? (
+                    <p className="text-sm text-gray-500">Caricamento charms...</p>
+                  ) : charmVariants.length === 0 ? (
+                    <p className="text-sm text-gray-500">Nessun charm disponibile.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {charmVariants
+                        .filter((v) => v.active)
+                        .sort((a, b) => a.color.localeCompare(b.color))
+                        .map((v) => {
+                          const disabled = v.stockQty <= 0;
+                          const selected = selectedCharmVariantIds.includes(v.id);
+                          return (
+                            <button
+                              key={v.id}
+                              type="button"
+                              disabled={disabled}
+                              onClick={() => {
+                                setSelectedCharmVariantIds((prev) =>
+                                  prev.includes(v.id) ? prev.filter((id) => id !== v.id) : [...prev, v.id]
+                                );
+                              }}
+                              className={cn(
+                                "text-left rounded-lg border p-3 transition-all bg-white",
+                                selected ? "border-gray-900 ring-1 ring-gray-900" : "border-gray-200 hover:border-gray-400",
+                                disabled && "opacity-50 cursor-not-allowed hover:border-gray-200"
+                              )}
+                              data-testid={`charm-${v.color.toLowerCase()}`}
+                            >
+                              <div className="w-full aspect-square rounded-md overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center">
+                                {v.imageUrl ? (
+                                  <img
+                                    src={v.imageUrl}
+                                    alt={v.color}
+                                    className="w-full h-full object-contain p-2"
+                                    onError={(e) => {
+                                      const target = e.currentTarget;
+                                      target.onerror = null;
+                                      target.style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="text-xs text-gray-400">Nessuna immagine</div>
+                                )}
+                              </div>
+                              <div className="mt-2">
+                                <p className="text-xs font-bold uppercase tracking-wide text-gray-900">
+                                  {v.color}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {disabled ? "Esaurito" : "+€0.50"}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  )}
+
+                  {selectedCharmVariantIds.length > 0 && (
+                    <div className="flex items-center justify-between text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                      <span>
+                        Charms: {selectedCharmVariantIds.length} × €0.50
+                      </span>
+                      <span className="font-bold text-gray-900">+€{charmAddonTotal.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Quantity + Add */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <div className="flex items-center border border-gray-300 rounded-md w-fit bg-white h-12">
@@ -460,6 +622,11 @@ export function ProductDetail() {
                 >
                   {stockStatus.inStock ? "AGGIUNGI AL CARRELLO" : "ESAURITO"}
                 </Button>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>Totale (questa aggiunta)</span>
+                <span className="font-bold text-gray-900">€{actionTotal.toFixed(2)}</span>
               </div>
 
               {/* Delivery info badge */}

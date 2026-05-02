@@ -47,6 +47,21 @@ const upload = multer({
   }
 });
 
+const csvUpload = multer({
+  storage: multerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+    const allowedExts = ['.csv'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo file non supportato. Usa un file .csv'));
+    }
+  }
+});
+
 declare global {
   namespace Express {
     interface Request {
@@ -1184,6 +1199,16 @@ Sitemap: https://${domain}/sitemap.xml`;
     }
   });
 
+  // Charm products (used as Crocs add-on)
+  app.get("/api/products/charms", async (req, res) => {
+    try {
+      const charms = await storage.getProductsByBrandBase("CHARMS");
+      res.json(charms);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch charms" });
+    }
+  });
+
   app.get("/api/products/:id", async (req, res) => {
     try {
       const product = await storage.getProductWithVariants(parseInt(req.params.id));
@@ -1675,7 +1700,7 @@ Sitemap: https://${domain}/sitemap.xml`;
   // ================================
   // ADMIN API-Data Importer (CSV)
   // ================================
-  app.post("/api/admin/products/import", isAdmin, upload.single("csvFile"), async (req, res) => {
+  app.post("/api/admin/products/import", isAdmin, csvUpload.single("csvFile"), async (req, res) => {
     let csvContent = "";
     if (req.file) {
       csvContent = fs.readFileSync(req.file.path, "utf-8");
@@ -1887,7 +1912,6 @@ Sitemap: https://${domain}/sitemap.xml`;
           <a href="/admin/contacts">Contacts</a>
           <a href="/admin/business-requests">Business Requests</a>
           <a href="/admin/b2b-products">B2B Products</a>
-          <a href="/admin/import">Import CSV</a>
         </div>
         <div class="container">
           <h2>Welcome, ${req.adminEmail}</h2>
@@ -1962,11 +1986,6 @@ Sitemap: https://${domain}/sitemap.xml`;
   app.get("/admin/b2b-products", isAdminHTML, async (req, res) => {
     const allProducts = await storage.getAllProducts();
     res.send(getAdminB2bProductsPage(allProducts));
-  });
-
-  // Admin CSV Import page
-  app.get("/admin/import", isAdminHTML, async (req, res) => {
-    res.send(getAdminImportPage());
   });
 
   // ================================
@@ -2730,7 +2749,7 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
       <div class="container">
         <div class="controls" style="display: flex; gap: 1rem;">
           <button class="btn" onclick="showCreateModal()">+ New Product</button>
-          <button class="btn" onclick="showImportModal()" style="background: #333;">Import CSV</button>
+          <button class="btn" onclick="showImportModal()" style="background: #2563eb; color: white; font-weight: 600; padding: 0.6rem 1.2rem; font-size: 1rem;">📄 Importa CSV</button>
         </div>
         <table>
           <thead>
@@ -2805,19 +2824,20 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
 
       <div id="importModal" class="modal">
         <div class="modal-content">
-          <h2>Import Products from CSV</h2>
+          <h2>Importa Prodotti da CSV</h2>
           <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #666;">
-            Select a .csv file with columns: Articolo, Colore, SKU, Taglia, Quantità, Prezzo.
+            Seleziona un file .csv con le colonne: <strong>Articolo, Colore, SKU, Taglia, Quantità, Prezzo</strong>.<br>
+            Le righe senza quantità verranno saltate. I prodotti con lo stesso nome verranno raggruppati automaticamente.
           </p>
           <form id="importForm">
             <div class="form-group">
-              <label>Select CSV File</label>
+              <label>Seleziona file CSV</label>
               <input type="file" id="csvFile" accept=".csv" required>
             </div>
             <div id="importStatus" style="margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none;"></div>
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-              <button type="submit" id="importSubmitBtn" class="btn">Start Import</button>
-              <button type="button" class="btn" onclick="closeImportModal()">Cancel</button>
+              <button type="submit" id="importSubmitBtn" class="btn">Avvia Importazione</button>
+              <button type="button" class="btn" onclick="closeImportModal()">Annulla</button>
             </div>
           </form>
         </div>
@@ -2878,10 +2898,10 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
             if (res.ok) {
               status.style.background = '#d4edda';
               status.style.color = '#155724';
-              let html = '<strong>Import Successful!</strong><br>';
-              html += 'Products Created: ' + data.summary.productsCreated + '<br>';
-              html += 'Variants Created: ' + data.summary.variantsCreated + '<br>';
-              html += 'Skipped: ' + data.summary.skippedCount + '<br>';
+              let html = '<strong>✅ Importazione completata!</strong><br>';
+              html += 'Prodotti creati: ' + data.summary.productsCreated + '<br>';
+              html += 'Varianti create: ' + data.summary.variantsCreated + '<br>';
+              html += 'Saltate: ' + data.summary.skippedCount + '<br>';
 
               if (data.skipped && data.skipped.length> 0) {
                 html += '<div style="margin-top: 0.5rem; font-size: 0.8rem; max-height: 150px; overflow-y: auto; border-top: 1px solid #c3e6cb; padding-top: 0.5rem;">';
@@ -2896,16 +2916,16 @@ function getAdminProductsPage(products: any[], collections: any[]): string {
             } else {
               status.style.background = '#f8d7da';
               status.style.color = '#721c24';
-              status.textContent = 'Error: ' + (data.error || 'Unknown error');
+              status.textContent = 'Errore: ' + (data.error || 'Errore sconosciuto');
               btn.disabled = false;
-              btn.textContent = 'Start Import';
+              btn.textContent = 'Avvia Importazione';
             }
           } catch (err) {
             status.style.background = '#f8d7da';
             status.style.color = '#721c24';
-            status.textContent = 'Connection error';
+            status.textContent = 'Errore di connessione';
             btn.disabled = false;
-            btn.textContent = 'Start Import';
+            btn.textContent = 'Avvia Importazione';
           }
         };
 
@@ -3610,15 +3630,16 @@ document.getElementById('variantForm').addEventListener('submit', async (e) => {
     `;
 }
 
+
 function getAdminCollectionsPage(collections: any[]): string {
   return `
-  <!DOCTYPE html>
+    <!DOCTYPE html>
     <html>
     <head>
-    <title>Collections-Admin Panel </title>
-     <metacharset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
+      <title>Collections - Admin Panel</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -3629,46 +3650,46 @@ function getAdminCollectionsPage(collections: any[]): string {
         .nav a.active { color: #000; border-bottom: 2px solid #000; padding-bottom: 0.25rem; }
         .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
         .controls { margin-bottom: 1.5rem; }
-        .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn { padding: 0.5rem 1rem; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-decoration: none; display: inline-block; }
         .btn:hover { background: #333; }
-        table { width: 100 %; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f8f8; font-weight: 600; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95 %; }
+        .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 95%; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-input, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-</style>
-  </head>
- <body>
-  <div class="header">
-    <h1>VIPIESSE Admin Panel </h1>
-     <buttonclass="logout" onclick="logout()"> Logout </button>
+        input, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>VIPIESSE Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="nav">
+        <a href="/admin/products">Products</a>
+        <a href="/admin/collections" class="active">Collections</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/contacts">Contacts</a>
+        <a href="/admin/business-requests">Business Requests</a>
+        <a href="/admin/b2b-products">B2B Products</a>
+      </div>
+      <div class="container">
+        <div class="controls">
+          <button class="btn" onclick="showCreateModal()">+ New Collection</button>
         </div>
-       <divclass="nav">
-          <a href="/admin/products"> Products </a>
-           <ahref="/admin/collections" class="active"> Collections </a>
-             <ahref="/admin/orders"> Orders </a>
-               <ahref="/admin/contacts"> Contacts </a>
-                 <ahref="/admin/business-requests"> Business Requests </a>
-                   <ahref="/admin/b2b-products"> B2B Products </a>
-                      </div>
-                     <divclass="container">
-                        <div class="controls">
-                          <button class="btn" onclick="showCreateModal()"> + New Collection </button>
-                            </div>
-                           <table>
-                            <thead>
-                            <tr>
-                            <th>Name </th>
-                           <th> Slug </th>
-                           <th> Description </th>
-                           <th> Actions </th>
-                            </tr>
-                            </thead>
-                            <tbody>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             ${collections.map(c => `
               <tr>
                 <td>${c.name}</td>
@@ -3679,104 +3700,103 @@ input, textarea { width: 100 %; padding: 0.5rem; border: 1px solid #ddd; border-
                   <button class="btn" onclick="deleteCollection(${c.id})">Delete</button>
                 </td>
               </tr>
-            `).join('')
-    }
-</tbody>
-  </table>
-  </div>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
 
- <divid="collectionModal" class="modal">
-    <div class="modal-content">
-      <h2 id="modalTitle"> Create Collection </h2>
-       <formid="collectionForm">
-          <input type="hidden" id="collectionId">
+      <div id="collectionModal" class="modal">
+        <div class="modal-content">
+          <h2 id="modalTitle">Create Collection</h2>
+          <form id="collectionForm">
+            <input type="hidden" id="collectionId">
             <div class="form-group">
-              <label>Name * </label>
-             <inputtype="text" id="name" required>
-                </div>
-               <divclass="form-group">
-                  <label>Slug * </label>
-                 <inputtype="text" id="slug" required placeholder="e.g. best-sellers">
-                    </div>
-                   <divclass="form-group">
-                      <label>Description </label>
-                     <textareaid="description" rows="2"> </textarea>
-                        </div>
-                       <divstyle="display: flex; gap: 1rem; margin-top: 1rem;">
-                          <button type="submit" class="btn"> Save </button>
-                           <buttontype="button" class="btn" onclick="closeModal()"> Cancel </button>
-                              </div>
-                              </form>
-                              </div>
-                              </div>
+              <label>Name *</label>
+              <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+              <label>Slug *</label>
+              <input type="text" id="slug" required placeholder="e.g. best-sellers">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="description" rows="2"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+              <button type="submit" class="btn">Save</button>
+              <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-                              <script>
-const collections = ${JSON.stringify(collections)};
+      <script>
+        const collections = ${JSON.stringify(collections)};
 
-async function logout() {
-  await fetch('/api/admin/logout', { method: 'POST' });
-  window.location.href = '/login';
-}
+        async function logout() {
+          await fetch('/api/admin/logout', { method: 'POST' });
+          window.location.href = '/login';
+        }
 
-function showCreateModal() {
-  document.getElementById('modalTitle').textContent = 'Create Collection';
-  document.getElementById('collectionForm').reset();
-  document.getElementById('collectionId').value = '';
-  document.getElementById('collectionModal').classList.add('show');
-}
+        function showCreateModal() {
+          document.getElementById('modalTitle').textContent = 'Create Collection';
+          document.getElementById('collectionForm').reset();
+          document.getElementById('collectionId').value = '';
+          document.getElementById('collectionModal').classList.add('show');
+        }
 
-function editCollection(id) {
-  const collection = collections.find(c => c.id === id);
-  if (!collection) return;
+        function editCollection(id) {
+          const collection = collections.find(c => c.id === id);
+          if (!collection) return;
 
-  document.getElementById('modalTitle').textContent = 'Edit Collection';
-  document.getElementById('collectionId').value = id;
-  document.getElementById('name').value = collection.name;
-  document.getElementById('slug').value = collection.slug;
-  document.getElementById('description').value = collection.description || '';
-  document.getElementById('collectionModal').classList.add('show');
-}
+          document.getElementById('modalTitle').textContent = 'Edit Collection';
+          document.getElementById('collectionId').value = id;
+          document.getElementById('name').value = collection.name;
+          document.getElementById('slug').value = collection.slug;
+          document.getElementById('description').value = collection.description || '';
+          document.getElementById('collectionModal').classList.add('show');
+        }
 
-function closeModal() {
-  document.getElementById('collectionModal').classList.remove('show');
-}
+        function closeModal() {
+          document.getElementById('collectionModal').classList.remove('show');
+        }
 
-async function deleteCollection(id) {
-  if (!confirm('Delete this collection?')) return;
-  await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
-  location.reload();
-}
+        async function deleteCollection(id) {
+          if (!confirm('Delete this collection?')) return;
+          await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
+          location.reload();
+        }
 
-document.getElementById('collectionForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const id = document.getElementById('collectionId').value;
+        document.getElementById('collectionForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const id = document.getElementById('collectionId').value;
 
-  const data = {
-    name: document.getElementById('name').value,
-    slug: document.getElementById('slug').value,
-    description: document.getElementById('description').value || null
-  };
+          const data = {
+            name: document.getElementById('name').value,
+            slug: document.getElementById('slug').value,
+            description: document.getElementById('description').value || null,
+          };
 
-  if (id) {
-    await fetch('/api/admin/collections/' + id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  } else {
-    await fetch('/api/admin/collections', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  }
+          if (id) {
+            await fetch('/api/admin/collections/' + id, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+          } else {
+            await fetch('/api/admin/collections', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+          }
 
-  location.reload();
-});
-</script>
-  </body>
-  </html>
-    `;
+          location.reload();
+        });
+      </script>
+    </body>
+    </html>
+  `;
 }
 
 // Admin Orders Page
@@ -4675,91 +4695,3 @@ async function clearB2bPrice(productId) {
     `;
 }
 
-function getAdminImportPage() {
-  return `
-  <!DOCTYPE html>
-    <html>
-    <head>
-    <title>Import CSV-VIPIESSE Admin </title>
-     <metacharset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
-        .header { background: #000; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.5rem; }
-        .nav { background: white; padding: 1rem 2rem; border-bottom: 1px solid #ddd; display: flex; }
-        .nav a { margin-right: 1.5rem; text-decoration: none; color: #333; font-weight: 500; }
-        .container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
-        h2 { margin-bottom: 1.5rem; }
-        textarea { width: 100 %; height: 400px; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.9rem; margin-bottom: 1rem; }
-        .btn { padding: 0.75rem 1.5rem; background: #000; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
-        .btn:disabled { background: #999; cursor: not-allowed; }
-        .status { margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none; }
-        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-</style>
-  </head>
- <body>
-  <div class="header"> <h1>VIPIESSE Admin Panel</h1></div>
-    <div class="nav">
-      <a href="/admin"> Dashboard </a>
-       <ahref="/admin/products"> Products </a>
-         <ahref="/admin/import" style="color: #000; border-bottom: 2px solid #000;"> Import CSV </a>
-            </div>
-           <divclass="container">
-              <div class="card">
-                <h2>Import Products from CSV </h2>
-                 <pstyle="margin-bottom: 1rem; color: #666;"> Incolla il contenuto CSV qui sotto come fornito.La prima riga deve essere l'intestazione.</p>
-                   <textareaid="csvInput" placeholder="Data invio,Articolo,Colore,SKU,Taglia,Quantità,Prezzo..."> </textarea>
-                     <divstyle="display: flex; gap: 1rem;">
-                        <button id="importBtn" class="btn" onclick="runImport()"> Avvia Importazione </button>
-                          </div>
-                         <divid="status" class="status"> </div>
-                            </div>
-                            </div>
-                            <script>
-async function runImport() {
-  const btn = document.getElementById('importBtn');
-  const status = document.getElementById('status');
-  const csvContent = document.getElementById('csvInput').value;
-
-  if (!csvContent.trim()) {
-    alert('Inserisci il contenuto CSV');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Importazione in corso...';
-  status.style.display = 'none';
-
-  try {
-    const res = await fetch('/api/admin/products/import', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csvContent })
-    });
-
-    const result = await res.json();
-    if (res.ok) {
-      status.className = 'status success';
-      status.textContent = result.message || 'Importazione completata con successo!';
-    } else {
-      status.className = 'status error';
-      status.textContent = 'Errore: ' + (result.error || 'Errore sconosciuto');
-    }
-  } catch (e) {
-    status.className = 'status error';
-    status.textContent = 'Errore di connessione';
-  } finally {
-    status.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Avvia Importazione';
-  }
-}
-</script>
-  </body>
-  </html>
-    `;
-}
