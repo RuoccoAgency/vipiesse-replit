@@ -73,6 +73,11 @@ Sitemap: https://${domain}/sitemap.xml`;
   res.send(robotsTxt);
 });
 
+// Google Verification
+app.get("/google7bd29224249f4200.html", (req, res) => {
+  res.send("google-site-verification: google7bd29224249f4200.html");
+});
+
 // SEO: sitemap.xml
 app.get("/sitemap.xml", async (req, res) => {
   try {
