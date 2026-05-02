@@ -64,11 +64,11 @@ app.use((req, res, next) => {
 
 // SEO: robots.txt
 app.get("/robots.txt", (req, res) => {
-  const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
+  const baseUrl = "https://www.vipiesse.com";
   const robotsTxt = `User-agent: *
 Allow: /
 
-Sitemap: https://${domain}/sitemap.xml`;
+Sitemap: ${baseUrl}/sitemap.xml`;
   res.type("text/plain");
   res.send(robotsTxt);
 });
@@ -81,8 +81,7 @@ app.get("/google7bd29224249f4200.html", (req, res) => {
 // SEO: sitemap.xml
 app.get("/sitemap.xml", async (req, res) => {
   try {
-    const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || req.get('host');
-    const baseUrl = `https://${domain}`;
+    const baseUrl = "https://www.vipiesse.com";
     
     const staticRoutes = [
       "",
