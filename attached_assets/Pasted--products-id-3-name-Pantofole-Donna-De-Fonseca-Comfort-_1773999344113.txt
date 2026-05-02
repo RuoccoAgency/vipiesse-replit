@@ -2,9 +2,9 @@
   "products": [
     {
       "id": 3,
-      "name": "Ciabatte Donna De Fonseca, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti ",
+      "name": "Pantofole Donna De Fonseca - Comfort Quotidiano per la Casa",
       "brand": "de fonseca (ROMA TOPI WA20)",
-      "description": "  -Materiale suola EVA\n-Materiale esterno Vinile\n-Materiale interno Feltro\n-Livello di resistenza all'acqua Idrorepellente\n-Paese di origine Cina\n\n\n-Materiali Premium: Realizzate con tessuti morbidi, memory foam o pelliccia sintetica per un comfort eccezionale.\n-Design Versatile: Disponibili in vari stili, dai modelli classici ed eleganti a quelli più giocosi e colorati.\n-Calde e Accoglienti: Perfette per mantenere i piedi al caldo durante i mesi più freddi.\n-Suola Antiscivolo: Progettate per garantire sicurezza e stabilità su tutte le superfici domestiche.\n-Adatte a Ogni Gusto: Ideali per uomo e donna, con opzioni per chi cerca stile, comfort o un look originale. \n\n COMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile. Perfette per chi cerca ciabatte donna De Fonseca che non siano solo pratiche ma anche capaci di valorizzare ogni momento di relax.",
+      "description": " -Materiale suola EVA\n-Materiale esterno Vinile\n-Materiale interno Feltro\n-Livello di resistenza all'acqua Idrorepellente\n-Paese di origine Cina\n\n\n-Materiali Premium: Realizzate con tessuti morbidi, memory foam o pelliccia sintetica per un comfort eccezionale.\n-Design Versatile: Disponibili in vari stili, dai modelli classici ed eleganti a quelli più giocosi e colorati.\n-Calde e Accoglienti: Perfette per mantenere i piedi al caldo durante i mesi più freddi.\n-Suola Antiscivolo: Progettate per garantire sicurezza e stabilità su tutte le superfici domestiche.\n-Adatte a Ogni Gusto: Ideali per uomo e donna, con opzioni per chi cerca stile, comfort o un look originale. ",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -13,9 +13,9 @@
     },
     {
       "id": 4,
-      "name": "Ciabatte Donna De Fonseca, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti",
+      "name": "Pantofole Donna De Fonseca - Comode e Calde",
       "brand": "de fonseca (VERONAE WA30)",
-      "description": " Suola\tEVA\t\nFodera\tCOTONE\t\nEsterno\tMICROFIBRA\t\nInterno\tMICROFIBRA\t\nSottopiede MICROFIBRA IMBOTTITO\t\nTacco 2 cm\t\nPleateau 1,5 cm\t \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile. Perfette per chi cerca ciabatte donna De Fonseca che non siano solo pratiche ma anche capaci di valorizzare ogni momento di relax.",
+      "description": "Suola\tEVA\t\nFodera\tCOTONE\t\nEsterno\tMICROFIBRA\t\nInterno\tMICROFIBRA\t\nSottopiede MICROFIBRA IMBOTTITO\t\nTacco 2 cm\t\nPleateau 1,5 cm\t",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -24,9 +24,9 @@
     },
     {
       "id": 5,
-      "name": "Ciabatte Donna De Fonseca, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti in materiale canvas ",
+      "name": "Pantofole donna De Fonseca in Canvas",
       "brand": "de fonseca (BARI TOPE PA WA32)",
-      "description": " Suola\tEVA\nFodera\tCOTONE\nEsterno\tCOTONE\nInterno\tCOTONE\nSottopiede COTONE IMBOTTITO\nTacco 1,5 cm\nPleateau 1,5 cm \n\nRELAX E BENESSERE DOPO OGNI GIORNATA - Grazie alla morbidezza del tessuto e alla calzata accogliente, queste pantofole De Fonseca donna sono pensate per alleviare la stanchezza dei piedi e offrire una sensazione di leggerezza.",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tCOTONE\nInterno\tCOTONE\nSottopiede COTONE IMBOTTITO\nTacco 1,5 cm\nPleateau 1,5 cm",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -35,9 +35,9 @@
     },
     {
       "id": 6,
-      "name": "Ciabatte Donna De Fonseca peluche, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti",
+      "name": "Pantofole donna De Fonseca Peluche",
       "brand": "de fonseca (ROMA TOPI WA49)",
-      "description": "  Suola\tEVA\nFodera\tCOTONE\nEsterno\tPELUCHE\nInterno\tPELUCHE\nSottopiede PELUCHE IMBOTTITO\nTacco 2 cm\nPleateau 1,5 cm  \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile. Perfette per chi cerca ciabatte donna De Fonseca che non siano solo pratiche ma anche capaci di valorizzare ogni momento di relax.",
+      "description": " Suola\tEVA\nFodera\tCOTONE\nEsterno\tPELUCHE\nInterno\tPELUCHE\nSottopiede PELUCHE IMBOTTITO\nTacco 2 cm\nPleateau 1,5 cm ",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -46,9 +46,9 @@
     },
     {
       "id": 7,
-      "name": "Pantofole Uomo De Fonseca, Aperte sul Retro, Ciabatte Uomo Casa Leggere in lana calda con motivo scozzese, Punta Chiusa, Slippers Comode e Traspiranti",
+      "name": "Pantofole Uomo in Lana Calda con Motivo Scozzese",
       "brand": "de fonseca (ROMA TOPI M940)",
-      "description": "  Suola\tEVA\t\nFodera\tCOTONE\t\nEsterno\tTESSUTO\t\nInterno\tTESSUTO\t\nSottopiede PELUCHE IMBOTTITO\t\nTacco 2,5 cm\nPleateau 1,5 cm  \n\nPERCHÉ SCEGLIERLE – COMFORT E PRATICITÀ - Le pantofole uomo De Fonseca  sono la scelta perfetta per chi cerca comodità. Aperte sul retro e con punta chiusa, uniscono protezione e praticità: ideali come ciabatte uomo casa",
+      "description": " Suola\tEVA\t\nFodera\tCOTONE\t\nEsterno\tTESSUTO\t\nInterno\tTESSUTO\t\nSottopiede PELUCHE IMBOTTITO\t\nTacco 2,5 cm\nPleateau 1,5 cm ",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -57,9 +57,9 @@
     },
     {
       "id": 8,
-      "name": "Ciabatte Donna De Fonseca, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti in materiale canvas",
+      "name": "Pantofole donna De Fonseca in Canvas",
       "brand": "de fonseca (PALERMOE W930)",
-      "description": " Suola\tEVA\nFodera\tCOTONE\nEsterno\tCAMBAS\nInterno\tCAMBAS\nSottopiede COTONE IMBOTTITO\nTacco 4 cm\nPleateau 1 cm \n\nRELAX E BENESSERE DOPO OGNI GIORNATA - Grazie alla morbidezza del tessuto e alla calzata accogliente, queste pantofole De Fonseca donna sono pensate per alleviare la stanchezza dei piedi e offrire una sensazione di leggerezza.",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tCAMBAS\nInterno\tCAMBAS\nSottopiede COTONE IMBOTTITO\nTacco 4 cm\nPleateau 1 cm",
       "basePriceCents": 1750,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -68,9 +68,9 @@
     },
     {
       "id": 9,
-      "name": "Ciabatte Donna De Fonseca, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti in materiale canvas ",
+      "name": "Pantofole donna De Fonseca in Canvas",
       "brand": "de fonseca (VERONAP W00)",
-      "description": " Suola\tEVA\nFodera\tCOTONE\nEsterno\tCOTONE\nInterno\tCOTONE\nSottopiede COTONE IMBOTTITO\nTacco 3 cm\nPleateau 1 cm \n\nRELAX E BENESSERE DOPO OGNI GIORNATA - Grazie alla morbidezza del tessuto e alla calzata accogliente, queste pantofole De Fonseca donna sono pensate per alleviare la stanchezza dei piedi e offrire una sensazione di leggerezza.",
+      "description": "Suola\tEVA\nFodera\tCOTONE\nEsterno\tCOTONE\nInterno\tCOTONE\nSottopiede COTONE IMBOTTITO\nTacco 3 cm\nPleateau 1 cm",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -79,9 +79,9 @@
     },
     {
       "id": 10,
-      "name": "Pantofole Uomo De Fonseca Aosta C M15, Babbucce da Casa con Punta Chiusa in Tessuto, Suola Antiscivolo Sintetica, Slippers Comode e Leggere, Ciabatte Uomo Ideali per Uso Quotidiano e Relax",
+      "name": "Pantofole uomo De Fonseca in Morbido Velluto Liscio",
       "brand": "de fonseca (AOSTAC M15)",
-      "description": "  Suola\tEVA\nFodera\tCOTONE\nEsterno\tMICROFIBRA\nInterno\tMICROFIBRA\nSottopiede MICROFIBRA IMBOTTITO\nTacco 2 cm \nPleateau 1,5 cm  \n\nBENEFICI PER IL TUO RELAX QUOTIDIANO - Perfette per uso domestico, queste pantofole uomo garantiscono morbidezza e comfort, mantenendo il piede avvolto e protetto. La punta chiusa ripara dal freddo, la suola leggera rende i movimenti naturali e silenziosi. Ottime per rilassarsi a casa, leggere, guardare la TV o camminare comodamente senza rinunciare a stile e praticità.",
+      "description": " Suola\tEVA\nFodera\tCOTONE\nEsterno\tMICROFIBRA\nInterno\tMICROFIBRA\nSottopiede MICROFIBRA IMBOTTITO\nTacco 2 cm \nPleateau 1,5 cm ",
       "basePriceCents": 1990,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -101,9 +101,9 @@
     },
     {
       "id": 12,
-      "name": "Pantofole Uomo De Fonseca, Aperte sul Retro, Ciabatte Uomo Casa Leggere in pelliccia con Punta Chiusa, Slippers Comode e Traspiranti ",
+      "name": "Pantofole uomo De Fonseca Fluffy",
       "brand": "de fonseca (ROMA TOPI M951)",
-      "description": "  Suola\tEVA\nFodera\tCOTONE\nEsterno\tTEDDY\nInterno\tTEDDY\nSottopiede TEDDY IMBOTTITO\nTacco 2 cm\nPleateau 1,5 cm  \n\nPERCHÉ SCEGLIERLE – COMFORT E PRATICITÀ - Le pantofole uomo De Fonseca  sono la scelta perfetta per chi cerca comodità. Aperte sul retro e con punta chiusa, uniscono protezione e praticità: ideali come ciabatte uomo casa",
+      "description": " Suola\tEVA\nFodera\tCOTONE\nEsterno\tTEDDY\nInterno\tTEDDY\nSottopiede TEDDY IMBOTTITO\nTacco 2 cm\nPleateau 1,5 cm ",
       "basePriceCents": 1490,
       "b2bPriceCents": 999,
       "compareAtPriceCents": null,
@@ -112,9 +112,9 @@
     },
     {
       "id": 13,
-      "name": "inblu Pantoscarpe Donna con Inserto Elasticizzato e Plantare Imbottito Estraibile, Scarpe Comode e Eleganti per Ogni Occasione Comfort Superiore Ideali per Shopping e Ufficio Materiali di Alta Qualità",
+      "name": "Stivaletti Donna Inblu con Inserto Elasticizzato e Plantare Imbottito Estraibile",
       "brand": "Inblu (WG 59)",
-      "description": " Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm \n\nTARGET PERFETTO PER OGNI DONNA - Le inblu Pantoscarpe Donna sono pensati per chi cerca una calzatura che unisca comodità e stile. inblu scarpe donna inverno ideali per donne dinamiche, questi stivaletti con inserto elasticizzato si adattano a ogni tipo di piede e sono perfetti per un look casual ma elegante, adatti a una giornata di shopping o in ufficio.",
+      "description": "Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm",
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
@@ -123,9 +123,9 @@
     },
     {
       "id": 14,
-      "name": "inblu Pantoscarpe Donna con elastico e Plantare Estraibile, Scarpe Comode e Eleganti per Ogni Occasione Comfort Superiore Ideali per Shopping e Ufficio Materiali di Alta Qualità ",
+      "name": "Pantoscarpe Inblu Donna con Elastico, Stivaletto con Morbido Plantare Estraibile Imbottito\t\t\t\t\t",
       "brand": "Inblu (WG49)",
-      "description": " Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm \n\nTARGET PERFETTO PER OGNI DONNA - Le inblu Pantoscarpe Donna sono pensati per chi cerca una calzatura che unisca comodità e stile. inblu scarpe donna inverno ideali per donne dinamiche, questi stivaletti con inserto elasticizzato si adattano a ogni tipo di piede e sono perfetti per un look casual ma elegante, adatti a una giornata di shopping o in ufficio.",
+      "description": "Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm",
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
@@ -134,9 +134,9 @@
     },
     {
       "id": 15,
-      "name": "inblu Pantoscarpe Donna , stivaletti in ecopelliccia scamosciata, Scarpe Comode e Eleganti per Ogni Occasione Comfort Superiore Ideali per Shopping e Ufficio Materiali di Alta Qualità",
+      "name": "Pantoscarpe Inblu Donna, Stivaletti in Ecopelliccia Scamosciata \t\t\t",
       "brand": "Inblu (WG 22)",
-      "description": " Suola Gomma sintetica\nAltezza asta Alla caviglia\nEsterno\tEcopelle scamosciata\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm \n\nTARGET PERFETTO PER OGNI DONNA - Le inblu Pantoscarpe Donna sono pensati per chi cerca una calzatura che unisca comodità e stile. inblu scarpe donna inverno ideali per donne dinamiche, questi stivaletti con inserto elasticizzato si adattano a ogni tipo di piede e sono perfetti per un look casual ma elegante, adatti a una giornata di shopping o in ufficio.",
+      "description": "Suola Gomma sintetica\nAltezza asta Alla caviglia\nEsterno\tEcopelle scamosciata\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm",
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
@@ -145,9 +145,9 @@
     },
     {
       "id": 16,
-      "name": "inblu Pantoscarpe Donna con elastico e Plantare Estraibile, Scarpe Comode e Eleganti per Ogni Occasione Comfort Superiore Ideali per Shopping e Ufficio Materiali di Alta Qualità ",
+      "name": "Pantoscarpe Inblu Donna con Elastico, Scarpa con Plantare Estraibile\t",
       "brand": "Inblu (WG 47)",
-      "description": " Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm \n\nTARGET PERFETTO PER OGNI DONNA - Le inblu Pantoscarpe Donna sono pensati per chi cerca una calzatura che unisca comodità e stile. inblu scarpe donna inverno ideali per donne dinamiche, questi stivaletti con inserto elasticizzato si adattano a ogni tipo di piede e sono perfetti per un look casual ma elegante, adatti a una giornata di shopping o in ufficio.",
+      "description": "Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm",
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
@@ -156,9 +156,9 @@
     },
     {
       "id": 18,
-      "name": "inblu Pantoscarpe Donna con cerniera e Plantare Estraibile, Scarpe Comode e Eleganti per Ogni Occasione Comfort Superiore Ideali per Shopping e Ufficio Materiali di Alta Qualità",
+      "name": "Pantoscarpe Inblu Donna con Cerniera, Scarpa Comode con Plantare Estraibile\t\t",
       "brand": "Inblu (WG 42)",
-      "description": "Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm \n\nTARGET PERFETTO PER OGNI DONNA - Le inblu Pantoscarpe Donna sono pensati per chi cerca una calzatura che unisca comodità e stile. inblu scarpe donna inverno ideali per donne dinamiche, questi stivaletti con inserto elasticizzato si adattano a ogni tipo di piede e sono perfetti per un look casual ma elegante, adatti a una giornata di shopping o in ufficio.",
+      "description": "Suola Sintetico\nAltezza asta Alla caviglia\nEsterno\tEcopelle\nInterno\tSintetico\nTacco 3,5 cm\nPleateau 2 cm",
       "basePriceCents": 2010,
       "b2bPriceCents": 999,
       "compareAtPriceCents": 3350,
@@ -167,9 +167,9 @@
     },
     {
       "id": 19,
-      "name": " Ciabatte Bambino De Fonseca, Pantofole Bambino De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambino Morbide e Traspiranti in materiale canvas e stampa Disney",
+      "name": "Pantofole bimbo con stampa Disney",
       "brand": "de fonseca",
-      "description": " Suola TXT\nEsterno Canvas\nSottopiede Canvas imbottito \n\nLA GARANZIA DE FONSECA - Acquistare le ciabatte De Fonseca significa scegliere un brand storico, sinonimo di affidabilità e stile italiano. De Fonseca è da sempre leader nelle pantofole defonseca grazie alla qualità dei materiali, al design curato e alla capacità di offrire calzature che uniscono praticità e raffinatezza.",
+      "description": "Suola TXT\nEsterno Canvas\nSottopiede Canvas imbottito",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -178,9 +178,9 @@
     },
     {
       "id": 20,
-      "name": "Ciabatte Bambino De Fonseca, Pantofole Bambino De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambino Morbide e Traspiranti in materiale canvas e stampa simpson",
+      "name": "Pantofole Bimbo Simpson\t",
       "brand": "de fonseca",
-      "description": " Suola Gomma\nEsterno Canvas\nSottopiede Canvas imbottito \n\nLA GARANZIA DE FONSECA - Acquistare le ciabatte De Fonseca significa scegliere un brand storico, sinonimo di affidabilità e stile italiano. De Fonseca è da sempre leader nelle pantofole defonseca grazie alla qualità dei materiali, al design curato e alla capacità di offrire calzature che uniscono praticità e raffinatezza.",
+      "description": "Suola Gomma\nEsterno Canvas\nSottopiede Canvas imbottito",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -189,9 +189,9 @@
     },
     {
       "id": 21,
-      "name": "ciabatte Bambino De Fonseca, Pantofole punta aperta Bambino De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambino Morbide e Traspiranti in materiale cotone rasato e stampa marvel",
+      "name": "Pantofole Bimbo punta aperta Marvel",
       "brand": "de fonseca (BARI K572)",
-      "description": " Suola Gomma\nEsterno\tCotone rasato\nSottopiede Canvas imbottito \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile.",
+      "description": "Suola Gomma\nEsterno\tCotone rasato\nSottopiede Canvas imbottito",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -200,9 +200,9 @@
     },
     {
       "id": 22,
-      "name": "Ciabatte Bambina De Fonseca, Pantofole punta aperta Bambina De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambina Morbide e Traspiranti in materiale cotone ",
+      "name": "Pantofole Bimba punta aperta",
       "brand": "de fonseca",
-      "description": " Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile.",
+      "description": "Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -211,9 +211,9 @@
     },
     {
       "id": 23,
-      "name": " Ciabatte Donna De Fonseca punta aperta, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti in materiale canvas",
+      "name": "Ciabatta punta aperta Donna De Fonseca",
       "brand": "de fonseca (BARI TOP W318)",
-      "description": " Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito \n\nRELAX E BENESSERE DOPO OGNI GIORNATA - Grazie alla morbidezza del tessuto e alla calzata accogliente, queste pantofole De Fonseca donna sono pensate per alleviare la stanchezza dei piedi e offrire una sensazione di leggerezza.",
+      "description": "Suola Gomma\nEsterno\tCanvas\nSottopiede Canvas imbottito",
       "basePriceCents": 750,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1500,
@@ -222,9 +222,9 @@
     },
     {
       "id": 24,
-      "name": "Ciabatte Bambina De Fonseca, Pantofole Bambina Inblu Comode e Resistenti, Ciabatte Inblu bambina in pura gomma ",
-      "brand": "Inblu (FV116123)",
-      "description": "  Suola GOMMA\nEsterno GOMMA\nSottopiede GOMMA\n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile.\n\nAbbina un charm alla Crocs, puoi trovarlo nella Collezione Bambino in Outlet a soli 0,50 centesimi!  ",
+      "name": "Crocs bambina Inblu ",
+      "brand": "de fonseca (FV116123)",
+      "description": "Suola GOMMA\nEsterno GOMMA\nSottopiede GOMMA\n\nAbbina un charm alla Crocs, puoi trovarlo nella Collezione Bambino in Outlet a soli 0,50 centesimi!",
       "basePriceCents": 774,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1290,
@@ -255,9 +255,9 @@
     },
     {
       "id": 27,
-      "name": "Ciabatte, sandalo Bambino De Fonseca, Pantofole Bambino De Fonseca Comodi e Resistenti, Ciabatte De Fonseca bambina in gomma ",
+      "name": "Sandalo bambino De Fonseca",
       "brand": "de fonseca (LIPARI K43)",
-      "description": " Suola GOMMA\nEsterno TELA\nSottopiede COTONE\nTacco 2 cm\t \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile.",
+      "description": "Suola GOMMA\nEsterno TELA\nSottopiede COTONE\nTacco 2 cm\t",
       "basePriceCents": 745,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1490,
@@ -266,9 +266,9 @@
     },
     {
       "id": 28,
-      "name": "Ciabatte Bambina De Fonseca, Pantofole, ballerina Bambina De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambina",
+      "name": "Pantofola ballerina da bambina De fonseca",
       "brand": "de fonseca (WAVES GI 25)",
-      "description": " Suola Sintetico\nEsterno\tSintetico\nInterno\tSintetico \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile.",
+      "description": "Suola Sintetico\nEsterno\tSintetico\nInterno\tSintetico",
       "basePriceCents": 750,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1500,
@@ -277,9 +277,9 @@
     },
     {
       "id": 29,
-      "name": "inblu Sandali, sanitari Classici da Donna",
+      "name": "Pantofole Donna Inblu",
       "brand": "inblu (5033)",
-      "description": "  Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 4  \n\nI colorati di inblu sono una versione nuova e divertente dei tradizionali zoccoli professionali: sono delle ciabatte fresche e colorate perfette per il cambio stagione, adatte a chi non si ferma mai e passa molte ore in piedi, a fare pulizie, cucinare. Gli zoccoli professionali sono disponibili in un'ampia gamma di colori anche con elastici, con chiusura a strappo e nella versione aperta.",
+      "description": " Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 4 ",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -288,9 +288,9 @@
     },
     {
       "id": 30,
-      "name": "inblu - Scarpe, SANITARI classici Uomo ",
+      "name": "Pantofole Uomo Inblu",
       "brand": "inblu (RH 33)",
-      "description": "  Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 2,5  \n\nFreschi e colorati, perfetti per il cambio stagione, plantare in morbida VERA PELLE imbottita. I colorati di inblu sono una versione nuova e divertente dei tradizionali zoccoli professionali: sono delle ciabatte fresche e colorate perfette per il cambio stagione, adatte a chi non si ferma mai e passa molte ore in piedi, a fare pulizie, cucinare... I colorati di inblu sono disponibili in un'ampia gamma di colori anche con elastici, con chiusura a strappo e nella versione aperta. Non hanno stagione: si indossano in estate e in inverno!",
+      "description": " Suola GOMMA\nEsterno\tSINTETICO\nSottopiede PELLE\nTacco 2,5 ",
       "basePriceCents": 1990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -299,9 +299,9 @@
     },
     {
       "id": 31,
-      "name": "Ciabatte Bambina De Fonseca, Pantofole double face Disney, effetto reversibile, Bambina De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambina Morbide e Traspiranti in materiale raso ",
+      "name": "Pantofole Bimba Double Face Disney - Effetto Reversibile",
       "brand": "de fonseca (FROZEB GI62)",
-      "description": " Esterno\tRaso\nSottopiede Raso\nEffetto Reversibile \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile con la possibilità del double face.",
+      "description": "Esterno\tRaso\nSottopiede Raso\nEffetto Reversibile",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -310,9 +310,9 @@
     },
     {
       "id": 32,
-      "name": "Ciabatte Bambino De Fonseca, Pantofole double face Marvel, effetto reversibile, Bambino De Fonseca Comode e Resistenti, Ciabatte De Fonseca bambino Morbide e Traspiranti in materiale raso ",
+      "name": "Pantofole Bimbo Double Face Marvel - Effetto Reversibile",
       "brand": "de fonseca (WE KI66)",
-      "description": " Esterno\tRaso\nSottopiede Raso\nEffetto Reversibile \n\nCOMFORT ED ELEGANZA FIRMATI DE FONSECA - Scegliere queste pantofole De Fonseca significa regalarsi la combinazione ideale tra comfort e stile con la possibilità del double face.",
+      "description": "Esterno\tRaso\nSottopiede Raso\nEffetto Reversibile",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -321,9 +321,9 @@
     },
     {
       "id": 33,
-      "name": "Ciabatte Donna De Fonseca punta aperta, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti in materiale canvas ",
+      "name": "Ciabatta punta aperta Donna De Fonseca",
       "brand": "de fonseca (BARI TOP W313)",
-      "description": " Suola GOMMA\nEsterno\tcanvas\nSottopiede Canvas imbottito \n\nRELAX E BENESSERE DOPO OGNI GIORNATA - Grazie alla morbidezza del tessuto e alla calzata accogliente, queste pantofole De Fonseca donna sono pensate per alleviare la stanchezza dei piedi e offrire una sensazione di leggerezza.",
+      "description": "Suola GOMMA\nEsterno\tcanvas\nSottopiede Canvas imbottito",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1650,
@@ -332,9 +332,9 @@
     },
     {
       "id": 34,
-      "name": "Ciabatte Donna De Fonseca, Pantofole Donna De Fonseca Comode e Resistenti, Ciabatte De Fonseca Donna Morbide e Traspiranti in materiale canvas ",
+      "name": "Pantofole Donna De Fonseca",
       "brand": "de fonseca (RHO E W930)",
-      "description": " Suola TXT\nEsterno\tCanvas\nSottopiede Canvas imbottito\nTacco 2 cm\nPlateau\t1.5 cm \n\nRELAX E BENESSERE DOPO OGNI GIORNATA - Grazie alla morbidezza del tessuto e alla calzata accogliente, queste pantofole De Fonseca donna sono pensate per alleviare la stanchezza dei piedi e offrire una sensazione di leggerezza.",
+      "description": "Suola TXT\nEsterno\tCanvas\nSottopiede Canvas imbottito\nTacco 2 cm\nPlateau\t1.5 cm",
       "basePriceCents": 990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -343,9 +343,9 @@
     },
     {
       "id": 35,
-      "name": "De Fonseca Trento, Ciabatte Uomo e Donna Invernali, Pantofole Stivaletto Casa Punta Chiusa Tessili, Caldi Antiscivolo Design Italiano",
+      "name": "Pantofole Uomo De Fonseca",
       "brand": "de fonseca (TRENTOP M20)",
-      "description": "  Suola GOMMA\nEsterno\tTESSUTO\nINTERNO\tTEDDY \n\nRELAX E BENESSERE DOPO OGNI GIORNATA  BENEFICI E PUNTI DI FORZA ESCLUSIVI - Stivaletto uomo e donna invernali che garantiscono calore eccezionale grazie alla tomaia tessile isolante e suola antiscivolo rinforzata. Ciabatte invernali con supporto ergonomico che mantiene i piedi caldi, previene dispersione termica e assicura stabilità superiore per comfort domestico invernale perfetto.\n\nBENEFICI E PUNTI DI FORZA ESCLUSIVI - Stivaletto uomo e donna invernali che garantiscono calore eccezionale grazie alla tomaia tessile isolante e suola antiscivolo rinforzata. Ciabatte invernali con supporto ergonomico che mantiene i piedi caldi, previene dispersione termica e assicura stabilità superiore per comfort domestico invernale perfetto. ",
+      "description": "Suola GOMMA\nEsterno\tTESSUTO\nINTERNO\tTEDDY",
       "basePriceCents": 2090,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -354,9 +354,9 @@
     },
     {
       "id": 36,
-      "name": "Pantofole Uomo De Fonseca, Aperte sul Retro, Ciabatte Uomo Casa Leggere in materiale canvas, Punta Chiusa, Slippers Comode e Traspiranti ",
+      "name": "Pantofole Uomo De Fonseca\t",
       "brand": "de fonseca (ROMA TOPP M11)",
-      "description": " Suola Gomma\nEsterno\tCotone\nSOTTOPIEDE COTONE IMBOTTITO \n\nPERCHÉ SCEGLIERLE – COMFORT E PRATICITÀ - Le pantofole uomo De Fonseca  sono la scelta perfetta per chi cerca comodità. Aperte sul retro e con punta chiusa, uniscono protezione e praticità: ideali come ciabatte uomo casa",
+      "description": "Suola Gomma\nEsterno\tCotone\nSOTTOPIEDE COTONE IMBOTTITO",
       "basePriceCents": 1430,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -377,8 +377,8 @@
     {
       "id": 38,
       "name": "infradito da uomo Fass in gomma",
-      "brand": "fass (1419)",
-      "description": " Suola GOMMA\nEsterno\tGOMMA\nSottopiede GOMMA ",
+      "brand": "fass ",
+      "description": "Suola GOMMA\nEsterno\tGOMMA\nSottopiede GOMMA",
       "basePriceCents": 595,
       "b2bPriceCents": null,
       "compareAtPriceCents": 1190,
@@ -442,9 +442,9 @@
     },
     {
       "id": 45,
-      "name": "Pantofole Uomo De Fonseca Aosta C M30, Babbucce da Casa con Punta Chiusa in Tessuto, Suola Antiscivolo Sintetica, Slippers Comode e Leggere, Ciabatte Uomo Ideali per Uso Quotidiano e Relax",
+      "name": "Pantofola da uomo De Fonseca",
       "brand": "de fonseca (AOSTAC M30)",
-      "description": " Materiale suola GOMMA\nMateriale esterno TESSUTO\nMateriale interno TESSUTO\nTipo di chiusura STRINGATA \n\nBENEFICI PER IL TUO RELAX QUOTIDIANO - Perfette per uso domestico, queste pantofole uomo garantiscono morbidezza e comfort, mantenendo il piede avvolto e protetto. La punta chiusa ripara dal freddo, la suola leggera rende i movimenti naturali e silenziosi. Ottime per rilassarsi a casa, leggere, guardare la TV o camminare comodamente senza rinunciare a stile e praticità.",
+      "description": "Materiale suola\tGOMMA\nMateriale esterno TESSUTO\nMateriale interno TESSUTO\nTipo di chiusura STRINGATA",
       "basePriceCents": 1990,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -1036,9 +1036,9 @@
     },
     {
       "id": 101,
-      "name": "TIGLIO PANTOFOLE CIABATTE DONNA ESTIVE",
+      "name": "1621",
       "brand": "TIGLIO (1621)",
-      "description": " da inserire ",
+      "description": "da inserire",
       "basePriceCents": 1490,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
@@ -1047,21 +1047,10 @@
     },
     {
       "id": 102,
-      "name": "TIGLIO PANTOFOLE CIABATTE DONNA ESTIVE",
+      "name": "1623",
       "brand": "TIGLIO (1623)",
-      "description": "   da inserire ",
+      "description": "  da inserire",
       "basePriceCents": 1490,
-      "b2bPriceCents": null,
-      "compareAtPriceCents": null,
-      "season": "primavera-estate",
-      "active": true
-    },
-    {
-      "id": 103,
-      "name": "tiglio Pantofole Ciabatte Uomo",
-      "brand": "TIGLIO (801)",
-      "description": "Chiusura: senza chiusura\nTipo di tacco: Piatto\nLarghezza scarpa: Normale",
-      "basePriceCents": 1790,
       "b2bPriceCents": null,
       "compareAtPriceCents": null,
       "season": "primavera-estate",
@@ -10803,72 +10792,6 @@
       "priceCents": 1490,
       "imageUrl": "/uploads/e9736b4c-ae06-4af3-8bf7-20f5daeebc47.jpg",
       "active": true
-    },
-    {
-      "id": 1057,
-      "productId": 103,
-      "color": "MARRONE",
-      "size": "40",
-      "sku": "801MA40",
-      "stockQty": 1,
-      "priceCents": 1790,
-      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
-      "active": true
-    },
-    {
-      "id": 1058,
-      "productId": 103,
-      "color": "MARRONE",
-      "size": "41",
-      "sku": "801MA41",
-      "stockQty": 2,
-      "priceCents": 1790,
-      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
-      "active": true
-    },
-    {
-      "id": 1059,
-      "productId": 103,
-      "color": "MARRONE",
-      "size": "42",
-      "sku": "801MA42",
-      "stockQty": 3,
-      "priceCents": 1790,
-      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
-      "active": true
-    },
-    {
-      "id": 1060,
-      "productId": 103,
-      "color": "MARRONE",
-      "size": "43",
-      "sku": "801MA43",
-      "stockQty": 3,
-      "priceCents": 1790,
-      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
-      "active": true
-    },
-    {
-      "id": 1061,
-      "productId": 103,
-      "color": "MARRONE",
-      "size": "44",
-      "sku": "801MA44",
-      "stockQty": 2,
-      "priceCents": 1790,
-      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
-      "active": true
-    },
-    {
-      "id": 1062,
-      "productId": 103,
-      "color": "MARRONE",
-      "size": "45",
-      "sku": "801MA45",
-      "stockQty": 1,
-      "priceCents": 1790,
-      "imageUrl": "/uploads/04aa8016-aa46-47aa-ba13-628058355bd4.jpg",
-      "active": true
     }
   ],
   "images": [
@@ -13595,36 +13518,6 @@
       "productId": 102,
       "imageUrl": "/uploads/22e983c6-20fc-4b8c-806c-d6a6134f9f87.jpg",
       "sortOrder": 2
-    },
-    {
-      "id": 657,
-      "productId": 103,
-      "imageUrl": "/uploads/d488ae30-ddd8-45ca-82d0-c1b81a735114.jpg",
-      "sortOrder": 0
-    },
-    {
-      "id": 658,
-      "productId": 103,
-      "imageUrl": "/uploads/c4042efc-5ea1-42b7-8ff6-98a60edd8e3e.jpg",
-      "sortOrder": 1
-    },
-    {
-      "id": 659,
-      "productId": 103,
-      "imageUrl": "/uploads/ad0e0ed8-9803-4b33-90a1-a8d5e29ff3f1.jpg",
-      "sortOrder": 2
-    },
-    {
-      "id": 660,
-      "productId": 103,
-      "imageUrl": "/uploads/61fd5d15-41f6-4b74-90d5-90855a03daf4.jpg",
-      "sortOrder": 3
-    },
-    {
-      "id": 661,
-      "productId": 103,
-      "imageUrl": "/uploads/4b09c7dc-1198-4abf-9a15-2c67418f2320.jpg",
-      "sortOrder": 4
     }
   ],
   "collections": [
@@ -14389,11 +14282,6 @@
     {
       "productId": 102,
       "collectionId": 2,
-      "position": 0
-    },
-    {
-      "productId": 103,
-      "collectionId": 3,
       "position": 0
     }
   ]
